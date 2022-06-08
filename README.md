@@ -2,6 +2,9 @@
 
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later. 
 
+For classification, I just use torchvision.models.XXX(packages) directly. 
+For detection, I reproduced RetinaNet(I broke the code up into modules, such as backbones, necks, heads, loss,etc. This makes it easier to modify and add code.)
+
 ## Folder Organization
 
 ```
