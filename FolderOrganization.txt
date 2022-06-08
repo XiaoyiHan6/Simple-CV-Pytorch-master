@@ -1,0 +1,160 @@
+I use PARATERE 并行® server.
+
+Since my server network is controlled, I downloaded the pretrained model directly for use.
+
+dataset path: /data/public
+
+coco2017 path: /data/public/coco2017
+coco2017
+|
+|
+|----annotations
+|----train2017
+|----test2017
+|----val2017
+
+
+
+voc path: /data/public/PascalVOC
+|
+|                       |----Annotations
+|                       |----ImageSets
+|----2007----VOC2007----|----JPEGImages
+|                       |----SegmentationClass
+|                       |----SegmentationObject
+|
+|
+|                       |----Annotations
+|                       |----ImageSets
+|----2012----VOC2012----|----JPEGImages
+|                       |----SegmentationClass
+|                       |----SegmentationObject
+|
+
+
+
+ImageNet2012 path : /data/public/imagenet2012
+|
+|----train
+|
+|----val
+|
+
+
+
+ImageNetmini path : /data/public/imagenet-mini
+|
+|----train
+|
+|----val
+|
+
+
+
+cifar path: /data/public/cifar
+|
+|----cifar-10-batches-py
+|
+|----cifar-100-python
+|
+
+
+I use Ubuntu (OS).
+
+project path: home/scz1174/run/hxy
+
+Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
+|
+|----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
+|
+|        |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
+|        |----cifar10_labels.txt
+|        |----cifar100_labels.txt
+|        |----coco.py
+|        |----coco_eval.py
+|        |----coco_labels.txt
+|----data----|----__init__.py
+|        |----config.py ( path )
+|        |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
+|        |----ImageNet_labels.txt
+|        |----voc0712.py
+|        |----voc_eval.py
+|        |----voc_labels.txt
+|
+|----images
+|            |               |----crash_helmet.jpg
+|            |----classification----|----sunflower.jpg
+|            |               |----photocopier.jpg
+|            |               
+|            |            |----000001.jpg
+|            |            |----000001.xml
+|            |----detection----|----000002.jpg
+|                         |----000002.xml
+|                         |----000003.jpg
+|                         |----000003.xml
+|
+|----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
+|
+|           |----__init__.py
+|           | 
+|           |           |----__init.py
+|           |----anchor----|----RetinaNetAnchors.py
+|           |           
+|           |            |----DarkNetBackbone.py
+|           |----backbones----|----__init__.py ( Don't finish writing )
+|           |            |----ResNetBackbone.py
+|           |            |----VovNetBackbone.py
+|           |
+|----models----|----heads----|----__init.py
+|           |                       |----RetinaNetHeads.py
+|           |
+|           |            |----RetinaNetLoss.py      
+|           |----losses----|----__init.py
+|           |
+|           |         |----FPN.py
+|           |----necks----|----__init__.py
+|           |         |-----FPN.txt
+|           |
+|           |----RetinaNet.py
+|
+|----results ( eg: detection ( VOC or COCO AP ) )
+|
+|----tensorboard ( Loss visualization )
+|
+|----tools
+|         |----classification
+|         |               |----eval.py
+|         |               |----test.py
+|         |               |----train.py
+|         |
+|         |            |----eval_coco.py
+|         |            |----eval_voc.py
+|         |----detection
+|                      |----test.py
+|                      |----train.py
+|
+|        |----AverageMeter.py
+|        |----BBoxTransform.py
+|        |----ClipBoxes.py
+|        |----Sampler.py 
+|        |----iou.py            
+|----utils----|----__init__.py
+|         |----accuracy.py
+|         |----augmentations.py
+|         |----collate.py
+|         |----get_logger.py
+|         |----nms.py
+|         |----path.py
+|
+|----FolderOrganization.txt
+|
+|----main.py
+|
+|----README.md
+|
+|----requirements.txt
+|
+
+
+
+
