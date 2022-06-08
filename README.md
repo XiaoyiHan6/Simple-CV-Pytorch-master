@@ -48,7 +48,7 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 |
 |           |----__init__.py
 |           | 
-|           |           |----__init.py
+|           |       |----__init.py
 |           |----anchor----|----RetinaNetAnchors.py
 |           |           
 |           |            |----DarkNetBackbone.py
@@ -57,9 +57,9 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 |           |            |----VovNetBackbone.py
 |           |
 |----models----|----heads----|----__init.py
-|           |                       |----RetinaNetHeads.py
+|           |       |----RetinaNetHeads.py
 |           |
-|           |            |----RetinaNetLoss.py      
+|           |       |----RetinaNetLoss.py      
 |           |----losses----|----__init.py
 |           |
 |           |         |----FPN.py
