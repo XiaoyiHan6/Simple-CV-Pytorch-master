@@ -4,7 +4,7 @@ This code includes detection and classification tasks in Computer Vision, and se
 
 For classification, I just use torchvision.models.XXX(packages) directly. 
 
-For detection, I reproduced RetinaNet (I broke the code up into modules, such as backbones, necks, heads, loss,etc. This makes it easier to modify and add code.). Of course, other object detection algorithms will be added later.
+For detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads, loss,etc. This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
 ## Folder Organization
 
