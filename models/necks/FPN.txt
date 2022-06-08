@@ -1,0 +1,40 @@
+In this paper, the author puts FPN in the backbone.
+
+why did I put FPN in neck?
+This is because that I used ResNet as the backbone, and the classification and regression subnet as the head.
+
+For me, both views are true.
+
+--C5 --- 3x3 conv downsample --- P6 out --- relu+3x3 conv downsample --- P7 out
+  |
+  | 1x1 conv reduce channel to 256
+  |
+  P5----------- Upsample -----------|
+  |                                 |
+  | 3x3 conv                        |
+  |                                 |
+  P5 out                            |
+                                    |
+--C4                                |
+  |                                 |
+  | 1x1 conv reduce channel to 256  |
+  |                                 |
+  P4------- element-wise add -------|
+  |
+  |
+  |
+  P4----------- Upsample -----------|
+  |                                 |
+  | 3x3 conv                        |
+  |                                 |
+  P4 out                            |
+                                    |
+--C3                                |
+  |                                 |
+  | 1x1 conv reduce channel to 256  |
+  |                                 |
+  P3------- element-wise add -------|
+  |
+  |3x3 conv
+  |
+  P3 out
