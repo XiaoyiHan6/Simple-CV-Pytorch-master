@@ -4,7 +4,7 @@ import os.path
 # "/home/scz1174"
 HOME = os.path.expanduser("~")
 MyName = "run/hxy/"
-Folder = "CV-Pytorch-master"
+Folder = "Simple-CV-Pytorch-master"
 
 # Path to store checkpoint model
 CheckPoints = 'checkpoints'
