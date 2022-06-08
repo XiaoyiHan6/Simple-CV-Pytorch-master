@@ -1,5 +1,7 @@
 # Simple-CV-Pytorch-master
 
+This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later. 
+
 ## Folder Organization
 
 ```
