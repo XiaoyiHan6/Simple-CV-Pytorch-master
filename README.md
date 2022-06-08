@@ -6,6 +6,8 @@ For classification, I just use torchvision.models.XXX(packages) directly.
 
 For detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads, loss,etc. This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
+You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file package.
+
 ## Folder Organization
 
 ```
