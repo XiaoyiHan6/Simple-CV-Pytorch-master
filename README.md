@@ -28,9 +28,9 @@ matplotlib
 
 opencv-python \ skimage
 
-tqdm
+(tqdm: the progress bar of python)
 
-thop
+(thop: the statistics tool of parameter number of network model)
 
 ## Folder Organization
 
