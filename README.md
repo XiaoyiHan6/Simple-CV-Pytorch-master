@@ -11,15 +11,25 @@ You should create **checkpoint**(model save), **log**, **results** and **tenshor
 ## Compiling environment
 
 python == 3.8.5
+
 torch == 1.9.0
+
 torchvision== 0.10.0
+
 torchaudio== 0.9.0
+
 pycocotools == 2.0.2
+
 numpy
+
 Cython
+
 matplotlib
-opencv-python
+
+opencv-python \ skimage
+
 tqdm
+
 thop
 
 ## Folder Organization
