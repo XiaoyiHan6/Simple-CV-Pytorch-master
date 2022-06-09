@@ -133,7 +133,7 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 
 ```
 
-## run the program
+## Run the program
 1. run classification
 ```
 #!/bin/bash
