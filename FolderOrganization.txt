@@ -49,7 +49,7 @@ cifar path: /data/cifar
 |
 |----cifar-10-batches-py
 |
-|----cifar-100-python
+|----cifar-10-python.tar.gz
 
 
 I use Ubuntu20.04 (OS).

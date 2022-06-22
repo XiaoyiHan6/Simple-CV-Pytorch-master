@@ -3,10 +3,9 @@ import os
 import numpy as np
 from torch.utils.data import Dataset
 from pycocotools.coco import COCO
-from utils.path import COCO2017_path, COCO2014_path
+from utils.path import COCO2017_path
 from skimage import io, color
 
-COCO_2014_ROOT = COCO2014_path
 COCO_ROOT = COCO2017_path
 COCO_CLASSES = [
     'person',
