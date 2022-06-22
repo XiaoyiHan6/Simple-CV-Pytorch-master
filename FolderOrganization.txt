@@ -1,10 +1,18 @@
-I use PARATERE 并行® server.
+dataset path: /data/
+code path: /data/PycharmProject/Simple-CV-Pytorch-master
 
-Since my server network is controlled, I downloaded the pretrained model directly for use.
+data
+|
+|----coco----|----coco2017
+|
+|----cifar
+|
+|----ImageNet----|----ILSVRC2012
+|
+|----VOCdevkit
 
-dataset path: /data/public
 
-coco2017 path: /data/public/coco2017
+coco2017 path: /data/coco/coco2017
 coco2017
 |
 |
@@ -14,62 +22,46 @@ coco2017
 |----val2017
 
 
-
-voc path: /data/public/PascalVOC
+voc path: /data/VOCdevkit
 |
-|                       |----Annotations
-|                       |----ImageSets
-|----2007----VOC2007----|----JPEGImages
-|                       |----SegmentationClass
-|                       |----SegmentationObject
+|               |----Annotations
+|               |----ImageSets
+|----VOC2007----|----JPEGImages
+|               |----SegmentationClass
+|               |----SegmentationObject
 |
 |
-|                       |----Annotations
-|                       |----ImageSets
-|----2012----VOC2012----|----JPEGImages
-|                       |----SegmentationClass
-|                       |----SegmentationObject
-|
+|               |----Annotations
+|               |----ImageSets
+|----VOC2012----|----JPEGImages
+|               |----SegmentationClass
+|               |----SegmentationObject
 
 
-
-ImageNet2012 path : /data/public/imagenet2012
+ILSVRC2012 path : /data/ImageNet/ILSVRC2012
 |
 |----train
 |
 |----val
-|
 
 
-
-ImageNetmini path : /data/public/imagenet-mini
-|
-|----train
-|
-|----val
-|
-
-
-
-cifar path: /data/public/cifar
+cifar path: /data/cifar
 |
 |----cifar-10-batches-py
 |
 |----cifar-100-python
-|
 
 
-I use Ubuntu (OS).
+I use Ubuntu20.04 (OS).
 
-project path: home/scz1174/run/hxy
+project path: /data/PycharmProject/
 
-Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
+Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
 |        |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|        |----cifar10_labels.txt
-|        |----cifar100_labels.txt
+|        |----cifar_labels.txt
 |        |----coco.py
 |        |----coco_eval.py
 |        |----coco_labels.txt
@@ -104,6 +96,8 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 |           |----backbones----|----__init__.py ( Don't finish writing )
 |           |            |----ResNetBackbone.py
 |           |            |----VovNetBackbone.py
+|           |            |----vgg16.py
+|           |            |----lenet5.py
 |           |
 |----models----|----heads----|----__init.py
 |           |        |----RetinaNetHeads.py
@@ -153,7 +147,7 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 |----README.md
 |
 |----requirements.txt
-|
+
 
 
 

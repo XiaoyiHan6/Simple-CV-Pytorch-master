@@ -1,24 +1,27 @@
 # Simple-CV-Pytorch-master
 
-This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later. 
+This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
+later.
 
-For classification, I just use torchvision.models.XXX(packages) directly. 
+For classification, I reproduced LeNet5, VGG16. Then I will reproduce AlexNet, GoogLeNet, ResNet, ResNetXt, MobileNet, ShuffleNet, EiffcientNet, etc.
 
-For detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads, loss,etc. This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
+For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads, loss,etc.
+This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
-You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file package.
+You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
+package.
 
 ## Compiling environment
 
-python == 3.8.5
+python == 3.9.12
 
-torch == 1.9.0
+torch == 1.11.0+cu113
 
-torchvision== 0.10.0
+torchvision== 0.11.0+cu113
 
-torchaudio== 0.9.0
+torchaudio== 0.12.0+cu113
 
-pycocotools == 2.0.2
+pycocotools == 2.0.4
 
 numpy
 
@@ -36,17 +39,16 @@ opencv-python \ skimage
 
 ```
 
-I use Ubuntu (OS).
+I use Ubuntu20.04 (OS).
 
-project path: home/scz1174/run/hxy
+project path: /data/PycharmProject
 
-Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
+Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
 |        |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|        |----cifar10_labels.txt
-|        |----cifar100_labels.txt
+|        |----cifar_labels.txt
 |        |----coco.py
 |        |----coco_eval.py
 |        |----coco_labels.txt
@@ -81,6 +83,8 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 |           |----backbones----|----__init__.py ( Don't finish writing )
 |           |            |----ResNetBackbone.py
 |           |            |----VovNetBackbone.py
+|           |            |----lenet5.py
+|           |            |----vgg16.py
 |           |
 |----models----|----heads----|----__init.py
 |           |       |----RetinaNetHeads.py
@@ -134,21 +138,49 @@ Simple-CV-master path: home/scz1174/run/hxy/Simple-CV-master
 ```
 
 ## Run the program
-1. run classification
+
+### 1.classification
+- Reproduce network architectures
+    1.AlexNet
+    2.GoogLeNet
+    3.ResNet
+    4.ResNetXt
+    5.MobileNet
+    6.ShuffleNet
+    7.EffidcientNet
+
+    (maybe)
+    1.DarkNet
+    2.VovNet
+
+    (finished)
+    1.LeNet5(models/backbones/lenet5.py)
+    2.VGG16(models/backbones/vgg16.py)
+
+- Run
 ```
 #!/bin/bash
-module load anaconda/2021.05
-module load cuda/11.1
-source activate py38
-export PYTHONUNBUFFERED=1
-python home/scz1174/hxy/Simple-CV-Pytorch-master/tools/classification/XXX.py(train.py or eval.py or test.py)
+conda activate base
+python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py(train.py or eval.py or test.py)
 ```
-3. run detection 
+
+### 2.object detection
+- Reproduce network architectures
+  1.SSD
+  2.Faster RCNN
+  3.YOLO
+  (finished)
+  1.RetinaNet
+
+- Run
 ```
 #!/bin/bash
-module load anaconda/2021.05
-module load cuda/11.1
-source activate py38
-export PYTHONUNBUFFERED=1
-python home/scz1174/hxy/Simple-CV-Pytorch-master/tools/detection/XXX.py(train.py or eval_coco.py or eval_voc.py or test.py)
+conda activate base
+python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(train.py or eval_coco.py or eval_voc.py or test.py)
 ```
+
+### 3.semantic segmentation
+- Reproduce network architectures
+  1.FCN
+  2.DeepLab
+  3.U-Net
