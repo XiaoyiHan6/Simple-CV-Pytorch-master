@@ -141,20 +141,29 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 ### 1.classification
 - Reproduce network architectures
+
     1.AlexNet
+
     2.GoogLeNet
+
     3.ResNet
+
     4.ResNetXt
+
     5.MobileNet
+
     6.ShuffleNet
+
     7.EffidcientNet
 
     (maybe)
     1.DarkNet
+
     2.VovNet
 
     (finished)
     1.LeNet5(models/backbones/lenet5.py)
+
     2.VGG16(models/backbones/vgg16.py)
 
 - Run
@@ -166,10 +175,15 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 ### 2.object detection
 - Reproduce network architectures
+
   1.SSD
+
   2.Faster RCNN
+
   3.YOLO
+
   (finished)
+
   1.RetinaNet
 
 - Run
@@ -181,6 +195,9 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
 
 ### 3.semantic segmentation
 - Reproduce network architectures
+
   1.FCN
+
   2.DeepLab
+
   3.U-Net
