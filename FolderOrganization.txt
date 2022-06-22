@@ -60,85 +60,84 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
-|        |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|        |----cifar_labels.txt
-|        |----coco.py
-|        |----coco_eval.py
-|        |----coco_labels.txt
+|            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
+|            |----cifar_labels.txt
+|            |----coco.py
+|            |----coco_eval.py
+|            |----coco_labels.txt
 |----data----|----__init__.py
-|        |----config.py ( path )
-|        |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
-|        |----ImageNet_labels.txt
-|        |----voc0712.py
-|        |----voc_eval.py
-|        |----voc_labels.txt
-|
-|----images
-|            |               |----crash_helmet.jpg
-|            |----classification----|----sunflower.jpg
-|            |               |----photocopier.jpg
-|            |               
-|            |            |----000001.jpg
-|            |            |----000001.xml
-|            |----detection----|----000002.jpg
-|                         |----000002.xml
-|                         |----000003.jpg
-|                         |----000003.xml
+|            |----config.py ( path )
+|            |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
+|            |----ImageNet_labels.txt
+|            |----voc0712.py
+|            |----voc_eval.py
+|            |----voc_labels.txt
+|                                     |----crash_helmet.jpg
+|----images----|----classification----|----sunflower.jpg
+|              |                      |----photocopier.jpg
+|              |                      |----photocopier.jpg
+|              |
+|              |----detection----|----000001.jpg
+|                                |----000001.xml
+|                                |----000002.jpg
+|                                |----000002.xml
+|                                |----000003.jpg
+|                                |----000003.xml
 |
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
-|           |----__init__.py
-|           | 
-|           |       |----__init.py
-|           |----anchor----|----RetinaNetAnchors.py
-|           |           
-|           |            |----DarkNetBackbone.py
-|           |----backbones----|----__init__.py ( Don't finish writing )
-|           |            |----ResNetBackbone.py
-|           |            |----VovNetBackbone.py
-|           |            |----vgg16.py
-|           |            |----lenet5.py
-|           |
+|              |----__init__.py
+|              |
+|              |              |----__init.py
+|              |----anchor----|----RetinaNetAnchors.py
+|              |
+|              |                 |----DarkNetBackbone.py
+|              |----backbones----|----__init__.py ( Don't finish writing )
+|              |                 |----ResNetBackbone.py
+|              |                 |----VovNetBackbone.py
+|              |                 |----lenet5.py
+|              |                 |----vgg16.py
+|              |
 |----models----|----heads----|----__init.py
-|           |        |----RetinaNetHeads.py
-|           |
-|           |        |----RetinaNetLoss.py      
-|           |----losses----|----__init.py
-|           |
-|           |         |----FPN.py
-|           |----necks----|----__init__.py
-|           |         |-----FPN.txt
-|           |
-|           |----RetinaNet.py
+|              |             |----RetinaNetHeads.py
+|              |
+|              |              |----RetinaNetLoss.py
+|              |----losses----|----__init.py
+|              |
+|              |             |----FPN.py
+|              |----necks----|----__init__.py
+|              |             |-----FPN.txt
+|              |
+|              |----RetinaNet.py
 |
 |----results ( eg: detection ( VOC or COCO AP ) )
 |
 |----tensorboard ( Loss visualization )
 |
-|----tools
-|         |----classification
-|         |               |----eval.py
-|         |               |----test.py
-|         |               |----train.py
+|----tools                       |----eval.py
+|         |----classification----|----train.py
+|         |                      |----test.py
 |         |
-|         |            |----eval_coco.py
-|         |            |----eval_voc.py
-|         |----detection
-|                      |----test.py
-|                      |----train.py
+|         |
+|         |
+|         |                 |----eval_coco.py
+|         |                 |----eval_voc.py
+|         |----detection----|----test.py
+|                           |----train.py
 |
-|        |----AverageMeter.py
-|        |----BBoxTransform.py
-|        |----ClipBoxes.py
-|        |----Sampler.py 
-|        |----iou.py            
+|
+|             |----AverageMeter.py
+|             |----BBoxTransform.py
+|             |----ClipBoxes.py
+|             |----Sampler.py
+|             |----iou.py
 |----utils----|----__init__.py
-|         |----accuracy.py
-|         |----augmentations.py
-|         |----collate.py
-|         |----get_logger.py
-|         |----nms.py
-|         |----path.py
+|             |----accuracy.py
+|             |----augmentations.py
+|             |----collate.py
+|             |----get_logger.py
+|             |----nms.py
+|             |----path.py
 |
 |----FolderOrganization.txt
 |
