@@ -157,11 +157,13 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
     7.EffidcientNet
 
     (maybe)
+
     1.DarkNet
 
     2.VovNet
 
     (finished)
+
     1.LeNet5(models/backbones/lenet5.py)
 
     2.VGG16(models/backbones/vgg16.py)
