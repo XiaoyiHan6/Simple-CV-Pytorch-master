@@ -39,7 +39,7 @@ class RetinaNetAnchors(nn.Module):
         all_anchors = np.zeros((0, 4)).astype(np.float32)
 
         for idx, p in enumerate(self.pyramid_levels):
-            # the center of anchor is (0, 0), and generate the  information about 9 anchors,forms:(x1, y1, x2, y2)
+            # the center of anchors is (0, 0), and generate the  information about 9 anchors,forms:(x1, y1, x2, y2)
             anchors = generate_anchors(base_size=self.sizes[idx],
                                        ratios=self.ratios,
                                        scales=self.scales)
@@ -62,7 +62,7 @@ class RetinaNetAnchors(nn.Module):
 
 def generate_anchors(base_size=16, ratios=None, scales=None):
     """
-    Generate anchor (reference) windows by enumerating aspect ratios x
+    Generate anchors (reference) windows by enumerating aspect ratios x
     scales w.r.t. a reference window.
     """
     if ratios is None:

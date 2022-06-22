@@ -16,7 +16,7 @@ class FocalLoss(nn.Module):
         # (..., 4) 4 indicate location
         anchor = anchors[0, :, :]
 
-        # anchor is xyxy, so change it to xywh
+        # anchors is xyxy, so change it to xywh
         anchor_widths = anchor[:, 2] - anchor[:, 0]
         anchor_heights = anchor[:, 3] - anchor[:, 1]
         anchor_ctr_x = anchor[:, 0] + 0.5 * anchor_widths

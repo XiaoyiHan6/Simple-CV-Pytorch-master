@@ -1,5 +1,5 @@
 from .RetinaNet import *
-# from .anchor import *
+# from .anchors import *
 # from .backbones import *
 # from .decode import *
 # from .heads import *
