@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from utils.path import CheckPoints
+from torch.cuda.amp import autocast
 
 __all__ = [
     'vgg11',
@@ -63,18 +64,19 @@ class VGG(nn.Module):
 
             nn.Flatten(),
             nn.Linear(7 * 7 * 512, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5, inplace=True),
+            nn.ReLU(),
+            nn.Dropout(0.5),
 
             nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5, inplace=True),
+            nn.ReLU(),
+            nn.Dropout(0.5),
         )
 
         self.classifier = nn.Linear(4096, self.num_classes)
         if init_weights:
             self._initialize_weights()
 
+    @autocast()
     def forward(self, x):
         x = self.features(x)
         x = x.view(x.size(0), -1)
@@ -104,7 +106,7 @@ def make_features(cfgs: list):
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
         else:
             conv2d = nn.Conv2d(in_channels, i, kernel_size=3, stride=1, padding=1)
-            layers += [conv2d, nn.BatchNorm2d(i), nn.ReLU(inplace=True)]
+            layers += [conv2d, nn.BatchNorm2d(i), nn.ReLU()]
             in_channels = i
     return nn.Sequential(*layers)
 
@@ -116,4 +118,3 @@ cfgs = {
     'vgg19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 
 }
-print(vgg16(num_classes=1000))

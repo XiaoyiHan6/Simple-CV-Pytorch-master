@@ -44,7 +44,7 @@ detection_test_log = 'detection_test'
 detection_eval_log = 'detection_eval'
 
 # Classification evaluate model path
-classification_evaluate = None
+classification_evaluate = "CIFAR_vgg16.pth"
 
 # Detection evaluate model path
 detection_evaluate = 'COCO_ResNet50_4.pth'

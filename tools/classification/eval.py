@@ -1,5 +1,5 @@
-import logging
 import os
+import logging
 import argparse
 import warnings
 
@@ -10,41 +10,46 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
-from data import *
-from torch.utils.data import DataLoader
-import torchvision
-from torchvision import transforms
-import torch
-import torch.nn.parallel
 import time
-from utils.get_logger import get_logger
-from utils.AverageMeter import AverageMeter
+import torch
+from data import *
+import torchvision
+import torch.nn.parallel
+from torchvision import transforms
 from utils.accuracy import accuracy
+from utils.get_logger import get_logger
+from torch.utils.data import DataLoader
+from models.basenets.lenet5 import lenet5
+from models.basenets.AlexNet import AlexNet
+from utils.AverageMeter import AverageMeter
+from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Detection Evaluation')
+    parser = argparse.ArgumentParser(description='PyTorch Classification Evaluation')
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='ImageNet2012',
-                        choices=['ImageNet2012', 'ImageNetmini', 'CIFAR10', 'CIFAR100'],
-                        help='ImageNet2012, ImageNetmini, CIFAR10, CIFAR100')
+                        default='CIFAR',
+                        choices=['ImageNet', 'CIFAR'],
+                        help='ImageNet,CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=ImageNet2012_Eval_ROOT,
+                        default=CIFAR_ROOT,
+                        choices=[ImageNet_Eval_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='resnet',
+                        default='vgg',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=16,
+                        help='Backbone depth, including: VGG of 16, VGG of 16, ResNet of 18, 34, 50, 101, 152')
     parser.add_argument('--batch_size',
                         type=int,
-                        default=64,
+                        default=32,
                         help='Batch size for training')
     parser.add_argument('--evaluate',
                         type=str,
@@ -70,9 +75,13 @@ def parse_args():
                         type=str,
                         default=config.classification_eval_log,
                         help='Log Name')
+    parser.add_argument('--num_classes',
+                        type=int,
+                        default=10,
+                        help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
-                        default=224,
+                        default=32,
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
@@ -104,12 +113,18 @@ logger = logging.getLogger(args.log_name)
 
 
 def eval():
+    # vgg16, alexnet and lenet5 need to resize image_size, because of fc.
+    if args.basenet == 'vgg' or args.basenet == 'alexnet':
+        args.image_size = 224
+    elif args.basenet == 'lenet':
+        args.image_size = 32
+
     # 3. Ready dataset
-    if args.dataset == 'ImageNet2012':
-        if args.dataset_root == ImageNetmini_Eval_ROOT or args.dataset_root == CIFAR_ROOT:
-            raise ValueError("Must specify dataset_root if specifying dataset ImageNet2012")
-        elif os.path.exists(ImageNet2012_Eval_ROOT) is None:
-            raise ValueError("WARNING: Using default ImageNet2012 dataset_root because " +
+    if args.dataset == 'ImageNet':
+        if args.dataset_root == CIFAR_ROOT:
+            raise ValueError("Must specify dataset_root if specifying dataset ImageNet")
+        elif os.path.exists(ImageNet_Eval_ROOT) is None:
+            raise ValueError("WARNING: Using default ImageNet dataset_root because " +
                              "--dataset_root was not specified.")
 
         dataset = torchvision.datasets.ImageFolder(
@@ -122,25 +137,8 @@ def eval():
                                      std=[0.229, 0.224, 0.225]),
             ]))
 
-    elif args.dataset == 'ImageNetmini':
-        if args.dataset_root == ImageNet2012_Eval_ROOT or args.dataset_root == CIFAR_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset ImageNetmini')
-        elif args.dataset_root is None:
-            raise ValueError("Must provide --dataset_root when on ImageNetmini")
-
-        # Need to modify transform
-        dataset = torchvision.datasets.ImageFolder(
-            root=args.dataset_root,
-            transform=torchvision.transforms.Compose([
-                transforms.Resize((args.image_size,
-                                   args.image_size)),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225]),
-            ]))
-
-    elif args.dataset == 'CIFAR10':
-        if args.dataset_root == ImageNet2012_Eval_ROOT or args.dataset_root == ImageNetmini_Eval_ROOT:
+    elif args.dataset == 'CIFAR':
+        if args.dataset_root == ImageNet_Eval_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset CIFAR')
         elif args.dataset_root is None:
             raise ValueError("Must provide --dataset_root when training on CIFAR")
@@ -148,18 +146,12 @@ def eval():
         dataset = torchvision.datasets.CIFAR10(
             root=args.dataset_root, train=False,
             transform=torchvision.transforms.Compose([
+                transforms.Resize((args.image_size,
+                                   args.image_size)),
                 torchvision.transforms.ToTensor()]))
 
-    elif args.dataset == 'CIFAR100':
-        if args.dataset_root == ImageNet2012_Eval_ROOT or args.dataset_root == ImageNetmini_Eval_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset CIFAR')
-        elif args.dataset_root is None:
-            raise ValueError("Must provide --dataset_root when training on CIFAR")
-
-        dataset = torchvision.datasets.CIFAR100(
-            root=args.dataset_root, train=False,
-            transform=torchvision.transforms.Compose([
-                torchvision.transforms.ToTensor()]))
+    else:
+        raise ValueError('Dataset type not understood (must be ImageNet or CIFAR), exiting.')
 
     dataloader = torch.utils.data.DataLoader(dataset=dataset, batch_size=args.batch_size,
                                              shuffle=True, num_workers=args.num_workers,
@@ -169,7 +161,27 @@ def eval():
     top5 = AverageMeter()
 
     # 4. Define to mode
-    if args.basenet == 'resnet':
+    if args.basenet == 'lenet':
+        if args.depth == 5:
+            model = lenet5(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported LeNet depth!')
+    elif args.basenet == 'alexnet':
+        model = AlexNet(num_classes=args.num_classes)
+
+    elif args.basenet == 'vgg':
+        if args.depth == 11:
+            model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 13:
+            model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 16:
+            model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 19:
+            model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported VGG depth!')
+
+    elif args.basenet == 'resnet':
         if args.depth == 18:
             model = torchvision.models.resnet18(pretrained=args.pretrained)
         elif args.depth == 34:
@@ -181,7 +193,7 @@ def eval():
         elif args.depth == 152:
             model = torchvision.models.resnet152(pretrained=args.pretrained)
         else:
-            raise ValueError('Unsupported model depth!')
+            raise ValueError('Unsupported ResNet depth!')
     else:
         raise ValueError('Unsupported model type!')
 
@@ -211,13 +223,14 @@ def eval():
     print("len(dataset): {}, iter_size: {}".format(len(dataset), iter_size))
     logger.info(f"args - {args}")
     t0 = time.time()
-    iter = 0
+    iteration = 0
 
     # 7. Test
     with torch.no_grad():
+        torch.cuda.empty_cache()
         # 8. Load test data
         for data in dataloader:
-            iter += 1
+            iteration += 1
             images, targets = data
             if args.cuda:
                 images, targets = images.cuda(), targets.cuda()
@@ -231,7 +244,7 @@ def eval():
             top5.update(acc5.item(), images.size(0))
 
             logger.info(
-                f"iter: {iter}, top1 acc: {acc1.item():.2f}%, top5 acc: {acc5.item():.2f}%. ")
+                f"iteration: {iteration}, top1 acc: {acc1.item():.2f}%, top5 acc: {acc5.item():.2f}%. ")
 
         t1 = time.time()
         m = (t1 - t0) // 60

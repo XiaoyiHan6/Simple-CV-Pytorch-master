@@ -3,9 +3,11 @@
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
 later.
 
-For classification, I reproduced LeNet5, VGG16. Then I will reproduce AlexNet, GoogLeNet, ResNet, ResNetXt, MobileNet, ShuffleNet, EiffcientNet, etc.
+For classification, I reproduced LeNet5, VGG16. Then I will reproduce AlexNet, GoogLeNet, ResNet, ResNetXt, MobileNet,
+ShuffleNet, EiffcientNet, etc.
 
-For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads, loss,etc.
+For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,
+loss,etc.
 This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
 You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
@@ -13,6 +15,13 @@ package.
 
 ## Compiling environment
 
+Install requirements with pip (you can put requirements.txt to venv/Scripts/, if you need it.)
+
+```
+pip install -r requirements.txt
+```
+
+```
 python == 3.9.12
 
 torch == 1.11.0+cu113
@@ -29,13 +38,17 @@ Cython
 
 matplotlib
 
-opencv-python \ skimage
+opencv-python 
 
-(tqdm: the progress bar of python)
+skimage
 
-(thop: the statistics tool of parameter number of network model)
+tqdm
 
-## Dataset Path 
+thop
+```
+
+## Dataset Path
+
 Please, watch FolderOrganization.txt ( There are more details. )
 
 ## Folder Organization
@@ -146,35 +159,37 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 ## Run the program
 
 ### 1.classification
+
 - Reproduce network architectures
 
-    1.ResNet
+  1.ResNet
 
-    2.AlexNet
+  2.AlexNet
 
-    3.GoogLeNet
+  3.GoogLeNet
 
-    4.ResNetXt
+  4.ResNetXt
 
-    5.MobileNet
+  5.MobileNet
 
-    6.ShuffleNet
+  6.ShuffleNet
 
-    7.EfficientNet
+  7.EfficientNet
 
-    (maybe)
+  (maybe)
 
-    1.DarkNet
+  1.DarkNet
 
-    2.VovNet
+  2.VovNet
 
-    (finished)
+  (finished)
 
-    1.LeNet5(models/basenets/lenet5.py)
+  1.LeNet5(models/basenets/lenet5.py)
 
-    2.VGG(models/basenets/VGG.py)
+  2.VGG(models/basenets/VGG.py)
 
 - Run
+
 ```
 #!/bin/bash
 conda activate base
@@ -182,6 +197,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 ```
 
 ### 2.object detection
+
 - Reproduce network architectures
 
   1.SSD
@@ -195,6 +211,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
   1.RetinaNet
 
 - Run
+
 ```
 #!/bin/bash
 conda activate base
@@ -202,6 +219,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
 ```
 
 ### 3.semantic segmentation
+
 - Reproduce network architectures
 
   1.FCN

@@ -22,33 +22,34 @@ from utils.accuracy import accuracy
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from models.basenets.lenet5 import lenet5
+from models.basenets.AlexNet import AlexNet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
 from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Detection Training')
+    parser = argparse.ArgumentParser(description='PyTorch Classification Training')
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='ImageNet',
+                        default='CIFAR',
                         choices=['ImageNet', 'CIFAR'],
                         help='ImageNet, CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=ImageNet_Train_ROOT,
+                        default=CIFAR_ROOT,
                         choices=[ImageNet_Train_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
                         default='vgg',
-                        choices=['resnet', 'vgg', 'lenet'],
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
                         default=16,
-                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152, VGG of 16, LeNet of 5')
+                        help='Backbone depth, including: LeNet of 5, VGG of 16, ResNet of 18, 34, 50, 101, 152')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -99,7 +100,7 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-2,
+                        default=1e-3,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
@@ -115,11 +116,11 @@ def parse_args():
                         help='Milestones')
     parser.add_argument('--num_classes',
                         type=int,
-                        default=1000,
+                        default=10,
                         help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
-                        default=224,
+                        default=32,
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
@@ -131,7 +132,11 @@ def parse_args():
 
 args = parse_args()
 
-# 1. Torch choose cuda or cpu
+# 1. Log
+get_logger(args.log_folder, args.log_name)
+logger = logging.getLogger(args.log_name)
+
+# 2. Torch choose cuda or cpu
 if torch.cuda.is_available():
     if args.cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -145,10 +150,6 @@ else:
 if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 
-# 2. Log
-get_logger(args.log_folder, args.log_name)
-logger = logging.getLogger(args.log_name)
-
 
 def train():
     # 3. Create SummaryWriter
@@ -156,10 +157,10 @@ def train():
         from torch.utils.tensorboard import SummaryWriter
         # tensorboard  loss
         writer = SummaryWriter(args.tensorboard_log)
-    # vgg16 and lenet5 need to resize image_size, because of fc.
-    if args.basenet == 'vgg':
+    # vgg16, alexnet and lenet5 need to resize image_size, because of fc.
+    if args.basenet == 'vgg' or args.basenet == 'alexnet':
         args.image_size = 224
-    if args.basenet == 'lenet':
+    elif args.basenet == 'lenet':
         args.image_size = 32
 
     # 4. Ready dataset
@@ -210,6 +211,9 @@ def train():
             model = lenet5(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported LeNet depth!')
+
+    elif args.basenet == 'alexnet':
+        model = AlexNet(num_classes=args.num_classes)
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
@@ -313,7 +317,7 @@ def train():
 
             if iteration % 100 == 0:
                 logger.info(
-                    f"- epoch: {epoch},  iteration: {iteration}, "
+                    f"- epoch: {epoch},  iteration: {iteration}, lr: {optimizer.param_groups[0]['lr']}, "
                     f"top1 acc: {acc1.item():.2f}%, top5 acc: {acc5.item():.2f}%, "
                     f"loss: {loss.item():.3f}, (losses.avg): {losses.avg:3f} "
                 )
