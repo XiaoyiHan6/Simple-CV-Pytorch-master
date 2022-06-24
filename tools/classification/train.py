@@ -1,9 +1,7 @@
-import logging
 import os
+import logging
 import argparse
 import warnings
-
-import numpy as np
 
 warnings.filterwarnings('ignore')
 
@@ -12,18 +10,21 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
-from data import *
-from torch.utils.data import DataLoader
-import torchvision
-from torchvision import transforms
+import time
 import torch
+from data import *
+import torchvision
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim as optim
-import time
-from utils.get_logger import get_logger
-from utils.AverageMeter import AverageMeter
+from torchvision import transforms
 from utils.accuracy import accuracy
+from torch.utils.data import DataLoader
+from utils.get_logger import get_logger
+from models.basenets.lenet5 import lenet5
+from utils.AverageMeter import AverageMeter
+from torch.cuda.amp import autocast, GradScaler
+from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
 
 
 def parse_args():
@@ -31,24 +32,26 @@ def parse_args():
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='ImageNet2012',
-                        choices=['ImageNet2012', 'ImageNetmini', 'CIFAR10', 'CIFAR100'],
-                        help='ImageNet2012, ImageNetmini, CIFAR10, CIFAR100')
+                        default='ImageNet',
+                        choices=['ImageNet', 'CIFAR'],
+                        help='ImageNet, CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=ImageNet2012_Train_ROOT,
+                        default=ImageNet_Train_ROOT,
+                        choices=[ImageNet_Train_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='resnet',
+                        default='vgg',
+                        choices=['resnet', 'vgg', 'lenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=16,
+                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152, VGG of 16, LeNet of 5')
     parser.add_argument('--batch_size',
                         type=int,
-                        default=64,
+                        default=32,
                         help='Batch size for training')
     parser.add_argument('--resume',
                         type=str,
@@ -100,7 +103,7 @@ def parse_args():
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
-                        default=100,
+                        default=30,
                         help='Number of epochs')
     parser.add_argument('--weight_decay',
                         type=float,
@@ -108,12 +111,12 @@ def parse_args():
                         help='weight decay')
     parser.add_argument('--milestones',
                         type=list,
-                        default=[30, 60, 90],
+                        default=[15, 20, 30],
                         help='Milestones')
     parser.add_argument('--num_classes',
                         type=int,
-                        default=10,
-                        help='the number classes, like ImageNet:1000, cifar_10:10, cifar_100:100')
+                        default=1000,
+                        help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
                         default=224,
@@ -139,7 +142,7 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-if os.path.exists(args.save_folder) is None:
+if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 
 # 2. Log
@@ -153,13 +156,18 @@ def train():
         from torch.utils.tensorboard import SummaryWriter
         # tensorboard  loss
         writer = SummaryWriter(args.tensorboard_log)
+    # vgg16 and lenet5 need to resize image_size, because of fc.
+    if args.basenet == 'vgg':
+        args.image_size = 224
+    if args.basenet == 'lenet':
+        args.image_size = 32
 
     # 4. Ready dataset
-    if args.dataset == 'ImageNet2012':
-        if args.dataset_root == ImageNetmini_Train_ROOT or args.dataset_root == CIFAR_ROOT:
+    if args.dataset == 'ImageNet':
+        if args.dataset_root == CIFAR_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset ImageNet2012.')
 
-        elif os.path.exists(ImageNet2012_Train_ROOT) is None:
+        elif os.path.exists(ImageNet_Train_ROOT) is None:
             raise ValueError("WARNING: Using default ImageNet2012 dataset_root because " +
                              "--dataset_root was not specified.")
 
@@ -173,25 +181,8 @@ def train():
                                      std=[0.229, 0.224, 0.225]),
             ]))
 
-    elif args.dataset == 'ImageNetmini':
-        if args.dataset_root == ImageNet2012_Train_ROOT or args.dataset_root == CIFAR_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset ImageNetmini.')
-
-        elif args.dataset_root is None:
-            raise ValueError("Must provide --dataset_root when training on ImageNetmini.")
-
-        dataset = torchvision.datasets.ImageFolder(
-            root=args.dataset_root,
-            transform=torchvision.transforms.Compose([
-                transforms.Resize((args.image_size,
-                                   args.image_size)),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225]),
-            ]))
-
-    elif args.dataset == 'CIFAR10':
-        if args.dataset_root == ImageNet2012_Train_ROOT or args.dataset_root == ImageNetmini_Train_ROOT:
+    elif args.dataset == 'CIFAR':
+        if args.dataset_root == ImageNet_Train_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset CIFAR10.')
 
         elif args.dataset_root is None:
@@ -202,19 +193,8 @@ def train():
                                                    transforms.Resize((args.image_size,
                                                                       args.image_size)),
                                                    torchvision.transforms.ToTensor()]))
-
-    elif args.dataset == 'CIFAR100':
-        if args.dataset_root == ImageNet2012_Train_ROOT or args.dataset_root == ImageNetmini_Train_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset CIFAR100.')
-
-        elif args.dataset_root is None:
-            raise ValueError("Must provide --dataset_root when training on CIFAR100.")
-
-        dataset = torchvision.datasets.CIFAR100(root=args.dataset_root, train=True,
-                                                transform=torchvision.transforms.Compose([
-                                                    transforms.Resize((args.image_size,
-                                                                       args.image_size)),
-                                                    torchvision.transforms.ToTensor()]))
+    else:
+        raise ValueError('Dataset type not understood (must be ImageNet or CIFAR), exiting.')
 
     dataloader = torch.utils.data.DataLoader(dataset=dataset, batch_size=args.batch_size,
                                              shuffle=True, num_workers=args.num_workers,
@@ -225,7 +205,25 @@ def train():
     losses = AverageMeter()
 
     # 5. Define train model
-    if args.basenet == 'resnet':
+    if args.basenet == 'lenet':
+        if args.depth == 5:
+            model = lenet5(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported LeNet depth!')
+
+    elif args.basenet == 'vgg':
+        if args.depth == 11:
+            model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 13:
+            model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 16:
+            model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 19:
+            model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported VGG depth!')
+
+    elif args.basenet == 'resnet':
         if args.depth == 18:
             model = torchvision.models.resnet18(pretrained=args.pretrained)
         elif args.depth == 34:
@@ -237,7 +235,8 @@ def train():
         elif args.depth == 152:
             model = torchvision.models.resnet152(pretrained=args.pretrained)
         else:
-            raise ValueError('Unsupported model depth!')
+            raise ValueError('Unsupported ResNet depth!')
+
     else:
         raise ValueError('Unsupported model type!')
 
@@ -270,9 +269,9 @@ def train():
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum,
                           weight_decay=args.weight_decay)
     criterion = nn.CrossEntropyLoss()
-
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
         optimizer, milestones=args.milestones, gamma=args.gamma)
+    scaler = GradScaler()
 
     # 8. Length
     iter_size = len(dataset) // args.batch_size
@@ -288,22 +287,23 @@ def train():
         for data in dataloader:
             iteration += 1
             images, targets = data
+            # 11. Backward
+            optimizer.zero_grad()
             if args.cuda:
                 images, targets = images.cuda(), targets.cuda()
-
-            # 11. Forward
-            outputs = model(images)
-
-            if args.cuda:
                 criterion = criterion.cuda()
+            # 12. Forward
+            with autocast():
+                outputs = model(images)
+                loss = criterion(outputs, targets)
+                loss = loss / args.accumulation_steps
 
-            loss = criterion(outputs, targets)
-            loss = loss / args.accumulation_steps
+            if args.tensorboard:
+                writer.add_scalar("train_classification_loss", loss.item(), iteration)
 
-            # 12. Backward
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             # 13. Measure accuracy and record loss
             acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))
@@ -311,12 +311,8 @@ def train():
             top5.update(acc5.item(), images.size(0))
             losses.update(loss.item(), images.size(0))
 
-            if args.tensorboard:
-                writer.add_scalar("train_classification_loss", loss.item(), iteration)
-
             if iteration % 100 == 0:
                 logger.info(
-
                     f"- epoch: {epoch},  iteration: {iteration}, "
                     f"top1 acc: {acc1.item():.2f}%, top5 acc: {acc5.item():.2f}%, "
                     f"loss: {loss.item():.3f}, (losses.avg): {losses.avg:3f} "
