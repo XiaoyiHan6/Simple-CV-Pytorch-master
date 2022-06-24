@@ -9,6 +9,7 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
+
 from data import *
 import torchvision
 from torchvision import transforms
@@ -23,9 +24,9 @@ def parse_args():
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='ImageNet2012',
-                        choices=['ImageNet2012', 'ImageNetmini', 'cifar10', 'cifar100'],
-                        help='ImageNet2012, ImageNetmini, CIFAR10, CIFAR100')
+                        default='ImageNet',
+                        choices=['ImageNet', 'cifar'],
+                        help='ImageNet,  CIFAR')
     parser.add_argument('--images_root',
                         type=str,
                         default=config.images_root,
@@ -83,7 +84,7 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-if os.path.exists(args.save_folder) is None:
+if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 
 # 2. Log
@@ -92,7 +93,7 @@ logger = logging.getLogger(args.log_name)
 
 
 def get_label_file(filename):
-    if os.path.exists(filename) is None:
+    if not os.path.exists(filename):
         print("The dataset label.txt is empty, We need to create a new one.")
         os.mkdir(filename)
     return filename
@@ -177,8 +178,6 @@ def test():
         m = (t1 - t0) // 60
         s = (t1 - t0) % 60
         folder_name = args.dataset
-        if folder_name == 'ImageNet2012' or folder_name == 'ImageNetmini':
-            folder_name = 'ImageNet'
         output = dataset_labels_results(filename=folder_name, output=output)
         logger.info(f"output: {output}")
         print("It took a total of {}m{}s to complete the testing.".format(int(m), int(s)))

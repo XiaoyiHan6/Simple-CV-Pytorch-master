@@ -4,7 +4,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(BASE_DIR)
 # Gets home dir cross platform
-# "/data/PycharmProject"
+# "/data/"
 
 MyName = "PycharmProject"
 Folder = "Simple-CV-Pytorch-master"
@@ -19,7 +19,7 @@ Results = os.path.join(BASE_DIR, MyName, Folder, Results)
 
 # Path to store tensorboard load
 tensorboard_log = 'tensorboard'
-tensorboard_log = os.path.join(Folder, tensorboard_log)
+tensorboard_log = os.path.join(BASE_DIR, MyName, Folder, tensorboard_log)
 
 # Path to save log
 log = 'log'

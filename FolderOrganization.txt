@@ -91,12 +91,16 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |              |----__init.py
 |              |----anchor----|----RetinaNetAnchors.py
 |              |
+|              |               |----lenet5.py
+|              |----basenet----|----VGG.py
+|              |               |----ResNet.py
+|              |
 |              |                 |----DarkNetBackbone.py
 |              |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |----ResNetBackbone.py
 |              |                 |----VovNetBackbone.py
-|              |                 |----lenet5.py
-|              |                 |----vgg16.py
+|              |
+|              |
 |              |
 |----models----|----heads----|----__init.py
 |              |             |----RetinaNetHeads.py
@@ -146,7 +150,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----README.md
 |
 |----requirements.txt
-
 
 
 

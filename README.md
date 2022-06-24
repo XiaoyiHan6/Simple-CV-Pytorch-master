@@ -77,13 +77,17 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              | 
 |              |              |----__init.py
 |              |----anchor----|----RetinaNetAnchors.py
-|              |    
+|              |
+|              |               |----lenet5.py
+|              |----basenet----|----VGG.py
+|              |               |----ResNet.py    
+|              |
 |              |                 |----DarkNetBackbone.py
 |              |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |----ResNetBackbone.py
 |              |                 |----VovNetBackbone.py
-|              |                 |----lenet5.py
-|              |                 |----vgg16.py
+|              |                 
+|              |                 
 |              |
 |----models----|----heads----|----__init.py
 |              |             |----RetinaNetHeads.py
@@ -141,11 +145,11 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 ### 1.classification
 - Reproduce network architectures
 
-    1.AlexNet
+    1.ResNet
 
-    2.GoogLeNet
+    2.AlexNet
 
-    3.ResNet
+    3.GoogLeNet
 
     4.ResNetXt
 
@@ -153,7 +157,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
     6.ShuffleNet
 
-    7.EffidcientNet
+    7.EfficientNet
 
     (maybe)
 
@@ -163,9 +167,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
     (finished)
 
-    1.LeNet5(models/backbones/lenet5.py)
+    1.LeNet5(models/basenets/lenet5.py)
 
-    2.VGG16(models/backbones/vgg16.py)
+    2.VGG(models/basenets/VGG.py)
 
 - Run
 ```
