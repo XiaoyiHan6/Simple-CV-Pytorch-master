@@ -66,6 +66,7 @@ DATAPATH = BASE_DIR
 ImageNet = "ImageNet/ILSVRC2012"
 ImageNet_Train_path = os.path.join(DATAPATH, ImageNet, 'train')
 ImageNet_Eval_path = os.path.join(DATAPATH, ImageNet, 'val')
+
 # CIFAR10
 CIFAR = 'cifar'
 CIFAR_path = os.path.join(DATAPATH, CIFAR)

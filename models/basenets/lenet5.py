@@ -10,11 +10,13 @@ class lenet5(nn.Module):
         self.layers = nn.Sequential(
             # input:32 * 32 * 3 -> 28 * 28 * 6
             nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5, padding=0, stride=1),
+            nn.BatchNorm2d(6),
             nn.ReLU(),
             # 28 * 28 * 6 -> 14 * 14 * 6
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
             # 14 * 14 * 6 -> 10 * 10 * 16
             nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, padding=0, stride=1),
+            nn.BatchNorm2d(16),
             nn.ReLU(),
             # 10 * 10 * 16 -> 5 * 5 * 16
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),

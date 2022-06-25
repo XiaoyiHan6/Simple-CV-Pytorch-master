@@ -95,9 +95,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |----anchor----|----RetinaNetAnchors.py
 |              |
 |              |               |----lenet5.py
-|              |               |----AlexNet.py
-|              |----basenet----|----VGG.py
-|              |               |----ResNet.py    
+|              |               |----alexnet.py
+|              |----basenet----|----vgg.py
+|              |               |----resnet.py    
 |              |
 |              |                 |----DarkNetBackbone.py
 |              |----backbones----|----__init__.py ( Don't finish writing )
@@ -173,7 +173,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   5.EfficientNet
 
-  (maybe)
+  (They should be placed in backbone of object detection, but they are used to extract features, just like classification networks)
 
   1.DarkNet
 
@@ -183,11 +183,18 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   1.LeNet5(models/basenets/lenet5.py)
 
-  2.AlexNet(models/basenets/AlexNet.py)
+  ```
+  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
 
-  3.VGG(models/basenets/VGG.py)
+  ```
+  [LeNet5](https://image.baidu.com/search/detail?ct=503316480&z=0&ipn=d&word=Lenet-5&step_word=&hs=0&pn=6&spn=0&di=7108135681917976577&pi=0&rn=1&tn=baiduimagedetail&is=0%2C0&istype=0&ie=utf-8&oe=utf-8&in=&cl=2&lm=-1&st=undefined&cs=1300733551%2C2088996461&os=2357251395%2C2696632372&simid=1300733551%2C2088996461&adpicid=0&lpn=0&ln=754&fr=&fmq=1656408621595_R&fm=&ic=undefined&s=undefined&hd=undefined&latest=undefined&copyright=undefined&se=&sme=&tab=0&width=undefined&height=undefined&face=undefined&ist=&jit=&cg=&bdtype=0&oriquery=&objurl=https%3A%2F%2Fgimg2.baidu.com%2Fimage_search%2Fsrc%3Dhttp%3A%2F%2Fpic4.zhimg.com%2Fv2-487d887f21f85764b38975f3169020af_ipico.jpg%26refer%3Dhttp%3A%2F%2Fpic4.zhimg.com%26app%3D2002%26size%3Df9999%2C10000%26q%3Da80%26n%3D0%26g%3D0n%26fmt%3Dauto%3Fsec%3D1659000624%26t%3D113dba9d97bd6cfa4eab2641a8701e53&fromurl=ippr_z2C%24qAzdH3FAzdH3Fooo_z%26e3Bziti7_z%26e3Bv54AzdH3Fq7jfpt5gAzdH3F90dnma8b9AzdH3Fwgfoj6AzdH3F8lll099na9&gsm=7&rpstart=0&rpnum=0&islist=&querylist=&nojc=undefined&dyTabStr=MCw2LDQsMiw1LDMsMSw4LDcsOQ%3D%3D)
 
-  4.ResNet(models/basenet/ResNet.py)
+
+  2.AlexNet(models/basenets/alexnet.py)
+
+  3.VGG(models/basenets/vgg.py)
+
+  4.ResNet(models/basenets/resnet.py)
 
 - Run
 

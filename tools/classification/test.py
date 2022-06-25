@@ -12,14 +12,14 @@ sys.path.append(BASE_DIR)
 
 import time
 from data import *
-import torchvision
 from PIL import Image
 import torch.nn.parallel
 from torchvision import transforms
 from utils.get_logger import get_logger
 from models.basenets.lenet5 import lenet5
-from models.basenets.AlexNet import AlexNet
-from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
+from models.basenets.alexnet import alexnet
+from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
+from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
 def parse_args():
@@ -147,7 +147,7 @@ def test():
         else:
             raise ValueError('Unsupported LeNet depth!')
     elif args.basenet == 'alexnet':
-        model = AlexNet(num_classes=args.num_classes)
+        model = alexnet(num_classes=args.num_classes)
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
@@ -163,15 +163,20 @@ def test():
 
     elif args.basenet == 'resnet':
         if args.depth == 18:
-            model = torchvision.models.resnet18(pretrained=args.pretrained)
+            model = resnet18(pretrained=args.pretrained,
+                             num_classes=args.num_classes)
         elif args.depth == 34:
-            model = torchvision.models.resnet34(pretrained=args.pretrained)
+            model = resnet34(pretrained=args.pretrained,
+                             num_classes=args.num_classes)
         elif args.depth == 50:
-            model = torchvision.models.resnet50(pretrained=args.pretrained)  # False means the models is not trained
+            model = resnet50(pretrained=args.pretrained,
+                             num_classes=args.num_classes)  # False means the models is not trained
         elif args.depth == 101:
-            model = torchvision.models.resnet101(pretrained=args.pretrained)
+            model = resnet101(pretrained=args.pretrained,
+                              num_classes=args.num_classes)
         elif args.depth == 152:
-            model = torchvision.models.resnet152(pretrained=args.pretrained)
+            model = resnet152(pretrained=args.pretrained,
+                              num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
     else:

@@ -1,3 +1,3 @@
 from .lenet5 import *
-from .VGG import *
-from .ResNet import *
+from .vgg import *
+from .resnet import *

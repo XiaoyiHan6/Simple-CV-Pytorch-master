@@ -22,10 +22,11 @@ from utils.accuracy import accuracy
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from models.basenets.lenet5 import lenet5
-from models.basenets.AlexNet import AlexNet
+from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
-from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
+from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
+from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
 def parse_args():
@@ -100,7 +101,7 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-3,
+                        default=1e-2,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
@@ -126,6 +127,10 @@ def parse_args():
                         type=str,
                         default=False,
                         help='Models was pretrained')
+    parser.add_argument('--init_weights',
+                        type=str,
+                        default=False,
+                        help='Init Weights')
 
     return parser.parse_args()
 
@@ -206,38 +211,55 @@ def train():
     losses = AverageMeter()
 
     # 5. Define train model
+
+    # Unfortunately, Lenet5 and Alexnet don't provide pretrianed Model.
     if args.basenet == 'lenet':
         if args.depth == 5:
-            model = lenet5(num_classes=args.num_classes)
+            model = lenet5(num_classes=args.num_classes,
+                           init_weights=args.init_weights)
         else:
             raise ValueError('Unsupported LeNet depth!')
 
     elif args.basenet == 'alexnet':
-        model = AlexNet(num_classes=args.num_classes)
+        model = alexnet(num_classes=args.num_classes,
+                        init_weights=args.init_weights)
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
-            model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg11(pretrained=args.pretrained,
+                          num_classes=args.num_classes,
+                          init_weights=args.init_weights)
         elif args.depth == 13:
-            model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg13(pretrained=args.pretrained,
+                          num_classes=args.num_classes,
+                          init_weights=args.init_weights)
         elif args.depth == 16:
-            model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg16(pretrained=args.pretrained,
+                          num_classes=args.num_classes,
+                          init_weights=args.init_weights)
         elif args.depth == 19:
-            model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg19(pretrained=args.pretrained,
+                          num_classes=args.num_classes,
+                          init_weights=args.init_weights)
         else:
             raise ValueError('Unsupported VGG depth!')
-
+    # Unfortunately for my resnet, there is no set init_weight, because I'm going to set object detection algorithm
     elif args.basenet == 'resnet':
         if args.depth == 18:
-            model = torchvision.models.resnet18(pretrained=args.pretrained)
+            model = resnet18(pretrained=args.pretrained,
+                             num_classes=args.num_classes)
         elif args.depth == 34:
-            model = torchvision.models.resnet34(pretrained=args.pretrained)
+            model = resnet34(pretrained=args.pretrained,
+                             num_classes=args.num_classes)
         elif args.depth == 50:
-            model = torchvision.models.resnet50(pretrained=args.pretrained)  # False means the models was not trained
+            model = resnet50(pretrained=args.pretrained,
+                             num_classes=args.num_classes)  # False means the models was not trained
         elif args.depth == 101:
-            model = torchvision.models.resnet101(pretrained=args.pretrained)
+            model = resnet101(pretrained=args.pretrained,
+                              num_classes=args.num_classes)
         elif args.depth == 152:
-            model = torchvision.models.resnet152(pretrained=args.pretrained)
+            model = resnet152(pretrained=args.pretrained,
+                              num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
 
@@ -260,10 +282,21 @@ def train():
             model.load_state_dict(torch.load(model_load))
         else:
             print('Sorry only .pth and .pkl files supported.')
-    elif args.resume is None:
-        print("Initializing weights...")
+    if args.init_weights:
         # initialize newly added models' weights with xavier method
-        model.apply(weights_init)
+        if args.basenet == 'resnet':
+            print("There is no set init_weight, because I'm going to set object detection algorithm.")
+        else:
+            print("Initializing weights...")
+    else:
+        print("Not Initializing weights...")
+    if args.pretrained:
+        if args.basenet == 'lenet' or args.basenet == 'alexnet':
+            print("There is no available pretrained model on the website. ")
+        else:
+            print("Models was pretrained...")
+    else:
+        print("Pretrained models is False...")
 
     model.train()
 
@@ -348,17 +381,6 @@ def train():
     s = ((t3 - t0) % 3600) % 60
     print("The Finished Time is {}h{}m{}s".format(int(h), int(m), int(s)))
     return top1.avg, top5.avg, losses.avg
-
-
-def weights_init(m):
-    if isinstance(m, nn.Conv2d):
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif isinstance(m, nn.BatchNorm2d):
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias, 0.0)
-    elif isinstance(m, nn.Linear):
-        nn.init.kaiming_normal_(m.weight)
-        nn.init.constant_(m.bias, 0.0)
 
 
 if __name__ == '__main__':
