@@ -1,0 +1,5 @@
+2022-06-25 18:31:41,438 - classification_test - INFO - Program started
+2022-06-25 18:31:44,788 - classification_test - INFO - args - Namespace(dataset='CIFAR', images_root='/data/PycharmProject/Simple-CV-Pytorch-master/images/classification/automobile.jpg', basenet='alexnet', depth=0, evaluate='CIFAR_alexnet0.pth', save_folder='/data/PycharmProject/Simple-CV-Pytorch-master/checkpoints', log_folder='/data/PycharmProject/Simple-CV-Pytorch-master/log', log_name='classification_test', cuda=True, num_classes=10, image_size=224, pretrained=False)
+2022-06-25 18:31:44,819 - classification_test - INFO - output:  1: 'automobile',
+
+2022-06-25 18:31:44,820 - classification_test - INFO - Done!

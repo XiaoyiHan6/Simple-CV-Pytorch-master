@@ -3,7 +3,7 @@
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
 later.
 
-For classification, I reproduced LeNet5, VGG16. Then I will reproduce AlexNet, GoogLeNet, ResNet, ResNetXt, MobileNet,
+For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet. Then I will reproduce GoogLeNet, ResNetXt, MobileNet,
 ShuffleNet, EiffcientNet, etc.
 
 For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,
@@ -64,7 +64,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
 |            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|            |----cifar_labels.txt
+|            |----CIAR_labels.txt
 |            |----coco.py
 |            |----coco_eval.py
 |            |----coco_labels.txt
@@ -78,7 +78,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                                     |----crash_helmet.jpg
 |----images----|----classification----|----sunflower.jpg
 |              |                      |----photocopier.jpg
-|              |                      |----photocopier.jpg
+|              |                      |----automobile.jpg
 |              |
 |              |----detection----|----000001.jpg
 |                                |----000001.xml
@@ -95,6 +95,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |----anchor----|----RetinaNetAnchors.py
 |              |
 |              |               |----lenet5.py
+|              |               |----AlexNet.py
 |              |----basenet----|----VGG.py
 |              |               |----ResNet.py    
 |              |
@@ -162,19 +163,15 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 - Reproduce network architectures
 
-  1.ResNet
+  1.GoogLeNet
 
-  2.AlexNet
+  2.ResNetXt
 
-  3.GoogLeNet
+  3.MobileNet
 
-  4.ResNetXt
+  4.ShuffleNet
 
-  5.MobileNet
-
-  6.ShuffleNet
-
-  7.EfficientNet
+  5.EfficientNet
 
   (maybe)
 
@@ -186,7 +183,11 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   1.LeNet5(models/basenets/lenet5.py)
 
-  2.VGG(models/basenets/VGG.py)
+  2.AlexNet(models/basenets/AlexNet.py)
+
+  3.VGG(models/basenets/VGG.py)
+
+  4.ResNet(models/basenet/ResNet.py)
 
 - Run
 
@@ -208,7 +209,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
   (finished)
 
-  1.RetinaNet
+  1.RetinaNet(models/RetinaNet.py)
 
 - Run
 

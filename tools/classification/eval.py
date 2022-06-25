@@ -40,13 +40,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='vgg',
+                        default='alexnet',
                         choices=['resnet', 'vgg', 'lenet', 'alexnet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=16,
-                        help='Backbone depth, including: VGG of 16, VGG of 16, ResNet of 18, 34, 50, 101, 152')
+                        default=0,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
