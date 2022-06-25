@@ -10,35 +10,39 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
+import time
 from data import *
 import torchvision
-from torchvision import transforms
-import torch.nn.parallel
-import time
-from utils.get_logger import get_logger
 from PIL import Image
+import torch.nn.parallel
+from torchvision import transforms
+from utils.get_logger import get_logger
+from models.basenets.lenet5 import lenet5
+from models.basenets.AlexNet import AlexNet
+from models.basenets.VGG import vgg11, vgg13, vgg16, vgg19
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Detection Evaluation')
+    parser = argparse.ArgumentParser(description='PyTorch Classification Testing')
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='ImageNet',
-                        choices=['ImageNet', 'cifar'],
+                        default='CIFAR',
+                        choices=['ImageNet', 'CIFAR'],
                         help='ImageNet,  CIFAR')
     parser.add_argument('--images_root',
                         type=str,
-                        default=config.images_root,
+                        default=config.images_cls_root,
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='resnet',
+                        default='alexnet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=0,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152')
     parser.add_argument('--evaluate',
                         type=str,
                         default=config.classification_evaluate,
@@ -59,9 +63,13 @@ def parse_args():
                         type=str,
                         default=True,
                         help='Use CUDA to train model')
+    parser.add_argument('--num_classes',
+                        type=int,
+                        default=10,
+                        help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
-                        default=224,
+                        default=32,
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
@@ -112,6 +120,12 @@ def dataset_labels_results(filename, output):
 
 
 def test():
+    # vgg16, alexnet and lenet5 need to resize image_size, because of fc.
+    if args.basenet == 'vgg' or args.basenet == 'alexnet':
+        args.image_size = 224
+    elif args.basenet == 'lenet':
+        args.image_size = 32
+
     # 3. Ready image
     if args.images_root is None:
         raise ValueError("The images is None, you should load image!")
@@ -127,7 +141,27 @@ def test():
     image = image.reshape(1, 3, args.image_size, args.image_size)
 
     # 4. Define to train mode
-    if args.basenet == 'resnet':
+    if args.basenet == 'lenet':
+        if args.depth == 5:
+            model = lenet5(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported LeNet depth!')
+    elif args.basenet == 'alexnet':
+        model = AlexNet(num_classes=args.num_classes)
+
+    elif args.basenet == 'vgg':
+        if args.depth == 11:
+            model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 13:
+            model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 16:
+            model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
+        elif args.depth == 19:
+            model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported VGG depth!')
+
+    elif args.basenet == 'resnet':
         if args.depth == 18:
             model = torchvision.models.resnet18(pretrained=args.pretrained)
         elif args.depth == 34:
@@ -139,7 +173,7 @@ def test():
         elif args.depth == 152:
             model = torchvision.models.resnet152(pretrained=args.pretrained)
         else:
-            raise ValueError('Unsupported model depth!')
+            raise ValueError('Unsupported ResNet depth!')
     else:
         raise ValueError('Unsupported model type!')
 

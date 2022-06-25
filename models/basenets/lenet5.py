@@ -7,7 +7,7 @@ class lenet5(nn.Module):
     def __init__(self, num_classes=1000, init_weights=False):
         super(lenet5, self).__init__()
         self.num_classes = num_classes
-        self.model = nn.Sequential(
+        self.layers = nn.Sequential(
             # input:32 * 32 * 3 -> 28 * 28 * 6
             nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5, padding=0, stride=1),
             nn.ReLU(),
@@ -21,13 +21,14 @@ class lenet5(nn.Module):
             nn.Flatten(),
             nn.Linear(16 * 5 * 5, 120),
             nn.Linear(120, 84))
-        self.classifier = nn.Linear(84, self.num_classes),
+        self.classifier = nn.Linear(84, self.num_classes)
+
         if init_weights:
             self._initialize_weights()
 
     @autocast()
     def forward(self, x):
-        x = self.model(x)
+        x = self.layers(x)
         x = self.classifier(x)
         return x
 

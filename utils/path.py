@@ -44,15 +44,20 @@ detection_test_log = 'detection_test'
 detection_eval_log = 'detection_eval'
 
 # Classification evaluate model path
-classification_evaluate = "CIFAR_vgg16.pth"
+classification_evaluate = None
 
 # Detection evaluate model path
 detection_evaluate = 'COCO_ResNet50_4.pth'
 
-# Images path
-image = '000001.jpg'
-images_path = 'images/detection'
-images_path = os.path.join(BASE_DIR, MyName, Folder, images_path, image)
+# Images detection path
+image_det = '000001.jpg'
+images_det_path = 'images/detection'
+images_det_path = os.path.join(BASE_DIR, MyName, Folder, images_det_path, image_det)
+
+# Images classification path
+image_cls = 'automobile.jpg'
+images_cls_path = 'images/classification'
+images_cls_path = os.path.join(BASE_DIR, MyName, Folder, images_cls_path, image_cls)
 
 # Data
 DATAPATH = BASE_DIR

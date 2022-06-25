@@ -33,9 +33,11 @@ classification_evaluate = path.classification_evaluate
 # Detection evaluate model path
 detection_evaluate = path.detection_evaluate
 
-# Test images
-images_root = path.images_path
+# Classification test images
+images_cls_root = path.images_cls_path
+
+# Detection test images
+images_det_root = path.images_det_path
 
 # Path to save tensorboard
 tensorboard_log = path.tensorboard_log
-

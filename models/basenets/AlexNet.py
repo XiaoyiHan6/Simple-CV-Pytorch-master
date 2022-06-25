@@ -5,7 +5,7 @@ from torch.cuda.amp import autocast
 class AlexNet(nn.Module):
     def __init__(self, num_classes=1000, init_weights=False):
         super(AlexNet, self).__init__()
-        self.layer = nn.Sequential(
+        self.layers = nn.Sequential(
             # input: 224 * 224 * 3 -> 55 * 55 * (48*2)
             nn.Conv2d(in_channels=3, out_channels=96, kernel_size=11, stride=4, padding=2),
             nn.ReLU(),
@@ -19,8 +19,8 @@ class AlexNet(nn.Module):
             # 13 * 13 * (128*2) -> 13 * 13 * (192*2)
             nn.Conv2d(in_channels=256, out_channels=384, kernel_size=3, padding=1),
             nn.ReLU(),
-            # 13 * 13 * 192 -> 13 * 13 * 192
-            nn.Conv2d(in_channels=192, out_channels=192, kernel_size=3, padding=1),
+            # 13 * 13 * (192*2) -> 13 * 13 * (192*2)
+            nn.Conv2d(in_channels=384, out_channels=384, kernel_size=3, padding=1),
             nn.ReLU(),
             # 13 * 13 * (192*2) -> 13 * 13 * (128*2)
             nn.Conv2d(in_channels=384, out_channels=256, kernel_size=3, padding=1),
@@ -31,7 +31,7 @@ class AlexNet(nn.Module):
         self.fc = nn.Sequential(
             nn.Flatten(),
             nn.Dropout(0.5),
-            nn.Linear(6 * 6 * 128, 2048),
+            nn.Linear(6 * 6 * 128 * 2, 2048),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(2048, 2048),
@@ -43,7 +43,7 @@ class AlexNet(nn.Module):
 
     @autocast()
     def forward(self, x):
-        x = self.layer(x)
+        x = self.layers(x)
         x = self.fc(x)
         x = self.classifier(x)
         return x

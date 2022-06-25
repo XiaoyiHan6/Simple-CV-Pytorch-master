@@ -61,7 +61,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
 |            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|            |----cifar_labels.txt
+|            |----CIAR_labels.txt
 |            |----coco.py
 |            |----coco_eval.py
 |            |----coco_labels.txt
@@ -75,7 +75,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                                     |----crash_helmet.jpg
 |----images----|----classification----|----sunflower.jpg
 |              |                      |----photocopier.jpg
-|              |                      |----photocopier.jpg
+|              |                      |----automobile.jpg
 |              |
 |              |----detection----|----000001.jpg
 |                                |----000001.xml
@@ -92,8 +92,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |----anchor----|----RetinaNetAnchors.py
 |              |
 |              |               |----lenet5.py
-|              |----basenet----|----VGG.py
 |              |               |----AlexNet.py
+|              |----basenet----|----VGG.py
 |              |               |----ResNet.py
 |              |
 |              |                 |----DarkNetBackbone.py
@@ -151,7 +151,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----README.md
 |
 |----requirements.txt
-
 
 
 
