@@ -199,7 +199,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
   lr: 0.01
   epoch: 30
   ```
-  [LeNet5](./images/icon/lenet5.png)
+  ![LeNet5](images/icon/lenet5.png)
 
   |epoch|times|top1 acc (%)|top5 acc (%)|
   |--|--|--|--|--|
