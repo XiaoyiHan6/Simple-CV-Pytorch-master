@@ -35,37 +35,27 @@ def vgg_(arch, num_classes, pretrained, init_weights=False, **kwargs):
         if arch == '11':
             del pretrained_models['features.8.weight']
             del pretrained_models['features.11.weight']
-            del pretrained_models['features.11.bias']
             del pretrained_models['features.16.weight']
         elif arch == '13':
             del pretrained_models['features.7.weight']
             del pretrained_models['features.10.weight']
-            del pretrained_models['features.10.bias']
             del pretrained_models['features.15.weight']
-            del pretrained_models['features.15.bias']
             del pretrained_models['features.17.weight']
-            del pretrained_models['features.17.bias']
             del pretrained_models['features.22.weight']
         elif arch == '16':
             del pretrained_models['features.7.weight']
             del pretrained_models['features.10.weight']
-            del pretrained_models['features.10.bias']
             del pretrained_models['features.14.weight']
             del pretrained_models['features.17.weight']
-            del pretrained_models['features.17.bias']
             del pretrained_models['features.21.weight']
-            del pretrained_models['features.21.bias']
             del pretrained_models['features.24.weight']
             del pretrained_models['features.28.weight']
         elif arch == '19':
             del pretrained_models['features.7.weight']
             del pretrained_models['features.10.weight']
-            del pretrained_models['features.10.bias']
             del pretrained_models['features.14.weight']
             del pretrained_models['features.21.weight']
-            del pretrained_models['features.21.bias']
             del pretrained_models['features.23.weight']
-            del pretrained_models['features.23.bias']
             del pretrained_models['features.28.weight']
             del pretrained_models['features.34.weight']
         else:
@@ -141,7 +131,7 @@ def make_features(cfgs: list):
         if i == "M":
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
         else:
-            conv2d = nn.Conv2d(in_channels, i, kernel_size=3, stride=1, padding=1)
+            conv2d = nn.Conv2d(in_channels, i, kernel_size=3, stride=1, padding=1, bias=False)
             layers += [conv2d, nn.BatchNorm2d(i), nn.ReLU()]
             in_channels = i
     return nn.Sequential(*layers)
