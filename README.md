@@ -182,23 +182,23 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   (finished)
 
-  1.LeNet5(models/basenets/lenet5.py)
+1.LeNet5(models/basenets/lenet5.py)
 
-  ```
-  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
-  basenet: lenet5 (image size: 32 * 32 * 3)
-  dataset: cifar
-  len(dataset): 50000, iter_size: 1562 
-  batch_size: 32
-  optim: SGD
-  scheduler: MultiStepLR
-  milestones: [15, 20, 30]
-  weight_decay: 1e-4
-  gamma: 0.1
-  momentum: 0.9
-  lr: 0.01
-  epoch: 30
-  ```
+```
+ I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
+ basenet: lenet5 (image size: 32 * 32 * 3)
+ dataset: cifar
+ len(dataset): 50000, iter_size: 1562 
+ batch_size: 32
+ optim: SGD
+ scheduler: MultiStepLR
+ milestones: [15, 20, 30]
+ weight_decay: 1e-4
+ gamma: 0.1
+ momentum: 0.9
+ lr: 0.01
+ poch: 30
+ ```
 
 ![LeNet5](images/icon/lenet5.png)
 
@@ -219,9 +219,100 @@ Total:
 
 2.AlexNet(models/basenets/alexnet.py)
 
+```
+ I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
+ basenet: AlexNet (image size: 224 * 224 * 3)
+ dataset: cifar
+ len(dataset): 50000, iter_size: 1562 
+ batch_size: 32
+ optim: SGD
+ scheduler: MultiStepLR
+ milestones: [15, 20, 30]
+ weight_decay: 1e-4
+ gamma: 0.1
+ momentum: 0.9
+ lr: 0.01
+ epoch: 30
+ ```
+
+![AlexNet](images/icon/alexnet.png)
+
+|  epoch  |   times   | top1 acc (%) | top5 acc (%) |
+|:-------:|:---------:|:------------:|:------------:|
+|    0    | 0h0min45s |    50.00     |    90.62     |
+|    1    | 0h0min44s |    62.50     |    93.75     |
+|    2    | 0h0min46s |    68.75     |    96.88     |
+|    3    | 0h0min44s |    62.50     |    100.00    |
+|   ...   |    ...    |     ...      |     ...      |
+|   29    | 0h0min42s |    100.00    |    100.00    |
+
+Total:
+
+| epochs |  times   |   avg top1 acc (%)   |  avg top5 acc (%)  |
+|:------:|:--------:|:--------------------:|:------------------:|
+|   30   | 0h22m44s |  86.27453333333334   | 98.99946666666666  |
+
 3.VGG(models/basenets/vgg.py)
 
+```
+ I add nn.BatchNorm2d() and transfer learning. This is because that I was so upset about the poor accuracy.
+ basenet: vgg16 (image size: 224 * 224 * 3)
+ dataset: cifar
+ len(dataset): 50000, iter_size: 1562 
+ batch_size: 32
+ optim: SGD
+ scheduler: MultiStepLR
+ milestones: [15, 20, 30]
+ weight_decay: 1e-4
+ gamma: 0.1
+ momentum: 0.9
+ lr: 0.01
+ epoch: 30
+ ```
+
+![VGG](images/icon/vgg.png)
+
+|  epoch  |   times   | top1 acc (%) | top5 acc (%) |
+|:-------:|:---------:|:------------:|:------------:|
+|    0    | 0h2min46s |    25.00     |    71.88     |
+|    1    | 0h2min45s |    53.12     |    87.50     |
+|    2    | 0h2min44s |    40.62     |    96.88     |
+|    3    | 0h2min42s |    34.38     |    90.62     |
+|   ...   |    ...    |     ...      |     ...      |
+|   29    | 0h2min44s |    100.00    |    100.00    |
+
+Total:
+
+| epochs |  times   |   avg top1 acc (%)   | avg top5 acc (%) |
+|:------:|:--------:|:--------------------:|:----------------:|
+|   30   | 1h23m43s |  76.55606666666667   |      96.441      |
+
 4.ResNet(models/basenets/resnet.py)
+
+```
+ basenet: resnet18 
+ dataset: ImageNet
+ batch_size: 32
+ optim: SGD
+ scheduler: MultiStepLR
+ milestones: [15, 20, 30]
+ weight_decay: 1e-4
+ gamma: 0.1
+ momentum: 0.9
+ lr: 0.001
+ epoch: 30
+```
+
+![ResNet](images/icon/ResNet.png)
+
+| epoch |   times    | top1 acc (%) | top5 acc (%) |
+|:-----:|:----------:|:------------:|:------------:|
+|   0   | 4h22min38s |    28.12     |    43.75     |
+|   1   | 3h59min35s |    34.38     |    59.38     |
+|   2   | 3h48min0s  |    65.62     |    84.38     |
+|   3   | 3h48min56s |    46.88     |    75.00     |
+|   4   | 3h54min36s |    53.12     |    75.00     |
+|   5   | 3h49min35s |    56.25     |    71.88     |
 
 - Run
 
