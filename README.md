@@ -163,26 +163,26 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 - Reproduce network architectures
 
-  1.GoogLeNet
+  1).GoogLeNet
 
-  2.ResNetXt
+  2).ResNetXt
 
-  3.MobileNet
+  3).MobileNet
 
-  4.ShuffleNet
+  4).ShuffleNet
 
-  5.EfficientNet
+  5).EfficientNet
 
   (They should be placed in backbone of object detection, but they are used to extract features, just like
   classification networks)
 
-  1.DarkNet
+  1).DarkNet
 
-  2.VovNet
+  2).VovNet
 
   (finished)
 
-**1.LeNet5(models/basenets/lenet5.py)**
+**1).LeNet5(models/basenets/lenet5.py)**
 
 ```
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
@@ -218,7 +218,7 @@ Total:
 |   30   | 0h11m44s  |  62.208533333333335   | 95.97033333333333  |
 
 
-**2.AlexNet(models/basenets/alexnet.py)**
+**2).AlexNet(models/basenets/alexnet.py)**
 
 ```
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
@@ -254,7 +254,7 @@ Total:
 |   30   | 0h22m44s |  86.27453333333334   | 98.99946666666666  |
 
 
-**3.VGG(models/basenets/vgg.py)**
+**3).VGG(models/basenets/vgg.py)**
 
 ```
  I add nn.BatchNorm2d() and transfer learning. This is because that I was so upset about the poor accuracy.
@@ -290,7 +290,7 @@ Total:
 |   30   | 1h23m43s |  76.55606666666667   |      96.441      |
 
 
-**4.ResNet(models/basenets/resnet.py)**
+**4).ResNet(models/basenets/resnet.py)**
 
 ```
  basenet: resnet18 
