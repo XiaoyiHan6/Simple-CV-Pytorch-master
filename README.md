@@ -10,6 +10,12 @@ For object detection, I reproduced RetinaNet. (I broke the code up into modules,
 loss,etc.
 This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
+Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
+
+[CSDN](https://zhuanlan.zhihu.com/p/533379405)
+
+[Quora(Chinese)Zhihu](https://blog.csdn.net/XiaoyYidiaodiao/article/details/125505058?spm=1001.2014.3001.5501)
+
 You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
 package.
 
@@ -329,11 +335,11 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 - Reproduce network architectures
 
-  1.SSD
+  1).SSD
 
-  2.Faster RCNN
+  2).Faster RCNN
 
-  3.YOLO
+  3).YOLO
 
   (finished)
 
