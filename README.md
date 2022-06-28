@@ -207,7 +207,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
   |1|0h0min21s|62.50|96.88|
   |2|0h0min24s|65.62|96.88|
   |3|0h0min21s|53.12|96.88|
-  |...|...|...|...|
   |29|0h0min23s|75.00|100.00|
 
 2.AlexNet(models/basenets/alexnet.py)
