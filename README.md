@@ -188,7 +188,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   (finished)
 
-**1).LeNet5(models/basenets/lenet5.py)**
+**1).LeNet5(models/basenets/lenet5.py)**[1]
 
 ```
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
@@ -224,7 +224,7 @@ Total:
 |   30   | 0h11m44s  |  62.208533333333335   | 95.97033333333333  |
 
 
-**2).AlexNet(models/basenets/alexnet.py)**
+**2).AlexNet(models/basenets/alexnet.py)**[2]
 
 ```
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
@@ -260,7 +260,7 @@ Total:
 |   30   | 0h22m44s |  86.27453333333334   | 98.99946666666666  |
 
 
-**3).VGG(models/basenets/vgg.py)**
+**3).VGG(models/basenets/vgg.py)**[3]
 
 ```
  I add nn.BatchNorm2d() and transfer learning. This is because that I was so upset about the poor accuracy.
@@ -296,7 +296,7 @@ Total:
 |   30   | 1h23m43s |  76.55606666666667   |      96.441      |
 
 
-**4).ResNet(models/basenets/resnet.py)**
+**4).ResNet(models/basenets/resnet.py)**[4]
 
 ```
  basenet: resnet18 
@@ -362,3 +362,12 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
   2.DeepLab
 
   3.U-Net
+
+## references
+[[1] LeCun Y, Bottou L, Bengio Y, et al. Gradient-based learning applied to document recognition[J]. Proceedings of the IEEE, 1998, 86(11): 2278-2324.](https://www.researchgate.net/publication/2985446_Gradient-Based_Learning_Applied_to_Document_Recognition)
+
+[[2] Krizhevsky A, Sutskever I, Hinton G E. Imagenet classification with deep convolutional neural networks[J]. Advances in neural information processing systems, 2012, 25.](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
+
+[[3] Simonyan K, Zisserman A. Very deep convolutional networks for large-scale image recognition[J]. arXiv preprint arXiv:1409.1556, 2014.](https://arxiv.org/pdf/1409.1556.pdf%E3%80%82)
+
+[[4] He K, Zhang X, Ren S, et al. Deep residual learning for image recognition[C]//Proceedings of the IEEE conference on computer vision and pattern recognition. 2016: 770-778.](https://arxiv.org/abs/1512.03385)
