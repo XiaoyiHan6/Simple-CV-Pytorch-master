@@ -169,15 +169,13 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 - Reproduce network architectures
 
-  1).GoogLeNet
+  1).ResNetXt
 
-  2).ResNetXt
+  2).MobileNet
 
-  3).MobileNet
+  3).ShuffleNet
 
-  4).ShuffleNet
-
-  5).EfficientNet
+  4).EfficientNet
 
   (They should be placed in backbone of object detection, but they are used to extract features, just like
   classification networks)
@@ -223,7 +221,6 @@ Total:
 |:------:|:---------:|:---------------------:|:------------------:|
 |   30   | 0h11m44s  |  62.208533333333335   | 95.97033333333333  |
 
-
 **2).AlexNet(models/basenets/alexnet.py)**[2]
 
 ```
@@ -258,7 +255,6 @@ Total:
 | epochs |  times   |   avg top1 acc (%)   |  avg top5 acc (%)  |
 |:------:|:--------:|:--------------------:|:------------------:|
 |   30   | 0h22m44s |  86.27453333333334   | 98.99946666666666  |
-
 
 **3).VGG(models/basenets/vgg.py)**[3]
 
@@ -295,7 +291,6 @@ Total:
 |:------:|:--------:|:--------------------:|:----------------:|
 |   30   | 1h23m43s |  76.55606666666667   |      96.441      |
 
-
 **4).ResNet(models/basenets/resnet.py)**[4]
 
 ```
@@ -322,6 +317,10 @@ Total:
 |   3   | 3h48min56s |    46.88     |    75.00     |
 |   4   | 3h54min36s |    53.12     |    75.00     |
 |   5   | 3h49min35s |    56.25     |    71.88     |
+
+**5).GoogLeNet(models/besenets/googlenet.py)**[5]
+
+![GoogLeNet](images/icon/googlenet.png)
 
 - Run
 
@@ -364,6 +363,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
   3.U-Net
 
 ## references
+
 [[1] LeCun Y, Bottou L, Bengio Y, et al. Gradient-based learning applied to document recognition[J]. Proceedings of the IEEE, 1998, 86(11): 2278-2324.](https://www.researchgate.net/publication/2985446_Gradient-Based_Learning_Applied_to_Document_Recognition)
 
 [[2] Krizhevsky A, Sutskever I, Hinton G E. Imagenet classification with deep convolutional neural networks[J]. Advances in neural information processing systems, 2012, 25.](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
