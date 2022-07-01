@@ -78,7 +78,7 @@ VOC_path = os.path.join(DATAPATH, VOC0712)
 # coco
 # COCO2017
 # (train:118287), (val:5000), (test:40670)
-COCO2017 = 'coco2017'
+COCO2017 = 'coco/coco2017'
 COCO2017_path = os.path.join(DATAPATH, COCO2017)
 
 # COCO2014

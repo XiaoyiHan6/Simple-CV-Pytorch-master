@@ -85,8 +85,8 @@ class VocDetection(Dataset):
         self._imgpath = os.path.join('%s', 'JPEGImages', '%s.jpg')
         self.ids = []
         for (year, name) in image_sets:
-            # rootpath = /data/public/PascalVOC/2007/VOC2007
-            rootpath = os.path.join(self.root_dir, year, 'VOC' + year)
+            # rootpath = /data/VOCdevkit/VOC2007
+            rootpath = os.path.join(self.root_dir, 'VOC' + year)
             for line in open(
                     os.path.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
                 self.ids.append((rootpath, line.strip()))
