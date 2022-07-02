@@ -12,9 +12,9 @@ This makes it easier to modify and add code.) Of course, other object detection 
 
 Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
-[CSDN](https://zhuanlan.zhihu.com/p/533379405)
+[CSDN](https://blog.csdn.net/xiaoyyidiaodiao/category_11888930.html?spm=1001.2014.3001.5482)
 
-[Quora(Chinese)Zhihu](https://blog.csdn.net/XiaoyYidiaodiao/article/details/125505058?spm=1001.2014.3001.5501)
+[Quora(Chinese)Zhihu](https://www.zhihu.com/column/c_1523732135009198080)
 
 You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
 package.
