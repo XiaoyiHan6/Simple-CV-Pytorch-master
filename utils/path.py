@@ -83,5 +83,5 @@ COCO2017_path = os.path.join(DATAPATH, COCO2017)
 
 # COCO2014
 # (train:82783), (valminusminival:40504 random 35504 -> minival 5000) ~ COCO2017
-# COCO2014 = 'coco2014'
+# COCO2014 = 'coco/coco2014'
 # COCO2014_path = os.path.join(DATAPATH, COCO2014)
