@@ -103,7 +103,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |               |----lenet5.py
 |              |               |----alexnet.py
 |              |----basenet----|----vgg.py
-|              |               |----resnet.py    
+|              |               |----resnet.py
+|              |               |----googlenet.py    
 |              |
 |              |                 |----DarkNetBackbone.py
 |              |----backbones----|----__init__.py ( Don't finish writing )
@@ -320,7 +321,30 @@ Total:
 
 **5).GoogLeNet(models/besenets/googlenet.py)**[5]
 
+```
+ basenet: GoogLeNet 
+ dataset: ImageNet
+ batch_size: 32
+ optim: SGD
+ scheduler: MultiStepLR
+ milestones: [15, 20, 30]
+ weight_decay: 1e-4
+ gamma: 0.1
+ momentum: 0.9
+ lr: 0.01
+ epoch: 30
+```
+
 ![GoogLeNet](images/icon/googlenet.png)
+
+| epoch |   times    | top1 acc (%) | top5 acc (%) |
+|:-----:|:----------:|:------------:|:------------:|
+|   0   | 4h22min38s |    28.12     |    43.75     |
+|   1   | 3h59min35s |    34.38     |    59.38     |
+|   2   | 3h48min0s  |    65.62     |    84.38     |
+|   3   | 3h48min56s |    46.88     |    75.00     |
+|   4   | 3h54min36s |    53.12     |    75.00     |
+|   5   | 3h49min35s |    56.25     |    71.88     |
 
 - Run
 
