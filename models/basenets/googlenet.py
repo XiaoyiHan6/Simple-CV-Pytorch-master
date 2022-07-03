@@ -1,13 +1,41 @@
 import torch
 import torch.nn as nn
-from torch.cuda.amp import autocast
 import torch.nn.functional as F
+from utils.path import CheckPoints
+from torch.cuda.amp import autocast
+
+__all__ = ['googlenet']
+models_urls = {
+    #  'googlenet': 'https://download.pytorch.org/models/googlenet-1378be20.pth',
+    'googlenet': '{}/googlenet-1378be20.pth'.format(CheckPoints),
+}
+
+
+def GoogLeNet(num_classes, pretrained, aux_logits=True, init_weights=True, **kwargs):
+    model = googlenet(num_classes=num_classes, aux_logits=aux_logits, init_weights=init_weights, **kwargs)
+    if pretrained:
+        # if you want to use cpu, you should modify map_loaction=torch.device("cpu")
+        pretrained_models = torch.load(models_urls['googlenet'], map_location=torch.device("cuda:0"))
+        # transfer learning
+        # I modify GoogLeNet
+        # Inception.branch3.1.conv(kernel_size=3) to Inception.branch3.1.conv(kernel_size=5)
+        del pretrained_models['inception3a.branch3.1.conv.weight']
+        del pretrained_models['inception3b.branch3.1.conv.weight']
+        del pretrained_models['inception4a.branch3.1.conv.weight']
+        del pretrained_models['inception4b.branch3.1.conv.weight']
+        del pretrained_models['inception4c.branch3.1.conv.weight']
+        del pretrained_models['inception4d.branch3.1.conv.weight']
+        del pretrained_models['inception4e.branch3.1.conv.weight']
+        del pretrained_models['inception5a.branch3.1.conv.weight']
+        del pretrained_models['inception5b.branch3.1.conv.weight']
+        model.load_state_dict(pretrained_models, strict=False)
+    return model
 
 
 class BasicConv2d(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, **kwargs):
         super(BasicConv2d, self).__init__()
-        self.conv = nn.Conv2d(in_channels=in_channels, out_channels=out_channels)
+        self.conv = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, **kwargs)
         self.relu = nn.ReLU()
 
     @autocast()
@@ -66,8 +94,8 @@ class InceptionAux(nn.Module):
         x = self.averagePool(x)
         x = self.conv(x)
         x = torch.flatten(x, 1)
-        x = F.dropout(x, 0.5, traning=self.training)
-        x = F.dropout(self.fc1(x))
+        x = F.dropout(x, 0.5, training=self.training)
+        x = F.relu(self.fc1(x))
         x = F.dropout(x, 0.5, training=self.training)
         x = self.fc2(x)
         return x
@@ -125,7 +153,7 @@ class googlenet(nn.Module):
             self.aux1 = InceptionAux(in_channels=512, num_classes=num_classes)
             self.aux2 = InceptionAux(in_channels=528, num_classes=num_classes)
         # 1 * 1 * 1024
-        self.avgpool = nn.AdaptiveAvgPool2d((2, 2))
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout(0.4)
         self.fc = nn.Linear(1024, num_classes)
         if init_weights:

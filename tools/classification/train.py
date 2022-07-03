@@ -25,7 +25,7 @@ from models.basenets.lenet5 import lenet5
 from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
-from models.basenets.googlenet import googlenet
+from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
@@ -126,7 +126,7 @@ def parse_args():
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
-                        default=False,
+                        default=True,
                         help='Models was pretrained')
     parser.add_argument('--init_weights',
                         type=str,
@@ -213,7 +213,7 @@ def train():
 
     # 5. Define train model
 
-    # Unfortunately, Lenet5 and Alexnet,GoogLeNet don't provide pretrianed Model.
+    # Unfortunately, LeNet5 and AlexNet don't provide pretrianed Model.
     if args.basenet == 'lenet':
         if args.depth == 5:
             model = lenet5(num_classes=args.num_classes,
@@ -230,9 +230,10 @@ def train():
 
     elif args.basenet == 'googlenet':
         if args.depth == 0:
-            model = googlenet(num_classes=args.num_classes,
-                              init_weights=args.init_weights,
-                              aux_logits=True)
+            model = GoogLeNet(num_classes=args.num_classes,
+                              pretrained=args.pretrained,
+                              aux_logits=True,
+                              init_weights=args.init_weights)
         else:
             raise ValueError('Unsupported GoogLeNet depth!')
 
