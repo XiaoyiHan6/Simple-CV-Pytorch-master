@@ -23,6 +23,7 @@ from models.basenets.lenet5 import lenet5
 from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
+from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
@@ -31,23 +32,23 @@ def parse_args():
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='CIFAR',
+                        default='ImageNet',
                         choices=['ImageNet', 'CIFAR'],
                         help='ImageNet,CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=CIFAR_ROOT,
+                        default=ImageNet_Eval_ROOT,
                         choices=[ImageNet_Eval_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='alexnet',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet'],
+                        default='googlenet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
                         default=0,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152')
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -78,11 +79,11 @@ def parse_args():
                         help='Log Name')
     parser.add_argument('--num_classes',
                         type=int,
-                        default=10,
+                        default=1000,
                         help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
-                        default=32,
+                        default=224,
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
@@ -115,7 +116,7 @@ logger = logging.getLogger(args.log_name)
 
 def eval():
     # vgg16, alexnet and lenet5 need to resize image_size, because of fc.
-    if args.basenet == 'vgg' or args.basenet == 'alexnet':
+    if args.basenet == 'vgg' or args.basenet == 'alexnet' or args.basenet == 'googlenet':
         args.image_size = 224
     elif args.basenet == 'lenet':
         args.image_size = 32
@@ -167,18 +168,34 @@ def eval():
             model = lenet5(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported LeNet depth!')
+
     elif args.basenet == 'alexnet':
-        model = alexnet(num_classes=args.num_classes)
+        if args.depth == 0:
+            model = alexnet(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported AlexNet depth!')
+
+    elif args.basenet == 'googlenet':
+        if args.depth == 0:
+            model = GoogLeNet(num_classes=args.num_classes,
+                              pretrained=args.pretrained,
+                              aux_logits=False)
+        else:
+            raise ValueError('Unsupported GoogLeNet depth!')
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
-            model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg11(pretrained=args.pretrained,
+                          num_classes=args.num_classes)
         elif args.depth == 13:
-            model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg13(pretrained=args.pretrained,
+                          num_classes=args.num_classes)
         elif args.depth == 16:
-            model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg16(pretrained=args.pretrained,
+                          num_classes=args.num_classes)
         elif args.depth == 19:
-            model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
+            model = vgg19(pretrained=args.pretrained,
+                          num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported VGG depth!')
 

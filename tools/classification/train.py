@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument('--depth',
                         type=int,
                         default=0,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0,')
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -122,7 +122,7 @@ def parse_args():
                         help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
-                        default=32,
+                        default=224,
                         help='image size, like ImageNet:224, cifar:32')
     parser.add_argument('--pretrained',
                         type=str,
