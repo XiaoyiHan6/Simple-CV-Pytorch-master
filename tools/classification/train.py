@@ -25,6 +25,7 @@ from models.basenets.lenet5 import lenet5
 from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
+from models.basenets.googlenet import googlenet
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
@@ -34,23 +35,23 @@ def parse_args():
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
-                        default='CIFAR',
+                        default='ImageNet',
                         choices=['ImageNet', 'CIFAR'],
                         help='ImageNet, CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=CIFAR_ROOT,
+                        default=ImageNet_Train_ROOT,
                         choices=[ImageNet_Train_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='alexnet',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet'],
+                        default='googlenet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
                         default=0,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152')
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0,')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -117,7 +118,7 @@ def parse_args():
                         help='Milestones')
     parser.add_argument('--num_classes',
                         type=int,
-                        default=10,
+                        default=1000,
                         help='the number classes, like ImageNet:1000, cifar:10')
     parser.add_argument('--image_size',
                         type=int,
@@ -129,7 +130,7 @@ def parse_args():
                         help='Models was pretrained')
     parser.add_argument('--init_weights',
                         type=str,
-                        default=False,
+                        default=True,
                         help='Init Weights')
 
     return parser.parse_args()
@@ -163,7 +164,7 @@ def train():
         # tensorboard  loss
         writer = SummaryWriter(args.tensorboard_log)
     # vgg16, alexnet and lenet5 need to resize image_size, because of fc.
-    if args.basenet == 'vgg' or args.basenet == 'alexnet':
+    if args.basenet == 'vgg' or args.basenet == 'alexnet' or args.basenet == 'googlenet':
         args.image_size = 224
     elif args.basenet == 'lenet':
         args.image_size = 32
@@ -212,7 +213,7 @@ def train():
 
     # 5. Define train model
 
-    # Unfortunately, Lenet5 and Alexnet don't provide pretrianed Model.
+    # Unfortunately, Lenet5 and Alexnet,GoogLeNet don't provide pretrianed Model.
     if args.basenet == 'lenet':
         if args.depth == 5:
             model = lenet5(num_classes=args.num_classes,
@@ -221,8 +222,19 @@ def train():
             raise ValueError('Unsupported LeNet depth!')
 
     elif args.basenet == 'alexnet':
-        model = alexnet(num_classes=args.num_classes,
-                        init_weights=args.init_weights)
+        if args.depth == 0:
+            model = alexnet(num_classes=args.num_classes,
+                            init_weights=args.init_weights)
+        else:
+            raise ValueError('Unsupported AlexNet depth!')
+
+    elif args.basenet == 'googlenet':
+        if args.depth == 0:
+            model = googlenet(num_classes=args.num_classes,
+                              init_weights=args.init_weights,
+                              aux_logits=True)
+        else:
+            raise ValueError('Unsupported GoogLeNet depth!')
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
@@ -243,6 +255,7 @@ def train():
                           init_weights=args.init_weights)
         else:
             raise ValueError('Unsupported VGG depth!')
+
     # Unfortunately for my resnet, there is no set init_weight, because I'm going to set object detection algorithm
     elif args.basenet == 'resnet':
         if args.depth == 18:
@@ -319,6 +332,7 @@ def train():
     # 9. Create batch iterator
     for epoch in range(args.epochs):
         t1 = time.time()
+        model.training = True
         torch.cuda.empty_cache()
         # 10. Load train data
         for data in dataloader:
@@ -331,9 +345,16 @@ def train():
                 criterion = criterion.cuda()
             # 12. Forward
             with autocast():
-                outputs = model(images)
-                loss = criterion(outputs, targets)
-                loss = loss / args.accumulation_steps
+                if args.basenet == 'googlenet':
+                    outputs, aux2_output, aux1_output = model(images)
+                    loss1 = criterion(outputs, targets)
+                    loss_aux2 = criterion(aux2_output, targets)
+                    loss_aux1 = criterion(aux1_output, targets)
+                    loss = loss1 + loss_aux2 * 0.3 + loss_aux1 * 0.3
+                else:
+                    outputs = model(images)
+                    loss = criterion(outputs, targets)
+                    loss = loss / args.accumulation_steps
 
             if args.tensorboard:
                 writer.add_scalar("train_classification_loss", loss.item(), iteration)
