@@ -17,7 +17,6 @@ def GoogLeNet(num_classes, pretrained, aux_logits=True, init_weights=True, **kwa
         # if you want to use cpu, you should modify map_loaction=torch.device("cpu")
         pretrained_models = torch.load(models_urls['googlenet'], map_location=torch.device("cuda:0"))
         # transfer learning
-        # I modify GoogLeNet
         # Inception.branch3.1.conv(kernel_size=3) to Inception.branch3.1.conv(kernel_size=5)
         del pretrained_models['inception3a.branch3.1.conv.weight']
         del pretrained_models['inception3b.branch3.1.conv.weight']
