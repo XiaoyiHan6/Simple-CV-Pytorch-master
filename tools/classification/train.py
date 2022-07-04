@@ -68,14 +68,6 @@ def parse_args():
                         type=str,
                         default=True,
                         help='Use CUDA to train model')
-    parser.add_argument('--momentum',
-                        type=float,
-                        default=0.9,
-                        help='Momentum value for optim')
-    parser.add_argument('--gamma',
-                        type=float,
-                        default=0.1,
-                        help='Gamma update for SGD')
     parser.add_argument('--accumulation_steps',
                         type=int,
                         default=1,
@@ -102,20 +94,12 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-2,
+                        default=1e-3,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
                         default=30,
                         help='Number of epochs')
-    parser.add_argument('--weight_decay',
-                        type=float,
-                        default=1e-4,
-                        help='weight decay')
-    parser.add_argument('--milestones',
-                        type=list,
-                        default=[15, 20, 30],
-                        help='Milestones')
     parser.add_argument('--num_classes',
                         type=int,
                         default=1000,
@@ -132,6 +116,10 @@ def parse_args():
                         type=str,
                         default=True,
                         help='Init Weights')
+    parser.add_argument('--patience',
+                        type=int,
+                        default=2,
+                        help='patience of ReduceLROnPlateau')
 
     return parser.parse_args()
 
@@ -317,11 +305,10 @@ def train():
     iteration = 0
 
     # 7. Optimizer
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum,
-                          weight_decay=args.weight_decay)
+    optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, milestones=args.milestones, gamma=args.gamma)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, patience=args.patience, verbose=True)
     scaler = GradScaler()
 
     # 8. Length

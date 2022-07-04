@@ -93,10 +93,12 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |
 |              |               |----lenet5.py
 |              |               |----alexnet.py
-|              |----basenet----|----vgg.py
-|              |               |----resnet.py
+|              |               |----vgg.py
+|              |----basenet----|----resnet.py(include: resenext)
 |              |               |----googlenet.py
-|              |
+|              |               |----mobilenet_v2.py
+|              |               |----mobilenet_v3.py
+|              |    
 |              |                 |----DarkNetBackbone.py
 |              |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |----ResNetBackbone.py
