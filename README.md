@@ -398,9 +398,6 @@ or
  pretrained: True
 ```
 
-I use transfer learning 
-optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
-
 | epoch |   times    | top1 acc (%) | top5 acc (%) |
 |:-----:|:----------:|:------------:|:------------:|
 |   0   | 0h0min0s   |    xxxxx     |    xxxxx     |

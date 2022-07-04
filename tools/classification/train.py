@@ -305,7 +305,7 @@ def train():
     iteration = 0
 
     # 7. Optimizer
-    optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, patience=args.patience, verbose=True)
