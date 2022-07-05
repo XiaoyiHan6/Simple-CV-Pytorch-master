@@ -393,7 +393,7 @@ or
  optim: AdamW
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.001
+ lr: 0.01
  epoch: 30
  pretrained: True
 ```
