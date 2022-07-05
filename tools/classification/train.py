@@ -94,7 +94,7 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-3,
+                        default=1e-2,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
@@ -120,6 +120,14 @@ def parse_args():
                         type=int,
                         default=2,
                         help='patience of ReduceLROnPlateau')
+    parser.add_argument('--weight_decay',
+                        type=float,
+                        default=1e-4,
+                        help='weight decay')
+    parser.add_argument('--momentum',
+                        type=float,
+                        default=0.9,
+                        help='Momentum value for optim')
 
     return parser.parse_args()
 
@@ -305,7 +313,8 @@ def train():
     iteration = 0
 
     # 7. Optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr,
+                          momentum=args.momentum, weight_decay=args.weight_decay)
     criterion = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, patience=args.patience, verbose=True)
