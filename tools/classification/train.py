@@ -95,7 +95,7 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-2,
+                        default=1e-3,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,

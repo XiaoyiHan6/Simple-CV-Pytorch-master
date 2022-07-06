@@ -342,7 +342,7 @@ Total:
  weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.01
+ lr: 0.001
  epoch: 30
  pretrained: True
 ```
@@ -428,11 +428,11 @@ or
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.001
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.01
  epoch: 30
  pretrained: True
 ```
@@ -461,11 +461,11 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.001
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.01
  epoch: 30
  pretrained: True
 ```
