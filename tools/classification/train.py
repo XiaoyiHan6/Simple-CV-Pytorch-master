@@ -27,6 +27,7 @@ from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
 from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
+from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
 from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
@@ -45,13 +46,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='googlenet',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet'],
+                        default='mobilenet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=0,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0')
+                        default=2,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0, MobileNet of 2, 3,')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -114,7 +115,7 @@ def parse_args():
                         help='Models was pretrained')
     parser.add_argument('--init_weights',
                         type=str,
-                        default=True,
+                        default=False,
                         help='Init Weights')
     parser.add_argument('--patience',
                         type=int,
@@ -272,6 +273,14 @@ def train():
                               num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+
+    elif args.basenet == 'mobilenet':
+        if args.depth == 2:
+            model = MobileNet_v2(pretrained=args.pretrained,
+                                 num_classes=args.num_classes,
+                                 init_weights=args.init_weights)
+        else:
+            raise ValueError('Unsupported MobileNet depth!')
 
     else:
         raise ValueError('Unsupported model type!')

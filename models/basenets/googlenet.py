@@ -11,7 +11,7 @@ models_urls = {
 }
 
 
-def GoogLeNet(num_classes, pretrained, aux_logits=True, init_weights=True, **kwargs):
+def GoogLeNet(num_classes, pretrained, aux_logits=False, init_weights=False, **kwargs):
     model = googlenet(num_classes=num_classes, aux_logits=aux_logits, init_weights=init_weights, **kwargs)
     if pretrained:
         # if you want to use cpu, you should modify map_loaction=torch.device("cpu")
@@ -101,7 +101,7 @@ class InceptionAux(nn.Module):
 
 
 class googlenet(nn.Module):
-    def __init__(self, num_classes=1000, aux_logits=True, init_weights=False):
+    def __init__(self, num_classes=1000, aux_logits=False, init_weights=False):
         super(googlenet, self).__init__()
         self.aux_logits = aux_logits
 

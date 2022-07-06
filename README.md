@@ -3,7 +3,7 @@
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
 later.
 
-For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet. Then I will reproduce GoogLeNet, ResNetXt, MobileNet,
+For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet, GoogLeNet. Then I will reproduce ResNetXt, MobileNet,
 ShuffleNet, EiffcientNet, etc.
 
 For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,
@@ -325,6 +325,7 @@ Total:
 |   3   | 3h48min56s |    46.88     |    75.00     |
 |   4   | 3h54min36s |    53.12     |    75.00     |
 |   5   | 3h49min35s |    56.25     |    71.88     |
+|  ...  |     ...    |     ...      |     ...      |
 
 ******************************
 
@@ -356,6 +357,7 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
 |   3   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   4   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   5   | 0h0min0s   |    xxxxx     |    xxxxx     |
+|  ...  |     ...    |     ...      |     ...      |
 
 ******************************
 
@@ -385,6 +387,7 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
 |   3   | 3h55min23s |    46.88     |    65.62     |
 |   4   | 3h55min45s |    50.00     |    75.00     |
 |   5   | 3h59min21s |    56.25     |    84.38     |
+|  ...  |     ...    |     ...      |     ...      |
 
 or
 
@@ -404,12 +407,13 @@ or
 
 | epoch |   times    | top1 acc (%) | top5 acc (%) |
 |:-----:|:----------:|:------------:|:------------:|
-|   0   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   1   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   2   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   3   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   4   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   5   | 0h0min0s   |    xxxxx     |    xxxxx     |
+|   0   | 3h57min28s |    28.12     |    50.00     |
+|   1   | 3h57min21s |    34.38     |    59.38     |
+|   2   | 4h6min32s  |    37.50     |    59.38     |
+|   3   | 4h32min20s |    40.62     |    68.75     |
+|   4   | 4h9min43s  |    43.75     |    68.75     |
+|   5   | 3h54min31s |    50.00     |    71.88     |
+|  ...  |     ...    |     ...      |     ...      |
 
 ******************************
 
@@ -444,6 +448,7 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
 |   3   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   4   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   5   | 0h0min0s   |    xxxxx     |    xxxxx     |
+|  ...  |     ...    |     ...      |     ...      |
 
 ******************************
 
@@ -476,6 +481,7 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
 |   3   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   4   | 0h0min0s   |    xxxxx     |    xxxxx     |
 |   5   | 0h0min0s   |    xxxxx     |    xxxxx     |
+|  ...  |     ...    |     ...      |     ...      |
 
 ******************************
 

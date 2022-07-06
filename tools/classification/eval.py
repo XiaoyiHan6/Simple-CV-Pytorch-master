@@ -24,6 +24,7 @@ from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.googlenet import googlenet, GoogLeNet
+from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
 from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
@@ -85,10 +86,6 @@ def parse_args():
                         type=int,
                         default=224,
                         help='image size, like ImageNet:224, cifar:32')
-    parser.add_argument('--pretrained',
-                        type=str,
-                        default=False,
-                        help='Models was pretrained')
 
     return parser.parse_args()
 
@@ -177,46 +174,41 @@ def eval():
 
     elif args.basenet == 'googlenet':
         if args.depth == 0:
-            model = GoogLeNet(num_classes=args.num_classes,
-                              pretrained=args.pretrained,
+            model = googlenet(num_classes=args.num_classes,
                               aux_logits=False)
         else:
             raise ValueError('Unsupported GoogLeNet depth!')
 
     elif args.basenet == 'vgg':
         if args.depth == 11:
-            model = vgg11(pretrained=args.pretrained,
-                          num_classes=args.num_classes)
+            model = vgg11(num_classes=args.num_classes)
         elif args.depth == 13:
-            model = vgg13(pretrained=args.pretrained,
-                          num_classes=args.num_classes)
+            model = vgg13(num_classes=args.num_classes)
         elif args.depth == 16:
-            model = vgg16(pretrained=args.pretrained,
-                          num_classes=args.num_classes)
+            model = vgg16(num_classes=args.num_classes)
         elif args.depth == 19:
-            model = vgg19(pretrained=args.pretrained,
-                          num_classes=args.num_classes)
+            model = vgg19(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported VGG depth!')
 
     elif args.basenet == 'resnet':
         if args.depth == 18:
-            model = resnet18(pretrained=args.pretrained,
-                             num_classes=args.num_classes)
+            model = resnet18(num_classes=args.num_classes)
         elif args.depth == 34:
-            model = resnet34(pretrained=args.pretrained,
-                             num_classes=args.num_classes)
+            model = resnet34(num_classes=args.num_classes)
         elif args.depth == 50:
-            model = resnet50(pretrained=args.pretrained,
-                             num_classes=args.num_classes)  # False means the models is not trained
+            model = resnet50(num_classes=args.num_classes)  # False means the models is not trained
         elif args.depth == 101:
-            model = resnet101(pretrained=args.pretrained,
-                              num_classes=args.num_classes)
+            model = resnet101(num_classes=args.num_classes)
         elif args.depth == 152:
-            model = resnet152(pretrained=args.pretrained,
-                              num_classes=args.num_classes)
+            model = resnet152(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+    elif args.basenet == 'mobilenet':
+        if args.depth == 2:
+            model = mobilenet_v2(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported MobileNet depth!')
     else:
         raise ValueError('Unsupported model type!')
 
@@ -233,7 +225,10 @@ def eval():
         if ext == '.pkl' or '.pth':
             print('Loading weights into state dict...')
             model_evaluate_load = os.path.join(args.save_folder, args.evaluate)
-            model.load_state_dict(torch.load(model_evaluate_load))
+            model_evaluate_load = torch.load(model_evaluate_load)
+            if args.basenet == 'googlenet':
+                model_evaluate_load = {k: v for k, v in model_evaluate_load.items() if "aux" not in k}
+            model.load_state_dict(model_evaluate_load)
         else:
             print('Sorry only .pth and .pkl files supported.')
     elif args.evaluate is None:

@@ -31,7 +31,7 @@ def vgg_(arch, num_classes, pretrained, init_weights=False, **kwargs):
     if pretrained:
         pretrained_models = torch.load(model_urls["vgg" + arch])
         # transfer learning
-        # I modify VGG 
+        # I modify VGG
         if arch == '11':
             del pretrained_models['features.8.weight']
             del pretrained_models['features.11.weight']
