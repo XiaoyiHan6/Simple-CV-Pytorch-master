@@ -3,7 +3,7 @@
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
 later.
 
-For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet, GoogLeNet. Then I will reproduce ResNetXt, MobileNet,
+For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet, GoogLeNet, MobileNet. Then I will reproduce ResNetXt,
 ShuffleNet, EiffcientNet, etc.
 
 For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,
