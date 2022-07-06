@@ -198,12 +198,12 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
  len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
+ lr: 0.01
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: MultiStepLR
  milestones: [15, 20, 30]
  gamma: 0.1
- lr: 0.01
  poch: 30
  ```
  
@@ -235,11 +235,11 @@ Total:
  len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
+ gamma: 0.1
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: MultiStepLR
  milestones: [15, 20, 30]
- gamma: 0.1
  lr: 0.01
  epoch: 30
  ```
@@ -272,12 +272,12 @@ Total:
  len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
+ lr: 0.01
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: MultiStepLR
  milestones: [15, 20, 30]
  gamma: 0.1
- lr: 0.01
  epoch: 30
  ```
 
@@ -308,12 +308,12 @@ Total:
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.001
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: MultiStepLR
  milestones: [15, 20, 30]
  gamma: 0.1
- lr: 0.001
  epoch: 30
 ```
 
@@ -338,11 +338,11 @@ Total:
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.001
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.001
  epoch: 30
  pretrained: True
 ```
@@ -370,12 +370,12 @@ optimizer = optim.AdamW(model.module.fc.parameters(), lr=args.lr)
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.01
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: MultiStepLR
  milestones: [15, 20, 30]
  gamma: 0.1
- lr: 0.01
  epoch: 30
 ```
 
@@ -396,11 +396,11 @@ or
  dataset: ImageNet
  batch_size: 32
  optim: SGD
+ lr: 0.01
  momentum: 0.9
  weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
- lr: 0.01
  epoch: 30
  pretrained: True
 ```
