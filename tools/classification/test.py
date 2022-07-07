@@ -184,11 +184,9 @@ def test():
             raise ValueError('Unsupported ResNet depth!')
     elif args.basenet == 'resnext':
         if args.depth == 50:
-            model = resnext50_32x4d(pretrained=args.pretrained,
-                                    num_classes=args.num_classes)
+            model = resnext50_32x4d(num_classes=args.num_classes)
         elif args.depth == 101:
-            model = resnext101_32x8d(pretrained=args.pretrained,
-                                     num_classes=args.num_classes)
+            model = resnext101_32x8d(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNeXt depth!')
     elif args.basenet == 'mobilenet':
