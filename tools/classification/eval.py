@@ -43,12 +43,12 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='googlenet',
+                        default='mobilenet',
                         choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=0,
+                        default=2,
                         help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0')
     parser.add_argument('--batch_size',
                         type=int,

@@ -195,7 +195,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
  basenet: lenet5 (image size: 32 * 32 * 3)
  dataset: cifar
- len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
  lr: 0.01
@@ -232,7 +231,6 @@ Total:
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
  basenet: AlexNet (image size: 224 * 224 * 3)
  dataset: cifar
- len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
  gamma: 0.1
@@ -269,7 +267,6 @@ Total:
  I add nn.BatchNorm2d() and transfer learning. This is because that I was so upset about the poor accuracy.
  basenet: vgg16 (image size: 224 * 224 * 3)
  dataset: cifar
- len(dataset): 50000, iter_size: 1562 
  batch_size: 32
  optim: SGD
  lr: 0.01
@@ -437,12 +434,12 @@ or
 
 | epoch |   times    | top1 acc (%) | top5 acc (%) |
 |:-----:|:----------:|:------------:|:------------:|
-|   0   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   1   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   2   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   3   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   4   | 0h0min0s   |    xxxxx     |    xxxxx     |
-|   5   | 0h0min0s   |    xxxxx     |    xxxxx     |
+|   0   | 3h47min34s |    59.38     |    90.62     |
+|   1   | 4h8min17s  |    65.62     |    87.50     |
+|   2   | 4h28min18s |    68.75     |    90.62     |
+|   3   | 4h11min13s |    71.88     |    87.50     |
+|   4   | 4h1min26s  |    71.88     |    90.62     |
+|   5   | 3h58min3s  |    66.9      |    88.19     |
 |  ...  |     ...    |     ...      |     ...      |
 
 ******************************
