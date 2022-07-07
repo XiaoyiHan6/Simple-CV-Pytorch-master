@@ -21,7 +21,7 @@ from models.basenets.alexnet import alexnet
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
-from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152
+from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
 
 
 def parse_args():
@@ -38,13 +38,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='mobilenet',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet'],
+                        default='resnext',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet', 'resnext'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=2,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0, MobileNet of 2, 3')
+                        default=50,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0, MobileNet of 2, 3,ResNeXt of 50, 101')
     parser.add_argument('--evaluate',
                         type=str,
                         default=config.classification_evaluate,
@@ -182,6 +182,15 @@ def test():
             model = resnet152(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+    elif args.basenet == 'resnext':
+        if args.depth == 50:
+            model = resnext50_32x4d(pretrained=args.pretrained,
+                                    num_classes=args.num_classes)
+        elif args.depth == 101:
+            model = resnext101_32x8d(pretrained=args.pretrained,
+                                     num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported ResNeXt depth!')
     elif args.basenet == 'mobilenet':
         if args.depth == 2:
             model = mobilenet_v2(num_classes=args.num_classes)
