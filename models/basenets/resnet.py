@@ -49,8 +49,11 @@ def resnet_(arch, block, block_num, num_classes, pretrained, include_top, **kwar
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_channels, out_channels, stride=1, downsample=None):
+    def __init__(self, in_channels, out_channels, stride=1, downsample=None,
+                 groups=1, width_per_group=64):
         super(BasicBlock, self).__init__()
+        if groups != 1 or width_per_group != 64:
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=stride,
                                padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
@@ -105,11 +108,11 @@ class Bottleneck(nn.Module):
                                stride=1, bias=False)
         self.bn1 = nn.BatchNorm2d(width)
 
-        self.conv2 = nn.Conv2d(in_channels=out_channels, out_channels=width, kernel_size=3,
+        self.conv2 = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=3,
                                groups=groups, stride=stride, bias=False, padding=1)
         self.bn2 = nn.BatchNorm2d(width)
 
-        self.conv3 = nn.Conv2d(in_channels=out_channels, out_channels=out_channels * self.expansion, kernel__size=1,
+        self.conv3 = nn.Conv2d(in_channels=width, out_channels=out_channels * self.expansion, kernel_size=1,
                                stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channels * self.expansion)
         self.relu = nn.ReLU()
@@ -225,14 +228,16 @@ def resnet152(num_classes=1000, pretrained=False, include_top=True):
 def resnext50_32x4d(num_classes=1000, pretrained=False, include_top=True):
     groups = 32
     width_per_group = 4
-    return resnet_('resnext50_32x4d', Bottleneck, [3, 4, 6, 3], include_top,
+    return resnet_('resnext50_32x4d', Bottleneck, [3, 4, 6, 3],
                    num_classes=num_classes, pretrained=pretrained,
-                   groups=groups, width_per_group=width_per_group)
+                   groups=groups, width_per_group=width_per_group,
+                   include_top=include_top)
 
 
 def resnext101_32x8d(num_classes=1000, pretrianed=False, include_top=True):
     groups = 32
     width_per_group = 8
-    return resnet_('resnext101_32x8d', Bottleneck, [3, 4, 23, 3], include_top,
+    return resnet_('resnext101_32x8d', Bottleneck, [3, 4, 23, 3],
                    num_classes=num_classes, pretrianed=pretrianed,
-                   groups=groups, width_per_group=width_per_group)
+                   groups=groups, width_per_group=width_per_group,
+                   include_top=include_top)
