@@ -25,6 +25,7 @@ from models.basenets.lenet5 import lenet5
 from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
+from models.basenets.mobilenet_v3 import MobileNet_v3
 from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
@@ -46,13 +47,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='resnext',
+                        default='mobilenet',
                         choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet', 'resnext'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0, MobileNet of 2, 3, ResNeXt of 50, 101')
+                        default=3,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -288,6 +289,11 @@ def train():
             model = MobileNet_v2(pretrained=args.pretrained,
                                  num_classes=args.num_classes,
                                  init_weights=args.init_weights)
+        elif args.depth == 3:
+            model = MobileNet_v3(pretrained=args.pretrained,
+                                 num_classes=args.num_classes,
+                                 init_weights=args.init_weights,
+                                 type='small')
         else:
             raise ValueError('Unsupported MobileNet depth!')
 

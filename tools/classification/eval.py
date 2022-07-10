@@ -22,6 +22,7 @@ from torch.utils.data import DataLoader
 from models.basenets.lenet5 import lenet5
 from models.basenets.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
+from models.basenets.mobilenet_v3 import MobileNet_v3
 from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
 from models.basenets.googlenet import googlenet, GoogLeNet
 from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
@@ -43,13 +44,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='resnext',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'resnext'],
+                        default='mobilenet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'resnext', 'mobilenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, GoogLeNet of 0,ResNext of 50, 101')
+                        default=3,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNext of 50, 101, GoogLeNet of 0, MobileNet of 2, 3')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,
@@ -214,6 +215,8 @@ def eval():
     elif args.basenet == 'mobilenet':
         if args.depth == 2:
             model = mobilenet_v2(num_classes=args.num_classes)
+        elif args.depth == 3:
+            model = MobileNet_v3(num_classes=args.num_classes, type='small')
         else:
             raise ValueError('Unsupported MobileNet depth!')
     else:
