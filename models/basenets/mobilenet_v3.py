@@ -230,6 +230,8 @@ def mobilenet_v3_large(reduced_tail=False, num_classes=1000, pretrained=False, i
     if pretrained:
         # if you want to use cpu, you should modify map_loaction=torch.device("cpu")
         pretrained_models = torch.load(models_urls['mobilenet_v3_large'], map_location=torch.device("cuda:0"))
+        # transfer learning
+        del pretrained_models['features.1.block.0.0.weight']
         model.load_state_dict(pretrained_models, strict=False)
     return model
 
