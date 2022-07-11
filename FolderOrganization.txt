@@ -72,10 +72,10 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |            |----voc0712.py
 |            |----voc_eval.py
 |            |----voc_labels.txt
-|                                     |----crash_helmet.jpg
-|----images----|----classification----|----sunflower.jpg
-|              |                      |----photocopier.jpg
-|              |                      |----automobile.jpg
+|                                     |----automobile.png
+|----images----|----classification----|----crash_helmet.png
+|              |                      |----photocopier.png
+|              |                      |----sunflower.png
 |              |
 |              |----detection----|----000001.jpg
 |                                |----000001.xml
