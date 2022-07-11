@@ -274,6 +274,7 @@ def train():
                               num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+
     elif args.basenet == 'resnext':
         if args.depth == 50:
             model = resnext50_32x4d(pretrained=args.pretrained,

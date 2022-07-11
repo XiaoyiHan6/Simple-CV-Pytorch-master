@@ -44,7 +44,7 @@ def parse_args():
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
+                        default=3,
                         help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3')
     parser.add_argument('--evaluate',
                         type=str,
@@ -183,6 +183,7 @@ def test():
             model = resnet152(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+
     elif args.basenet == 'resnext':
         if args.depth == 50:
             model = resnext50_32x4d(num_classes=args.num_classes)
@@ -190,6 +191,7 @@ def test():
             model = resnext101_32x8d(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNeXt depth!')
+
     elif args.basenet == 'mobilenet':
         if args.depth == 2:
             model = mobilenet_v2(num_classes=args.num_classes)
@@ -197,6 +199,7 @@ def test():
             model = MobileNet_v3(num_classes=args.num_classes, type='small')
         else:
             raise ValueError('Unsupported MobileNet depth!')
+
     else:
         raise ValueError('Unsupported model type!')
 

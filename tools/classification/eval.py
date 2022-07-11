@@ -205,6 +205,7 @@ def eval():
             model = resnet152(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNet depth!')
+
     elif args.basenet == 'resnext':
         if args.depth == 50:
             model = resnext50_32x4d(num_classes=args.num_classes)
@@ -212,6 +213,7 @@ def eval():
             model = resnext101_32x8d(num_classes=args.num_classes)
         else:
             raise ValueError('Unsupported ResNeXt depth!')
+
     elif args.basenet == 'mobilenet':
         if args.depth == 2:
             model = mobilenet_v2(num_classes=args.num_classes)
@@ -219,6 +221,7 @@ def eval():
             model = MobileNet_v3(num_classes=args.num_classes, type='small')
         else:
             raise ValueError('Unsupported MobileNet depth!')
+
     else:
         raise ValueError('Unsupported model type!')
 
