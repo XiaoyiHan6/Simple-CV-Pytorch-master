@@ -55,7 +55,7 @@ images_det_path = 'images/detection'
 images_det_path = os.path.join(BASE_DIR, MyName, Folder, images_det_path, image_det)
 
 # Images classification path
-image_cls = 'automobile.jpg'
+image_cls = 'automobile.png'
 images_cls_path = 'images/classification'
 images_cls_path = os.path.join(BASE_DIR, MyName, Folder, images_cls_path, image_cls)
 
