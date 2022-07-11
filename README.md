@@ -431,7 +431,7 @@ or
 
 | No.epoch | times/epoch | top1 acc (%) | top5 acc (%) |
 |:--------:|:-----------:|:------------:|:------------:|
-|     5    |   0h0min0s  |    xxxxx     |    xxxxx     |
+|     5    |  3h54min38s |    xxxxx     |    xxxxx     |
 
 ******************************
 
