@@ -476,7 +476,9 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
   3.U-Net
   
 
-### Now, I'm training MobieNet v3 model. Besides, I'd like to add ShuffleNet and EfficientNet classification models. Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
+### PS
+
+Now, I'm training MobieNet v3 model. Besides, I'd like to add ShuffleNet and EfficientNet classification models. Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
 
 ## references
 
