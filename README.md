@@ -1,14 +1,10 @@
 # Simple-CV-Pytorch-master
 
-This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
-later.
+This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later.
 
-For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet, GoogLeNet, MobileNet. Then I will reproduce ResNetXt,
-ShuffleNet, EiffcientNet, etc.
+For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet. Then I will reproduce ShuffleNet, EiffcientNet, etc.
 
-For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,
-loss,etc.
-This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
+For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
 Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
@@ -480,7 +476,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
 
 ### PS
 
-Now, I'm training MobieNet v3 model. Besides, I'd like to add ShuffleNet and EfficientNet classification models. Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
+I'd like to add classification(ShuffleNet, EfficientNet), object detection, semantic segmentation models. Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
 
 ## references
 
