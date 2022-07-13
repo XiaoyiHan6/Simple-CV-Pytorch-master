@@ -329,26 +329,6 @@ Total:
  lr: 0.01
  momentum: 0.9
  weight_decay: 1e-4
- scheduler: MultiStepLR
- milestones: [15, 20, 30]
- gamma: 0.1
- epoch: 30
-```
-
-| No.epoch | times/epoch | top1 acc (%) | top5 acc (%) |
-|:--------:|:-----------:|:------------:|:------------:|
-|     5    |  3h59min21s |    37.50     |    65.62     |
-
-or
-
-```
- basenet: GoogLeNet 
- dataset: ImageNet
- batch_size: 32
- optim: SGD
- lr: 0.01
- momentum: 0.9
- weight_decay: 1e-4
  scheduler: ReduceLROnPlateau
  patience: 2
  epoch: 30
@@ -455,7 +435,29 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
   (finished)
 
-  1.RetinaNet(models/RetinaNet.py)
+**1.RetinaNet(models/RetinaNet.py)**[9]
+ 
+![RetinaNet](images/icon/retinanet.png)
+ 
+```
+ Network: RetinaNet
+ backbone: ResNet
+ neck: FPN
+ loss: Focal Loss
+ dataset: coco
+ batch_size: 32
+ optim: AdamW
+ lr: 0.0001
+ scheduler: ReduceLROnPlateau
+ patience: 3
+ epoch: 30
+ pretrained: True
+```
+
+| No.epoch | times/epoch | top1 acc (%) | top5 acc (%) |
+|:--------:|:-----------:|:------------:|:------------:|
+|     0    |  0h00min00s |    xxxxx     |    xxxxx     |
+
 
 - Run
 
@@ -497,4 +499,6 @@ Now, I'm training MobieNet v3 model. Besides, I'd like to add ShuffleNet and Eff
 [[7] Sandler M, Howard A, Zhu M, et al.  Mobilenetv2: Inverted residuals and linear bottlenecks[C]//Proceedings  of the IEEE conference on computer vision and pattern recognition. 2018:  4510-4520.](https://openaccess.thecvf.com/content_cvpr_2018/papers/Sandler_MobileNetV2_Inverted_Residuals_CVPR_2018_paper.pdf)
 
 [[8] Howard A, Sandler M, Chu G, et al.  Searching for mobilenetv3[C]//Proceedings of the IEEE/CVF international  conference on computer vision. 2019: 1314-1324.](https://openaccess.thecvf.com/content_ICCV_2019/papers/Howard_Searching_for_MobileNetV3_ICCV_2019_paper.pdf)
+
+[[9] Lin T Y, Goyal P, Girshick R, et al. Focal loss for dense object detection[C]//Proceedings of the IEEE international conference on computer vision. 2017: 2980-2988.](https://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf)
 
