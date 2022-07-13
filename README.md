@@ -476,7 +476,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
 
 ### PS
 
-I'd like to add classification(ShuffleNet, EfficientNet), object detection, semantic segmentation models. Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
+Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
 
 ## references
 
