@@ -21,15 +21,15 @@ from torchvision import transforms
 from utils.accuracy import accuracy
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
-from models.basenets.lenet5 import lenet5
-from models.basenets.alexnet import alexnet
+from models.classification.lenet5 import lenet5
+from models.classification.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
-from models.basenets.mobilenet_v3 import MobileNet_v3
-from models.basenets.googlenet import googlenet, GoogLeNet
-from models.basenets.vgg import vgg11, vgg13, vgg16, vgg19
-from models.basenets.mobilenet_v2 import mobilenet_v2, MobileNet_v2
-from models.basenets.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
+from models.classification.mobilenet_v3 import MobileNet_v3
+from models.classification.googlenet import GoogLeNet
+from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.classification.mobilenet_v2 import MobileNet_v2
+from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
 
 
 def parse_args():
@@ -294,7 +294,7 @@ def train():
             model = MobileNet_v3(pretrained=args.pretrained,
                                  num_classes=args.num_classes,
                                  init_weights=args.init_weights,
-                                 type='small')
+                                 type='large')
         else:
             raise ValueError('Unsupported MobileNet depth!')
 

@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 from utils.path import CheckPoints
 from torch.cuda.amp import autocast
-from torchvision.models.resnet import resnext101_32x8d
 
 __all__ = [
     'resnet18',
