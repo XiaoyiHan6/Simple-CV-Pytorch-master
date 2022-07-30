@@ -44,6 +44,8 @@ opencv-python
 
 skimage
 
+tensorboard
+
 tqdm
 
 thop
