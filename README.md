@@ -98,13 +98,13 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----lenet5.py
 |              |                      |----alexnet.py
 |              |                      |----vgg.py
-|              |----Classification----|----resnet.py(include: resenext)
+|              |----classification----|----resnet.py(include: resenext)
 |              |                      |----googlenet.py
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py 
 |              | 
 |              |                     
-|              |----Detection----|----__init__.py
+|              |----detection----|----__init__.py
 |              |                 |----RetinaNet.py
 |              |                 |----anchor----|----__init__.py
 |              |                 |              |----RetinaNetAnchors.py   
