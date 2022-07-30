@@ -24,13 +24,13 @@ pip install -r requirements.txt
 ```
 
 ```
-python == 3.9.12
+python == 3.8.5
 
 torch == 1.11.0+cu113
 
-torchvision== 0.11.0+cu113
+torchaudio == 0.11.0+cu113
 
-torchaudio== 0.12.0+cu113
+torchvision == 0.12.0+cu113
 
 pycocotools == 2.0.4
 
