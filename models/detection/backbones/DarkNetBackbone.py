@@ -1,5 +1,5 @@
 import torch.nn as nn
-from models import backbones
+from models.detection import backbones
 
 
 class Darknet19Backbone(nn.Module):

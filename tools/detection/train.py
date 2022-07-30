@@ -14,7 +14,7 @@ import torch
 import torch.optim as optim
 from torchvision import transforms
 
-from models import resnet18_retinanet, resnet34_retinanet, \
+from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 from torch.utils.data import DataLoader
 from utils.augmentations import Resize, RandomFlip, Normalize

@@ -7,11 +7,11 @@ BASE_DIR = os.path.dirname(
 sys.path.append(BASE_DIR)
 
 import math
-from .backbones import ResNetBackbone
-from .necks import FPN
-from .heads import clsHead, regHead
-from .anchors import RetinaNetAnchors
-from .losses.RetinaNetLoss import FocalLoss
+from models.detection.backbones import ResNetBackbone
+from models.detection.necks import FPN
+from models.detection.heads import clsHead, regHead
+from models.detection.anchors import RetinaNetAnchors
+from models.detection.losses.RetinaNetLoss import FocalLoss
 from utils.BBoxTransform import BBoxTransform
 from utils.ClipBoxes import ClipBoxes
 
