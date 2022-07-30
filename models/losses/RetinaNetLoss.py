@@ -64,7 +64,7 @@ class FocalLoss(nn.Module):
             # max: value idx
             IoU_max, IoU_argmax = torch.max(IoU, dim=1)
 
-            # compute the loss for classification
+            # compute the loss for Classification
             targets = torch.ones(cls_head.shape) * -1
 
             if torch.cuda.is_available():

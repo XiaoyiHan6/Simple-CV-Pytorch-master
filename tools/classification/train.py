@@ -21,15 +21,15 @@ from torchvision import transforms
 from utils.accuracy import accuracy
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
-from models.classification.lenet5 import lenet5
-from models.classification.alexnet import alexnet
+from models.Classification.lenet5 import lenet5
+from models.Classification.alexnet import alexnet
 from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
-from models.classification.mobilenet_v3 import MobileNet_v3
-from models.classification.googlenet import GoogLeNet
-from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
-from models.classification.mobilenet_v2 import MobileNet_v2
-from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
+from models.Classification.mobilenet_v3 import MobileNet_v3
+from models.Classification.googlenet import GoogLeNet
+from models.Classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.Classification.mobilenet_v2 import MobileNet_v2
+from models.Classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
 
 
 def parse_args():
