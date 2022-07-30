@@ -16,17 +16,17 @@ from PIL import Image
 import torch.nn.parallel
 from torchvision import transforms
 from utils.get_logger import get_logger
-from models.Classification.lenet5 import lenet5
-from models.Classification.alexnet import alexnet
-from models.Classification.mobilenet_v3 import MobileNet_v3
-from models.Classification.vgg import vgg11, vgg13, vgg16, vgg19
-from models.Classification.googlenet import googlenet
-from models.Classification.mobilenet_v2 import mobilenet_v2
-from models.Classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
+from models.classification.lenet5 import lenet5
+from models.classification.alexnet import alexnet
+from models.classification.mobilenet_v3 import MobileNet_v3
+from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.classification.googlenet import googlenet
+from models.classification.mobilenet_v2 import mobilenet_v2
+from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Classification Testing')
+    parser = argparse.ArgumentParser(description='PyTorch classification Testing')
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,

@@ -22,7 +22,7 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Detection Evaluation')
+    parser = argparse.ArgumentParser(description='PyTorch detection Evaluation')
     parser.add_argument('--dataset',
                         type=str,
                         default='VOC',

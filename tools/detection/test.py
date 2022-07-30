@@ -24,7 +24,7 @@ devkit_path = results_path
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch Detection Testing')
+    parser = argparse.ArgumentParser(description='PyTorch detection Testing')
     parser.add_mutually_exclusive_group()
     parser.add_argument('--dataset',
                         type=str,
