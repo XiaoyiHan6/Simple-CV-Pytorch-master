@@ -92,36 +92,31 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
 |              |----__init__.py
+|              |
+|              |                      |----lenet5.py
+|              |                      |----alexnet.py
+|              |                      |----vgg.py
+|              |----Classification----|----resnet.py(include: resenext)
+|              |                      |----googlenet.py
+|              |                      |----mobilenet_v2.py
+|              |                      |----mobilenet_v3.py 
 |              | 
-|              |              |----__init.py
-|              |----anchor----|----RetinaNetAnchors.py
-|              |
-|              |               |----lenet5.py
-|              |               |----alexnet.py
-|              |               |----vgg.py
-|              |----basenet----|----resnet.py(include: resenext)
-|              |               |----googlenet.py
-|              |               |----mobilenet_v2.py
-|              |               |----mobilenet_v3.py    
-|              |
-|              |                 |----DarkNetBackbone.py
-|              |----backbones----|----__init__.py ( Don't finish writing )
-|              |                 |----ResNetBackbone.py
-|              |                 |----VovNetBackbone.py
-|              |                 
-|              |                 
-|              |
-|----models----|----heads----|----__init.py
-|              |             |----RetinaNetHeads.py
-|              |
-|              |              |----RetinaNetLoss.py      
-|              |----losses----|----__init.py
-|              |
-|              |             |----FPN.py
-|              |----necks----|----__init__.py
-|              |             |-----FPN.txt
-|              |
-|              |----RetinaNet.py
+|              |                     
+|              |----Detection----|----__init__.py
+|              |                 |----RetinaNet.py
+|              |                 |----anchor----|----__init__.py
+|              |                 |              |----RetinaNetAnchors.py   
+|              |                 |----backbones----|----__init__.py ( Don't finish writing )  |              |                 |                 |----DarkNetBackbone.py
+|              |                 |                 |----ResNetBackbone.py
+|              |                 |                 |----VovNetBackbone.py
+|              |                 |
+|----models----|                 |----heads----|----__init.py
+|              |                 |             |----RetinaNetHeads.py
+|              |                 |----losses----|----__init.py
+|              |                 |              |----RetinaNetLoss.py
+|              |                 |----necks----|----__init__.py
+|              |                 |             |----FPN.py
+|              |                 |             |-----FPN.txt
 |
 |----results ( eg: detection ( VOC or COCO AP ) )
 |

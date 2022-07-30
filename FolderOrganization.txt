@@ -54,7 +54,7 @@ cifar path: /data/cifar
 
 I use Ubuntu20.04 (OS).
 
-project path: /data/PycharmProject/
+project path: /data/PycharmProject
 
 Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
@@ -88,35 +88,30 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |              |----__init__.py
 |              |
-|              |              |----__init.py
-|              |----anchor----|----RetinaNetAnchors.py
-|              |
-|              |               |----lenet5.py
-|              |               |----alexnet.py
-|              |               |----vgg.py
-|              |----basenet----|----resnet.py(include: resenext)
-|              |               |----googlenet.py
-|              |               |----mobilenet_v2.py
-|              |               |----mobilenet_v3.py
-|              |    
-|              |                 |----DarkNetBackbone.py
-|              |----backbones----|----__init__.py ( Don't finish writing )
-|              |                 |----ResNetBackbone.py
-|              |                 |----VovNetBackbone.py
-|              |
-|              |
-|              |
-|----models----|----heads----|----__init.py
-|              |             |----RetinaNetHeads.py
-|              |
-|              |              |----RetinaNetLoss.py
-|              |----losses----|----__init.py
-|              |
-|              |             |----FPN.py
-|              |----necks----|----__init__.py
-|              |             |-----FPN.txt
-|              |
-|              |----RetinaNet.py
+|              |                      |----lenet5.py
+|              |                      |----alexnet.py
+|              |                      |----vgg.py
+|              |----Classification----|----resnet.py(include: resenext)
+|              |                      |----googlenet.py
+|              |                      |----mobilenet_v2.py
+|              |                      |----mobilenet_v3.py 
+|              | 
+|              |                     
+|              |----Detection----|----__init__.py
+|              |                 |----RetinaNet.py
+|              |                 |----anchor----|----__init__.py
+|              |                 |              |----RetinaNetAnchors.py   
+|              |                 |----backbones----|----__init__.py ( Don't finish writing )  |              |                 |                 |----DarkNetBackbone.py
+|              |                 |                 |----ResNetBackbone.py
+|              |                 |                 |----VovNetBackbone.py
+|              |                 |
+|----models----|                 |----heads----|----__init.py
+|              |                 |             |----RetinaNetHeads.py
+|              |                 |----losses----|----__init.py
+|              |                 |              |----RetinaNetLoss.py
+|              |                 |----necks----|----__init__.py
+|              |                 |             |----FPN.py
+|              |                 |             |-----FPN.txt
 |
 |----results ( eg: detection ( VOC or COCO AP ) )
 |
@@ -125,20 +120,20 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----tools                       |----eval.py
 |         |----classification----|----train.py
 |         |                      |----test.py
-|         |
-|         |
+|         |               
+|         |               
 |         |
 |         |                 |----eval_coco.py
 |         |                 |----eval_voc.py
 |         |----detection----|----test.py
 |                           |----train.py
-|
+|                      
 |
 |             |----AverageMeter.py
 |             |----BBoxTransform.py
 |             |----ClipBoxes.py
-|             |----Sampler.py
-|             |----iou.py
+|             |----Sampler.py 
+|             |----iou.py            
 |----utils----|----__init__.py
 |             |----accuracy.py
 |             |----augmentations.py
@@ -154,6 +149,5 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----README.md
 |
 |----requirements.txt
-
 
 
