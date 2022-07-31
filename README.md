@@ -93,32 +93,30 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
-|              |----__init__.py
-|              |
-|              |                      |----lenet5.py
+|----models----|----__init__.py
+|              |----classification----|----lenet5.py
 |              |                      |----alexnet.py
 |              |                      |----vgg.py
-|              |----classification----|----resnet.py(include: resenext)
+|              |                      |----resnet.py(include: resenext)
 |              |                      |----googlenet.py
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py 
 |              | 
 |              |                     
 |              |----detection----|----__init__.py
-|              |                 |----RetinaNet.py
-|              |                 |----anchor----|----__init__.py
-|              |                 |              |----RetinaNetAnchors.py   
+|              |                 |----RetinaNet.py   
 |              |                 |----backbones----|----__init__.py ( Don't finish writing )  |              |                 |                 |----DarkNetBackbone.py
 |              |                 |                 |----ResNetBackbone.py
 |              |                 |                 |----VovNetBackbone.py
-|              |                 |
-|----models----|                 |----heads----|----__init.py
-|              |                 |             |----RetinaNetHeads.py
-|              |                 |----losses----|----__init.py
-|              |                 |              |----RetinaNetLoss.py
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
 |              |                 |             |-----FPN.txt
+|              |                 |----heads----|----__init.py
+|              |                 |             |----RetinaNetHeads.py
+|              |                 |----anchor----|----__init__.py
+|              |                 |              |----RetinaNetAnchors.py
+|              |                 |----losses----|----__init.py
+|              |                 |              |----RetinaNetLoss.py
 |
 |----results ( eg: detection ( VOC or COCO AP ) )
 |
@@ -127,9 +125,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----tools                       |----eval.py
 |         |----classification----|----train.py
 |         |                      |----test.py
-|         |               
-|         |               
-|         |
 |         |                 |----eval_coco.py
 |         |                 |----eval_voc.py
 |         |----detection----|----test.py
