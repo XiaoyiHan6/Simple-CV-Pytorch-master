@@ -98,7 +98,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                     
 |              |----detection----|----__init__.py
 |              |                 |----RetinaNet.py   
-|              |                 |----backbones----|----__init__.py ( Don't finish writing )  |              |                 |                 |----DarkNetBackbone.py
+|              |                 |----backbones----|----__init__.py ( Don't finish writing )
+|              |                 |                 |----DarkNetBackbone.py
 |              |                 |                 |----ResNetBackbone.py
 |              |                 |                 |----VovNetBackbone.py
 |              |                 |----necks----|----__init__.py
