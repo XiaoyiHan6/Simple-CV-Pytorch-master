@@ -94,7 +94,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
 |----models----|----__init__.py
-|              |----classification----|----lenet5.py
+|              |----classification----|----__init__.py
+|              |                      |----lenet5.py
 |              |                      |----alexnet.py
 |              |                      |----vgg.py
 |              |                      |----resnet.py(include: resenext)
@@ -175,7 +176,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
   (finished)
   
 
-**1).LeNet5(models/basenets/lenet5.py)**[1]
+**1).LeNet5(models/classification/lenet5.py)**[1]
 
 ![LeNet5](images/icon/lenet5.png)
 
@@ -203,7 +204,7 @@ Total:
 
 ******************************
 
-**2).AlexNet(models/basenets/alexnet.py)**[2]
+**2).AlexNet(models/classification/alexnet.py)**[2]
 
 ![AlexNet](images/icon/alexnet.png)
 
@@ -230,7 +231,7 @@ Total:
 
 ******************************
 
-**3).VGG(models/basenets/vgg.py)**[3]
+**3).VGG(models/classification/vgg.py)**[3]
 
 ![VGG](images/icon/vgg.png)
 
@@ -258,7 +259,7 @@ Total:
 
 ******************************
 
-**4).ResNet(models/basenets/resnet.py)**[4]
+**4).ResNet(models/classification/resnet.py)**[4]
 
 ![ResNet](images/icon/resnet.png)
 
@@ -282,7 +283,7 @@ Total:
 
 ******************************
 
-**5).ResNetXt(models/basenets/resnet.py include: resnext50_32x4d,resnext101_32x8d)**[5]
+**5).ResNetXt(models/classification/resnet.py include: resnext50_32x4d,resnext101_32x8d)**[5]
 
 ![ResNeXt](images/icon/resnext.png)
 
@@ -306,7 +307,7 @@ Total:
 
 ******************************
 
-**6).GoogLeNet(models/besenets/googlenet.py)**[6]
+**6).GoogLeNet(models/classification/googlenet.py)**[6]
 
 ![GoogLeNet](images/icon/googlenet.png)
 
@@ -330,7 +331,7 @@ Total:
 
 ******************************
 
-**7).MobileNet(models/basenets/mobilenet_v2.py or mobilenet_v3.py)**
+**7).MobileNet(models/classification/mobilenet_v2.py or mobilenet_v3.py)**
 
 ***a).MobileNet_v2***[7]
 
@@ -424,7 +425,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
   (finished)
 
-**1.RetinaNet(models/RetinaNet.py)**[9]
+**1.RetinaNet(models/detection/RetinaNet.py)**[9]
  
 ![RetinaNet](images/icon/retinanet.png)
  
