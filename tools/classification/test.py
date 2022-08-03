@@ -22,7 +22,10 @@ from models.classification.mobilenet_v3 import MobileNet_v3
 from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
 from models.classification.googlenet import googlenet
 from models.classification.mobilenet_v2 import mobilenet_v2
-from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
+from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
+    resnext101_32x8d
+from models.classification.shufflenet import shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5, \
+    shufflenet_v2_x2_0
 
 
 def parse_args():
@@ -39,13 +42,14 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='mobilenet',
-                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet', 'resnext'],
+                        default='shufflenet',
+                        choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet', 'resnext',
+                                 'shufflenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=3,
-                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3')
+                        default=5,
+                        help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3, ShuffleNet of 5, 10, 15, 20')
     parser.add_argument('--evaluate',
                         type=str,
                         default=config.classification_evaluate,
@@ -199,6 +203,17 @@ def test():
             model = MobileNet_v3(num_classes=args.num_classes, type='large')
         else:
             raise ValueError('Unsupported MobileNet depth!')
+    elif args.basenet == 'shufflenet':
+        if args.depth == 5:
+            model = shufflenet_v2_x0_5(num_classes=args.num_classes)
+        elif args.depth == 10:
+            model = shufflenet_v2_x1_0(num_classes=args.num_classes)
+        elif args.depth == 15:
+            model = shufflenet_v2_x1_5(num_classes=args.num_classes)
+        elif args.depth == 20:
+            model = shufflenet_v2_x2_0(num_classes=args.num_classes)
+        else:
+            raise ValueError('Unsupported ShuffleNet depth!')
 
     else:
         raise ValueError('Unsupported model type!')
