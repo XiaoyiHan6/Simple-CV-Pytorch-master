@@ -162,9 +162,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 - Reproduce network architectures
 
-  1).ShuffleNet
-
-  2).EfficientNet
+  1).EfficientNet
 
   (They should be placed in backbone of object detection, but they are used to extract features, just like
   classification networks)
@@ -405,6 +403,30 @@ Total:
 
 ******************************
 
+**8).ShuffleNet v2(models/classification/shufflenet.py)**[9]
+
+![ShuffleNet_v2](images/icon/shufflenet_v2.png)
+
+```
+ basenet: ShuffleNet_v2_x0_5
+ dataset: ImageNet
+ batch_size: 32
+ optim: SGD
+ lr: 0.001
+ momentum: 0.9
+ weight_decay: 1e-4
+ scheduler: ReduceLROnPlateau
+ patience: 2
+ epoch: 30
+ pretrained: True
+```
+
+| No.epoch | times/epoch | top1 acc (%) | top5 acc (%) |
+|:--------:|:-----------:|:------------:|:------------:|
+|     5    |  3h52min0s  |    68.89     |    88.92     |
+
+******************************
+
 - Run
 
 ```
@@ -425,7 +447,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
   (finished)
 
-**1.RetinaNet(models/detection/RetinaNet.py)**[9]
+**1.RetinaNet(models/detection/RetinaNet.py)**[10]
  
 ![RetinaNet](images/icon/retinanet.png)
  
@@ -490,5 +512,8 @@ Next, I will modify this project architecture that I will split 'models'(directo
 
 [[8] Howard A, Sandler M, Chu G, et al.  Searching for mobilenetv3[C]//Proceedings of the IEEE/CVF international  conference on computer vision. 2019: 1314-1324.](https://openaccess.thecvf.com/content_ICCV_2019/papers/Howard_Searching_for_MobileNetV3_ICCV_2019_paper.pdf)
 
-[[9] Lin T Y, Goyal P, Girshick R, et al. Focal loss for dense object detection[C]//Proceedings of the IEEE international conference on computer vision. 2017: 2980-2988.](https://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf)
+[[9] Ma N, Zhang X, Zheng H T, et al. Shufflenet v2: Practical guidelines for efficient cnn architecture design[C]//Proceedings of the European conference on computer vision (ECCV). 2018: 116-131.
+](https://openaccess.thecvf.com/content_ECCV_2018/papers/Ningning_Light-weight_CNN_Architecture_ECCV_2018_paper.pdf)
+
+[[10] Lin T Y, Goyal P, Girshick R, et al. Focal loss for dense object detection[C]//Proceedings of the IEEE international conference on computer vision. 2017: 2980-2988.](https://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf)
 
