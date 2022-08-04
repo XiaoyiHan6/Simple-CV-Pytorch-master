@@ -42,7 +42,8 @@ def parse_args():
                         help='Path to COCO or VOC directory')
     parser.add_argument('--basenet',
                         type=str,
-                        default='ResNet',
+                        default='resnet',
+                        choices=['resnet', 'vgg', 'googlenet', 'mobilenet', 'resnext', 'shufflenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
@@ -51,7 +52,7 @@ def parse_args():
     parser.add_argument('--training',
                         type=str,
                         default=True,
-                        help='Flie is training or testing')
+                        help='Model is training or testing')
     parser.add_argument('--pretrained',
                         default=True,
                         type=str,
@@ -66,7 +67,7 @@ def parse_args():
                         help='Number of workers user in dataloading')
     parser.add_argument('--tensorboard',
                         type=str,
-                        default=True,
+                        default=False,
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--tensorboard_log',
                         type=str,
@@ -143,7 +144,7 @@ def train():
                                   batch_sampler=sampler)
 
     # 4. Create the model
-    if args.basenet == 'ResNet':
+    if args.basenet == 'resnet':
         if args.depth == 18:
             model = resnet18_retinanet(num_classes=dataset_train.num_classes(),
                                        pretrained=args.pretrained,
@@ -240,7 +241,7 @@ def train():
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
 
                 scaler.step(optimizer)
-                
+
                 scaler.update()
 
                 loss_hist.append(float(loss))

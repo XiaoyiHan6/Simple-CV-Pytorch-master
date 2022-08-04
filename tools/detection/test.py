@@ -10,7 +10,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 from data import *
-from models import resnet18_retinanet, resnet34_retinanet, \
+from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 from torchvision import transforms
 import torch.nn.parallel

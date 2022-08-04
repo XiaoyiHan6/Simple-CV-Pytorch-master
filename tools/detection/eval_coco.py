@@ -10,7 +10,7 @@ import logging
 from utils.get_logger import get_logger
 import torch
 from torchvision import transforms
-from models import resnet18_retinanet, resnet34_retinanet, \
+from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 from utils.augmentations import Resize, Normalize
 from data import *
