@@ -1,25 +1,22 @@
-from torch import nn
-from torchvision.models import resnet18, resnet34, resnet50, \
-    resnet101, resnet152
 import torch
+from torch import nn
+from models.classification.resnet import resnet18, resnet34, resnet50, \
+    resnet101, resnet152
 
 
 class ResNetBackbone(nn.Module):
-    def __init__(self, resnet_type="resnet50", pretrained=False):
+    def __init__(self, resnet_type="resnet50", pretrained=False, include_top=False):
         super(ResNetBackbone, self).__init__()
         if resnet_type == "resnet18":
-            self.model = resnet18(pretrained=pretrained)
+            self.model = resnet18(pretrained=pretrained, include_top=include_top)
         elif resnet_type == "resnet34":
-            self.model = resnet34(pretrained=pretrained)
+            self.model = resnet34(pretrained=pretrained, include_top=include_top)
         elif resnet_type == "resnet50":
-            self.model = resnet50(pretrained=pretrained)
+            self.model = resnet50(pretrained=pretrained, include_top=include_top)
         elif resnet_type == "resnet101":
-            self.model = resnet101(pretrained=pretrained)
+            self.model = resnet101(pretrained=pretrained, include_top=include_top)
         elif resnet_type == "resnet152":
-            self.model = resnet152(pretrained=pretrained)
-
-        del self.model.fc
-        del self.model.avgpool
+            self.model = resnet152(pretrained=pretrained, include_top=include_top)
 
     def forward(self, x):
         x = self.model.conv1(x)
