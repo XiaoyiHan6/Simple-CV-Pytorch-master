@@ -166,7 +166,7 @@ def train():
                                         pretrained=args.pretrained,
                                         training=args.training)
         else:
-            raise ValueError("Unsupported model depth!")
+            raise ValueError("Unsupported ResNet BackBone depth!")
 
         print("Using model retinanet...")
 
@@ -191,7 +191,7 @@ def train():
 
     model.training = True
 
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, eps=args.lr)
     scaler = GradScaler()
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
@@ -228,17 +228,16 @@ def train():
                 with autocast():
                     con_loss, loc_loss = model([imgs, annots])
 
-                con_loss = con_loss.mean()
-                loc_loss = loc_loss.mean()
+                    con_loss = con_loss.mean()
+                    loc_loss = loc_loss.mean()
 
-                loss = con_loss + loc_loss
+                    loss = con_loss + loc_loss
 
                 if bool(loss == 0):
                     continue
-
                 scaler.scale(loss).backward()
 
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.1)
 
                 scaler.step(optimizer)
 
