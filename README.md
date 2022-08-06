@@ -466,9 +466,9 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  pretrained: True
 ```
 
-| No.epoch | times/epoch | top1 acc (%) | top5 acc (%) |
-|:--------:|:-----------:|:------------:|:------------:|
-|     0    |  0h00min00s |    xxxxx     |    xxxxx     |
+|  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
+|:--------:|:----------:|:------------:|:------------:|:------------:|
+|     0    |  44h29m40s |  ~1h29min39s |    xxxxx     |    xxxxx     |
 
 
 - Run
