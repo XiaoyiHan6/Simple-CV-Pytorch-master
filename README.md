@@ -468,7 +468,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 |  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
 |:--------:|:----------:|:------------:|:------------:|:------------:|
-|     0    |  44h29m40s |  ~1h29min39s |    xxxxx     |    xxxxx     |
+|    30    |  44h29m40s |  ~1h29min39s |    xxxxx     |    xxxxx     |
 
 
 - Run
