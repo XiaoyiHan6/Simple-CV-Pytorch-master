@@ -102,6 +102,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |                 |----DarkNetBackbone.py
 |              |                 |                 |----ResNetBackbone.py
+|              |                 |                 |----VggNetBackbone.py
 |              |                 |                 |----VovNetBackbone.py
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
