@@ -109,6 +109,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |                 |----DarkNetBackbone.py
 |              |                 |                 |----ResNetBackbone.py
+|              |                 |                 |----VggNetBackbone.py
 |              |                 |                 |----VovNetBackbone.py
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
@@ -362,7 +363,7 @@ Total:
 ![MobileNet_v3](images/icon/mobilenet_v3_large.png)
 
 ```
- basenet: MobileNet_v3
+ basenet: MobileNet_v3_large
  dataset: ImageNet
  batch_size: 32
  optim: SGD
@@ -384,7 +385,7 @@ Total:
 ![MobileNet_v3](images/icon/mobilenet_v3_small.png)
 
 ```
- basenet: MobileNet_v3
+ basenet: MobileNet_v3_small
  dataset: ImageNet
  batch_size: 32
  optim: SGD
@@ -439,15 +440,37 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 - Reproduce network architectures
 
-  1).SSD
+  1).Faster RCNN
 
-  2).Faster RCNN
-
-  3).YOLO
+  2).YOLO
 
   (finished)
+  
+**1.SSD(models/detection/SSD.py)**[10]
+ 
+![SSD](images/icon/ssd.png)
+ 
+```
+ Network: ssd
+ backbone: VggNet
+ neck: xxx
+ loss: xxx
+ dataset: coco
+ batch_size: 16
+ optim: AdamW
+ lr: 0.0001
+ scheduler: ReduceLROnPlateau
+ patience: 3
+ epoch: 30
+ pretrained: True
+```
 
-**1.RetinaNet(models/detection/RetinaNet.py)**[10]
+|  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
+|:--------:|:----------:|:------------:|:------------:|:------------:|
+|    30    |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
+
+
+**2.RetinaNet(models/detection/RetinaNet.py)**[11]
  
 ![RetinaNet](images/icon/retinanet.png)
  
@@ -457,7 +480,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  neck: FPN
  loss: Focal Loss
  dataset: coco
- batch_size: 32
+ batch_size: 16
  optim: AdamW
  lr: 0.0001
  scheduler: ReduceLROnPlateau
@@ -515,5 +538,7 @@ Next, I will modify this project architecture that I will split 'models'(directo
 [[9] Ma N, Zhang X, Zheng H T, et al. Shufflenet v2: Practical guidelines for efficient cnn architecture design[C]//Proceedings of the European conference on computer vision (ECCV). 2018: 116-131.
 ](https://openaccess.thecvf.com/content_ECCV_2018/papers/Ningning_Light-weight_CNN_Architecture_ECCV_2018_paper.pdf)
 
-[[10] Lin T Y, Goyal P, Girshick R, et al. Focal loss for dense object detection[C]//Proceedings of the IEEE international conference on computer vision. 2017: 2980-2988.](https://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf)
+[[10] Liu W, Anguelov D, Erhan D, et al. Ssd: Single shot multibox detector[C]//European conference on computer vision. Springer, Cham, 2016: 21-37.](https://link.springer.com/content/pdf/10.1007/978-3-319-46448-0_2.pdf)
+
+[[11] Lin T Y, Goyal P, Girshick R, et al. Focal loss for dense object detection[C]//Proceedings of the IEEE international conference on computer vision. 2017: 2980-2988.](https://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf)
 
