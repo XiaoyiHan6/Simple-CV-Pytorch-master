@@ -469,6 +469,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 |:--------:|:----------:|:------------:|:------------:|:------------:|
 |    30    |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
 
+******************************
 
 **2.RetinaNet(models/detection/RetinaNet.py)**[11]
  
