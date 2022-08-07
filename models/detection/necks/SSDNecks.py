@@ -117,5 +117,7 @@ if __name__ == "__main__":
         '300': [256, 'S', 512, 128, 'S', 256, 128, 256, 128, 256],
         '512': [],
     }
-    neck = SSDNecks_modify(neck['300'], 1024)
-    print(neck)
+    neck_1 = SSDNecks_modify(neck['300'], 1024)
+    neck_2 = SSDNecks(neck['300'], 1024)
+    print(neck_1)
+    print(neck_2)
