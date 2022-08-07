@@ -104,13 +104,18 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |                 |----ResNetBackbone.py
 |              |                 |                 |----VggNetBackbone.py
 |              |                 |                 |----VovNetBackbone.py
+|              |                 |                           
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
-|              |                 |             |-----FPN.txt
+|              |                 |             |----FPN.txt
+|              |                 |             |----SSDNecks.py
+|              |                 | 
 |              |                 |----heads----|----__init.py
 |              |                 |             |----RetinaNetHeads.py
+|              |                 |
 |              |                 |----anchor----|----__init__.py
 |              |                 |              |----RetinaNetAnchors.py
+|              |                 |                    
 |              |                 |----losses----|----__init.py
 |              |                 |              |----RetinaNetLoss.py
 |
