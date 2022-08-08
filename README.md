@@ -102,7 +102,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----googlenet.py
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py 
-|              | 
+|              |                      |----shufflenet.py
 |              |                     
 |              |----detection----|----__init__.py
 |              |                 |----RetinaNet.py   
@@ -119,6 +119,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 | 
 |              |                 |----heads----|----__init.py
 |              |                 |             |----RetinaNetHeads.py
+|              |                 |             |----SSDHeads.py
 |              |                 |
 |              |                 |----anchor----|----__init__.py
 |              |                 |              |----RetinaNetAnchors.py
@@ -133,6 +134,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----tools                       |----eval.py
 |         |----classification----|----train.py
 |         |                      |----test.py
+|         |
 |         |                 |----eval_coco.py
 |         |                 |----eval_voc.py
 |         |----detection----|----test.py
