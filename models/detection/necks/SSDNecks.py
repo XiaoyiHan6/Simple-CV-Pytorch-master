@@ -11,46 +11,6 @@ class SSDNecks(nn.Module):
         i: nput_channels
         batch_norm: whether to use BN
         """
-        layers = []
-        # 1024
-        in_channels = i
-        # flag choose kernel_size = 1 or 3
-        flag = False
-        for k, v in enumerate(cfg):
-            if in_channels != 'S':
-                if v == 'S':
-                    conv2d_1 = nn.Conv2d(in_channels=in_channels, out_channels=cfg[k + 1],
-                                         kernel_size=(1, 3)[flag], stride=2, padding=1)
-                    if batch_norm:
-                        layers += [conv2d_1, nn.BatchNorm2d(cfg[k + 1]), nn.ReLU()]
-                    else:
-                        layers += [conv2d_1, nn.ReLU()]
-                else:
-                    conv2d_2 = nn.Conv2d(in_channels=in_channels, out_channels=v, kernel_size=(1, 3)[flag])
-                    if batch_norm:
-                        layers += [conv2d_2, nn.BatchNorm2d(v), nn.ReLU()]
-                    else:
-                        layers += [conv2d_2, nn.ReLU()]
-
-                flag = not flag
-            in_channels = v
-        self.neck = nn.Sequential(*layers)
-
-    @autocast()
-    def forward(self, x):
-        x = self.neck(x)
-        return x
-
-
-class SSDNecks_modify(nn.Module):
-    def __init__(self, cfg, i, batch_norm=False):
-        super(SSDNecks_modify, self).__init__()
-        """
-        cfg: channels of layer
-        i: nput_channels
-        batch_norm: whether to use BN
-        """
-        layers = []
         # 1024
         in_channels = i
 
@@ -88,29 +48,35 @@ class SSDNecks_modify(nn.Module):
 
         relu = nn.ReLU()
         if batch_norm:
-            layers += [neck1_1, batch_norm1_1, relu]
-            layers += [neck1_2, batch_norm1_2, relu]
-            layers += [neck2_1, batch_norm2_1, relu]
-            layers += [neck2_2, batch_norm2_2, relu]
-            layers += [neck3_1, batch_norm3_1, relu]
-            layers += [neck3_2, batch_norm3_2, relu]
-            layers += [neck4_1, batch_norm4_1, relu]
-            layers += [neck4_2, batch_norm4_2, relu]
+            self.neck1_1 = nn.Sequential(neck1_1, batch_norm1_1, relu)
+            self.neck1_2 = nn.Sequential(neck1_2, batch_norm1_2, relu)
+            self.neck2_1 = nn.Sequential(neck2_1, batch_norm2_1, relu)
+            self.neck2_2 = nn.Sequential(neck2_2, batch_norm2_2, relu)
+            self.neck3_1 = nn.Sequential(neck3_1, batch_norm3_1, relu)
+            self.neck3_2 = nn.Sequential(neck3_2, batch_norm3_2, relu)
+            self.neck4_1 = nn.Sequential(neck4_1, batch_norm4_1, relu)
+            self.neck4_2 = nn.Sequential(neck4_2, batch_norm4_2, relu)
         else:
-            layers += [neck1_1, relu]
-            layers += [neck1_2, relu]
-            layers += [neck2_1, relu]
-            layers += [neck2_2, relu]
-            layers += [neck3_1, relu]
-            layers += [neck3_2, relu]
-            layers += [neck4_1, relu]
-            layers += [neck4_2, relu]
-        self.neck = nn.Sequential(*layers)
+            self.neck1_1 = nn.Sequential(neck1_1, relu)
+            self.neck1_2 = nn.Sequential(neck1_2, relu)
+            self.neck2_1 = nn.Sequential(neck2_1, relu)
+            self.neck2_2 = nn.Sequential(neck2_2, relu)
+            self.neck3_1 = nn.Sequential(neck3_1, relu)
+            self.neck3_2 = nn.Sequential(neck3_2, relu)
+            self.neck4_1 = nn.Sequential(neck4_1, relu)
+            self.neck4_2 = nn.Sequential(neck4_2, relu)
 
     @autocast()
     def forward(self, x):
-        x = self.neck(x)
-        return x
+        out1_1 = self.neck1_1(x)
+        out1_2 = self.neck1_2(out1_1)
+        out2_1 = self.neck2_1(out1_2)
+        out2_2 = self.neck2_2(out2_1)
+        out3_1 = self.neck3_1(out2_2)
+        out3_2 = self.neck3_2(out3_1)
+        out4_1 = self.neck4_1(out3_2)
+        out4_2 = self.neck4_2(out4_1)
+        return [out1_2, out2_2, out3_2, out4_2]
 
 
 if __name__ == "__main__":
@@ -118,7 +84,5 @@ if __name__ == "__main__":
         '300': [256, 'S', 512, 128, 'S', 256, 128, 256, 128, 256],
         '512': [],
     }
-    neck_1 = SSDNecks_modify(neck['300'], 1024, batch_norm=True)
-    neck_2 = SSDNecks(neck['300'], 1024)
-    print(neck_1)
-    print(neck_2)
+    neck = SSDNecks(neck['300'], 1024)
+    print(neck)
