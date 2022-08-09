@@ -93,8 +93,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
-|----models----|----__init__.py
-|              |----classification----|----__init__.py
+|----models----|----classification----|----__init__.py
 |              |                      |----lenet5.py
 |              |                      |----alexnet.py
 |              |                      |----vgg.py
@@ -105,7 +104,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----shufflenet.py
 |              |                     
 |              |----detection----|----__init__.py
-|              |                 |----RetinaNet.py   
+|              |                 |----RetinaNet.py
+|              |                 |----SSD.py   
 |              |                 |----backbones----|----__init__.py ( Don't finish writing )
 |              |                 |                 |----DarkNetBackbone.py
 |              |                 |                 |----ResNetBackbone.py
