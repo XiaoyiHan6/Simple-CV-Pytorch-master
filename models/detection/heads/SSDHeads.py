@@ -93,6 +93,7 @@ class SSDHeads_modify(nn.Module):
         self.loc_head = nn.Sequential(*loc_layers)
         self.conf_head = nn.Sequential(*conf_layers)
 
+    @autocast()
     def forward(self, x):
         loc_head = self.loc_head(x)
         conf_head = self.conf_head(x)

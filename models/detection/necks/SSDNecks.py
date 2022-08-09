@@ -107,6 +107,7 @@ class SSDNecks_modify(nn.Module):
             layers += [neck4_2, relu]
         self.neck = nn.Sequential(*layers)
 
+    @autocast()
     def forward(self, x):
         x = self.neck(x)
         return x
