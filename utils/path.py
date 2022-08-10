@@ -43,11 +43,11 @@ detection_test_log = 'detection_test'
 # Path to save detection eval log
 detection_eval_log = 'detection_eval'
 
-# Classification evaluate model path
+# classification evaluate model path
 classification_evaluate = None
 
-# Detection evaluate model path
-detection_evaluate = 'COCO_ResNet50_4.pth'
+# detection evaluate model path
+detection_evaluate = 'COCO_resnet50_0.pth'
 
 # Images detection path
 image_det = '000001.jpg'
@@ -85,3 +85,9 @@ COCO2017_path = os.path.join(DATAPATH, COCO2017)
 # (train:82783), (valminusminival:40504 random 35504 -> minival 5000) ~ COCO2017
 # COCO2014 = 'coco/coco2014'
 # COCO2014_path = os.path.join(DATAPATH, COCO2014)
+
+# for making bounding boxes pretty
+COLORS = ((255, 0, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128),
+          (0, 255, 255, 128), (255, 0, 255, 128), (255, 255, 0, 128))
+
+MEANS = (104, 117, 123)
