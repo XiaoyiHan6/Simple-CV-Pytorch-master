@@ -15,68 +15,68 @@ class SSDNecks(nn.Module):
         in_channels = i
 
         v = 0
-        neck1_1 = nn.Conv2d(in_channels=in_channels, out_channels=cfg[v], kernel_size=1, stride=1)
-        batch_norm1_1 = nn.BatchNorm2d(256)
+        conv8_1 = nn.Conv2d(in_channels=in_channels, out_channels=cfg[v], kernel_size=1, stride=1)
+        batch_norm8_1 = nn.BatchNorm2d(cfg[v])
 
         v += 2
-        neck1_2 = nn.Conv2d(in_channels=256, out_channels=cfg[v], kernel_size=3, stride=2, padding=1)
-        batch_norm1_2 = nn.BatchNorm2d(512)
+        conv8_2 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=2, padding=1)
+        batch_norm8_2 = nn.BatchNorm2d(cfg[v])
 
         v += 1
-        neck2_1 = nn.Conv2d(in_channels=512, out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
-        batch_norm2_1 = nn.BatchNorm2d(128)
+        conv9_1 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
+        batch_norm9_1 = nn.BatchNorm2d(cfg[v])
 
         v += 2
-        neck2_2 = nn.Conv2d(in_channels=128, out_channels=cfg[v], kernel_size=3, stride=2, padding=1)
-        batch_norm2_2 = nn.BatchNorm2d(256)
+        conv9_2 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=2, padding=1)
+        batch_norm9_2 = nn.BatchNorm2d(cfg[v])
 
         v += 1
-        neck3_1 = nn.Conv2d(in_channels=256, out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
-        batch_norm3_1 = nn.BatchNorm2d(128)
+        conv10_1 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
+        batch_norm10_1 = nn.BatchNorm2d(cfg[v])
 
         v += 1
-        neck3_2 = nn.Conv2d(in_channels=128, out_channels=cfg[v], kernel_size=3, stride=1, padding=0)
-        batch_norm3_2 = nn.BatchNorm2d(256)
+        conv10_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=0)
+        batch_norm10_2 = nn.BatchNorm2d(cfg[v])
 
         v += 1
-        neck4_1 = nn.Conv2d(in_channels=256, out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
-        batch_norm4_1 = nn.BatchNorm2d(128)
+        conv11_1 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=1, stride=1, padding=0)
+        batch_norm11_1 = nn.BatchNorm2d(cfg[v])
 
         v += 1
-        neck4_2 = nn.Conv2d(in_channels=128, out_channels=cfg[v], kernel_size=3, stride=1, padding=0)
-        batch_norm4_2 = nn.BatchNorm2d(256)
+        conv11_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=0)
+        batch_norm11_2 = nn.BatchNorm2d(cfg[v])
 
         relu = nn.ReLU()
         if batch_norm:
-            self.neck1_1 = nn.Sequential(neck1_1, batch_norm1_1, relu)
-            self.neck1_2 = nn.Sequential(neck1_2, batch_norm1_2, relu)
-            self.neck2_1 = nn.Sequential(neck2_1, batch_norm2_1, relu)
-            self.neck2_2 = nn.Sequential(neck2_2, batch_norm2_2, relu)
-            self.neck3_1 = nn.Sequential(neck3_1, batch_norm3_1, relu)
-            self.neck3_2 = nn.Sequential(neck3_2, batch_norm3_2, relu)
-            self.neck4_1 = nn.Sequential(neck4_1, batch_norm4_1, relu)
-            self.neck4_2 = nn.Sequential(neck4_2, batch_norm4_2, relu)
+            self.block8_1 = nn.Sequential(conv8_1, batch_norm8_1, relu)
+            self.block8_2 = nn.Sequential(conv8_2, batch_norm8_2, relu)
+            self.block9_1 = nn.Sequential(conv9_1, batch_norm9_1, relu)
+            self.block9_2 = nn.Sequential(conv9_2, batch_norm9_2, relu)
+            self.block10_1 = nn.Sequential(conv10_1, batch_norm10_1, relu)
+            self.block10_2 = nn.Sequential(conv10_2, batch_norm10_2, relu)
+            self.block11_1 = nn.Sequential(conv11_1, batch_norm11_1, relu)
+            self.block11_2 = nn.Sequential(conv11_2, batch_norm11_2, relu)
         else:
-            self.neck1_1 = nn.Sequential(neck1_1, relu)
-            self.neck1_2 = nn.Sequential(neck1_2, relu)
-            self.neck2_1 = nn.Sequential(neck2_1, relu)
-            self.neck2_2 = nn.Sequential(neck2_2, relu)
-            self.neck3_1 = nn.Sequential(neck3_1, relu)
-            self.neck3_2 = nn.Sequential(neck3_2, relu)
-            self.neck4_1 = nn.Sequential(neck4_1, relu)
-            self.neck4_2 = nn.Sequential(neck4_2, relu)
+            self.block8_1 = nn.Sequential(conv8_1, relu)
+            self.block8_2 = nn.Sequential(conv8_2, relu)
+            self.block9_1 = nn.Sequential(conv9_1, relu)
+            self.block9_2 = nn.Sequential(conv9_2, relu)
+            self.block10_1 = nn.Sequential(conv10_1, relu)
+            self.block10_2 = nn.Sequential(conv10_2, relu)
+            self.block11_1 = nn.Sequential(conv11_1, relu)
+            self.block11_2 = nn.Sequential(conv11_2, relu)
 
     @autocast()
     def forward(self, x):
-        out1_1 = self.neck1_1(x)
-        out1_2 = self.neck1_2(out1_1)
-        out2_1 = self.neck2_1(out1_2)
-        out2_2 = self.neck2_2(out2_1)
-        out3_1 = self.neck3_1(out2_2)
-        out3_2 = self.neck3_2(out3_1)
-        out4_1 = self.neck4_1(out3_2)
-        out4_2 = self.neck4_2(out4_1)
-        return [out1_2, out2_2, out3_2, out4_2]
+        out8_1 = self.block8_1(x)
+        out8_2 = self.block8_2(out8_1)
+        out9_1 = self.block9_1(out8_2)
+        out9_2 = self.block9_2(out9_1)
+        out10_1 = self.block10_1(out9_2)
+        out10_2 = self.block10_2(out10_1)
+        out11_1 = self.block11_1(out10_2)
+        out11_2 = self.block11_2(out11_1)
+        return [out8_2, out9_2, out10_2, out11_2]
 
 
 if __name__ == "__main__":

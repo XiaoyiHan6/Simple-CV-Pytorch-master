@@ -9,43 +9,32 @@ class confHeads(nn.Module):
     def __init__(self, vgg, neck, cfg, num_classes, batch_norm=False):
         super(confHeads, self).__init__()
         v = 0
-        if batch_norm:
-            conf1 = nn.Conv2d(in_channels=vgg[30].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
-                              stride=1,
-                              padding=1)
-
-            v += 1
-            conf2 = nn.Conv2d(in_channels=vgg[-3].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
-                              stride=1,
-                              padding=1)
-        else:
-            v = 0
-            conf1 = nn.Conv2d(in_channels=vgg[21].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
-                              stride=1,
-                              padding=1)
-
-            v += 1
-            conf2 = nn.Conv2d(in_channels=vgg[-2].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
-                              stride=1,
-                              padding=1)
-
-        v += 1
-        conf3 = nn.Conv2d(in_channels=neck.neck1_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+        conf1 = nn.Conv2d(in_channels=vgg.block4_3[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
                           padding=1)
 
         v += 1
-        conf4 = nn.Conv2d(in_channels=neck.neck2_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+        conf2 = nn.Conv2d(in_channels=vgg.block7[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
                           padding=1)
 
         v += 1
-        conf5 = nn.Conv2d(in_channels=neck.neck3_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+        conf3 = nn.Conv2d(in_channels=neck.block8_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
                           padding=1)
 
         v += 1
-        conf6 = nn.Conv2d(in_channels=neck.neck4_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+        conf4 = nn.Conv2d(in_channels=neck.block9_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+                          stride=1,
+                          padding=1)
+
+        v += 1
+        conf5 = nn.Conv2d(in_channels=neck.block10_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
+                          stride=1,
+                          padding=1)
+
+        v += 1
+        conf6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
                           padding=1)
 
@@ -61,37 +50,27 @@ class locHeads(nn.Module):
     def __init__(self, vgg, neck, cfg, batch_norm=False):
         super(locHeads, self).__init__()
         v = 0
-        if batch_norm:
-            loc1 = nn.Conv2d(in_channels=vgg[30].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
-                             padding=1)
-
-            v += 1
-            loc2 = nn.Conv2d(in_channels=vgg[-3].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
-                             padding=1)
-
-        else:
-            v = 0
-            loc1 = nn.Conv2d(in_channels=vgg[21].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
-                             padding=1)
-
-            v += 1
-            loc2 = nn.Conv2d(in_channels=vgg[-2].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
-                             padding=1)
-
-        v += 1
-        loc3 = nn.Conv2d(in_channels=neck.neck1_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc1 = nn.Conv2d(in_channels=vgg.block4_3[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
                          padding=1)
 
         v += 1
-        loc4 = nn.Conv2d(in_channels=neck.neck2_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc2 = nn.Conv2d(in_channels=vgg.block7[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
                          padding=1)
 
         v += 1
-        loc5 = nn.Conv2d(in_channels=neck.neck3_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc3 = nn.Conv2d(in_channels=neck.block8_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
                          padding=1)
 
         v += 1
-        loc6 = nn.Conv2d(in_channels=neck.neck4_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc4 = nn.Conv2d(in_channels=neck.block9_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+                         padding=1)
+
+        v += 1
+        loc5 = nn.Conv2d(in_channels=neck.block10_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+                         padding=1)
+
+        v += 1
+        loc6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
                          padding=1)
 
         self.loc_head = nn.Sequential(loc1, loc2, loc3, loc4, loc5, loc6)
@@ -118,10 +97,10 @@ if __name__ == "__main__":
     }
     backbones_1 = VggNetBackbone(backbone['300'], 3, batch_norm=True)
     necks_1 = SSDNecks(neck['300'], 1024, batch_norm=True)
-    loc_head = locHeads(backbones_1.features, necks_1, head['300'], batch_norm=True)
+    loc_head = locHeads(backbones_1, necks_1, head['300'], batch_norm=True)
     print(loc_head)
 
     backbones_2 = VggNetBackbone(backbone['300'], 3)
     necks_2 = SSDNecks(neck['300'], 1024)
-    conf_head = confHeads(backbones_2.features, necks_2, head['300'], 21)
+    conf_head = confHeads(backbones_2, necks_2, head['300'], 21)
     print(conf_head)
