@@ -162,7 +162,7 @@ class VggNetBackbone(nn.Module):
         x = self.block6(x)
         out2 = self.block7(x)
 
-        return out1, out2
+        return [out1, out2]
 
 
 if __name__ == "__main__":
