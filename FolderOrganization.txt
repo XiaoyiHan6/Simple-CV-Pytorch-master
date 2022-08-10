@@ -116,6 +116,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |
 |              |                 |----anchor----|----__init__.py
 |              |                 |              |----RetinaNetAnchors.py
+|              |                 |              |----SSDAnchors.py
 |              |                 |                    
 |              |                 |----losses----|----__init.py
 |              |                 |              |----RetinaNetLoss.py

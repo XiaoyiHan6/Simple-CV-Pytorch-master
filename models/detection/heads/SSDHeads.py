@@ -37,8 +37,9 @@ class confHeads(nn.Module):
         conf6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
                           padding=1)
-
-        self.conf_head = nn.Sequential(conf1, conf2, conf3, conf4, conf5, conf6)
+        relu = nn.ReLU()
+        sigmoid = nn.Sigmoid()
+        self.conf_head = nn.Sequential(conf1, relu, conf2, relu, conf3, relu, conf4, relu, conf5, relu, conf6, sigmoid)
 
     @autocast()
     def forward(self, x):
@@ -72,8 +73,9 @@ class locHeads(nn.Module):
         v += 1
         loc6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
                          padding=1)
+        relu = nn.ReLU()
 
-        self.loc_head = nn.Sequential(loc1, loc2, loc3, loc4, loc5, loc6)
+        self.loc_head = nn.Sequential(loc1, relu, loc2, relu, loc3, relu, loc4, relu, loc5, relu, loc6)
 
     @autocast()
     def forward(self, x):
