@@ -67,13 +67,13 @@ class SSDAnchors(nn.Module):
             raise ValueError("Dataset type is error!")
 
     @autocast()
-    def forward(self, x=None):
+    def forward(self, x):
         mean = []
 
         for k, f in enumerate(self.feature_maps):
             for i, j in product(range(f), repeat=2):
                 # feature_map of k-th
-                f_k = self.img_size / self.steps[k]
+                f_k = float(self.img_size) / float(self.steps[k])
 
                 # center
                 cx = (i + 0.5) / f_k
@@ -97,7 +97,7 @@ class SSDAnchors(nn.Module):
         # norm [0,1]
         if self.clip:
             boxes.clamp_(max=1, min=0)
-
+        # anchor boxes
         return boxes
 
 
