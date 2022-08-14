@@ -39,23 +39,50 @@ class confHeads(nn.Module):
                           stride=1,
                           padding=1)
         relu = nn.ReLU()
-        sigmoid = nn.Sigmoid()
-        self.conf_head = nn.Sequential(conf1, relu, conf2, relu, conf3, relu, conf4, relu, conf5, relu, conf6, sigmoid)
+
+        self.conf1 = nn.Sequential(conf1, relu)
+        self.conf2 = nn.Sequential(conf2, relu)
+        self.conf3 = nn.Sequential(conf3, relu)
+        self.conf4 = nn.Sequential(conf4, relu)
+        self.conf5 = nn.Sequential(conf5, relu)
+        self.conf6 = nn.Sequential(conf6, relu)
 
     @autocast()
     def forward(self, x):
-        x = self.conf_head(x)
-        out = x.permute(0, 2, 3, 1)
-        out = out.contiguous().view(out.shape[0], -1, self.num_classes)
+        out1 = self.conf1(x[0])
+        out1 = out1.permute(0, 2, 3, 1)
+        out1 = out1.contiguous().view(out1.shape[0], -1, self.num_classes)
+
+        out2 = self.conf2(x[1])
+        out2 = out2.permute(0, 2, 3, 1)
+        out2 = out2.contiguous().view(out2.shape[0], -1, self.num_classes)
+
+        out3 = self.conf3(x[2])
+        out3 = out3.permute(0, 2, 3, 1)
+        out3 = out3.contiguous().view(out3.shape[0], -1, self.num_classes)
+
+        out4 = self.conf4(x[3])
+        out4 = out4.permute(0, 2, 3, 1)
+        out4 = out4.contiguous().view(out4.shape[0], -1, self.num_classes)
+
+        out5 = self.conf5(x[4])
+        out5 = out5.permute(0, 2, 3, 1)
+        out5 = out5.contiguous().view(out5.shape[0], -1, self.num_classes)
+
+        out6 = self.conf6(x[5])
+        out6 = out6.permute(0, 2, 3, 1)
+        out6 = out6.contiguous().view(out6.shape[0], -1, self.num_classes)
+
         del x
-        return out
+        return [out1, out2, out3, out4, out5, out6]
 
 
 class locHeads(nn.Module):
     def __init__(self, vgg, neck, cfg, batch_norm=False):
         super(locHeads, self).__init__()
         v = 0
-        loc1 = nn.Conv2d(in_channels=vgg.block4_3[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc1 = nn.Conv2d(in_channels=vgg.block4_3[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
 
         v += 1
@@ -63,31 +90,61 @@ class locHeads(nn.Module):
                          padding=1)
 
         v += 1
-        loc3 = nn.Conv2d(in_channels=neck.block8_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc3 = nn.Conv2d(in_channels=neck.block8_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
 
         v += 1
-        loc4 = nn.Conv2d(in_channels=neck.block9_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc4 = nn.Conv2d(in_channels=neck.block9_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
 
         v += 1
-        loc5 = nn.Conv2d(in_channels=neck.block10_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc5 = nn.Conv2d(in_channels=neck.block10_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
 
         v += 1
-        loc6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc6 = nn.Conv2d(in_channels=neck.block11_2[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
         relu = nn.ReLU()
 
-        self.loc_head = nn.Sequential(loc1, relu, loc2, relu, loc3, relu, loc4, relu, loc5, relu, loc6)
+        self.loc1 = nn.Sequential(loc1, relu)
+        self.loc2 = nn.Sequential(loc2, relu)
+        self.loc3 = nn.Sequential(loc3, relu)
+        self.loc4 = nn.Sequential(loc4, relu)
+        self.loc5 = nn.Sequential(loc5, relu)
+        self.loc6 = nn.Sequential(loc6, relu)
 
     @autocast()
     def forward(self, x):
-        x = self.loc_head(x)
-        out = x.permute(0, 2, 3, 1)
-        out = out.contiguous().view(out.shape[0], -1, 4)
+        out1 = self.loc1(x[0])
+        out1 = out1.permute(0, 2, 3, 1)
+        out1 = out1.contiguous().view(out1.shape[0], -1, 4)
+
+        out2 = self.loc2(x[1])
+        out2 = out2.permute(0, 2, 3, 1)
+        out2 = out2.contiguous().view(out2.shape[0], -1, 4)
+
+        out3 = self.loc3(x[2])
+        out3 = out3.permute(0, 2, 3, 1)
+        out3 = out3.contiguous().view(out3.shape[0], -1, 4)
+
+        out4 = self.loc4(x[3])
+        out4 = out4.permute(0, 2, 3, 1)
+        out4 = out4.contiguous().view(out4.shape[0], -1, 4)
+
+        out5 = self.loc5(x[4])
+        out5 = out5.permute(0, 2, 3, 1)
+        out5 = out5.contiguous().view(out5.shape[0], -1, 4)
+
+        out6 = self.loc6(x[5])
+        out6 = out6.permute(0, 2, 3, 1)
+        out6 = out6.contiguous().view(out6.shape[0], -1, 4)
+
         del x
-        return out
+        return [out1, out2, out3, out4, out5, out6]
 
 
 if __name__ == "__main__":
