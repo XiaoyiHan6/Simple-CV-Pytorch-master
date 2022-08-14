@@ -1,10 +1,11 @@
 import torch
 from torch import nn
 from torch.cuda.amp import autocast
+from utils.L2Norm import L2Norm
 
 
 class VggNetBackbone(nn.Module):
-    def __init__(self, cfg, i, batch_norm=False):
+    def __init__(self, cfg, i=3, batch_norm=False):
         super(VggNetBackbone, self).__init__()
         """
         cfg: channels of layer
@@ -98,6 +99,9 @@ class VggNetBackbone(nn.Module):
             self.block4_1 = nn.Sequential(conv4_1, batch_norm4_1, relu)
             self.block4_2 = nn.Sequential(conv4_2, batch_norm4_2, relu)
             self.block4_3 = nn.Sequential(conv4_3, batch_norm4_3, relu)
+
+            self.L2Norm = nn.Sequential(L2Norm(512, 20))
+
             self.pool4 = nn.Sequential(pool4)
 
             self.block5_1 = nn.Sequential(conv5_1, batch_norm5_1, relu)
@@ -124,6 +128,9 @@ class VggNetBackbone(nn.Module):
             self.block4_1 = nn.Sequential(conv4_1, relu)
             self.block4_2 = nn.Sequential(conv4_2, relu)
             self.block4_3 = nn.Sequential(conv4_3, relu)
+
+            self.L2Norm = nn.Sequential(L2Norm(512, 20))
+
             self.pool4 = nn.Sequential(pool4)
 
             self.block5_1 = nn.Sequential(conv5_1, relu)
@@ -140,7 +147,7 @@ class VggNetBackbone(nn.Module):
         x = self.block1_2(x)
         x = self.pool1(x)
 
-        x = self.block2_2(x)
+        x = self.block2_1(x)
         x = self.block2_2(x)
         x = self.pool2(x)
 
@@ -152,7 +159,10 @@ class VggNetBackbone(nn.Module):
         x = self.block4_1(x)
         x = self.block4_2(x)
         out1 = self.block4_3(x)
-        x = self.pool4(out1)
+
+        x = self.L2Norm(out1)
+
+        x = self.pool4(x)
 
         x = self.block5_1(x)
         x = self.block5_2(x)

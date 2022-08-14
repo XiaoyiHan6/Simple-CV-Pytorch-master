@@ -8,6 +8,7 @@ from models.detection.backbones.VggNetBackbone import VggNetBackbone
 class confHeads(nn.Module):
     def __init__(self, vgg, neck, cfg, num_classes, batch_norm=False):
         super(confHeads, self).__init__()
+        self.num_classes = num_classes
         v = 0
         conf1 = nn.Conv2d(in_channels=vgg.block4_3[0].out_channels, out_channels=cfg[v] * num_classes, kernel_size=3,
                           stride=1,
@@ -43,8 +44,11 @@ class confHeads(nn.Module):
 
     @autocast()
     def forward(self, x):
-        conf_head = self.conf_head(x)
-        return conf_head
+        x = self.conf_head(x)
+        out = x.permute(0, 2, 3, 1)
+        out = out.contiguous().view(out.shape[0], -1, self.num_classes)
+        del x
+        return out
 
 
 class locHeads(nn.Module):
@@ -79,9 +83,11 @@ class locHeads(nn.Module):
 
     @autocast()
     def forward(self, x):
-        loc_head = self.loc_head(x)
-
-        return loc_head
+        x = self.loc_head(x)
+        out = x.permute(0, 2, 3, 1)
+        out = out.contiguous().view(out.shape[0], -1, 4)
+        del x
+        return out
 
 
 if __name__ == "__main__":
