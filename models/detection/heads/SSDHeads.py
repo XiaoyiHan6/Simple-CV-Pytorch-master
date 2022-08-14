@@ -50,31 +50,29 @@ class confHeads(nn.Module):
     @autocast()
     def forward(self, x):
         out1 = self.conf1(x[0])
-        out1 = out1.permute(0, 2, 3, 1)
-        out1 = out1.contiguous().view(out1.shape[0], -1, self.num_classes)
+        out1 = out1.permute(0, 2, 3, 1).contiguous()
 
         out2 = self.conf2(x[1])
-        out2 = out2.permute(0, 2, 3, 1)
-        out2 = out2.contiguous().view(out2.shape[0], -1, self.num_classes)
+        out2 = out2.permute(0, 2, 3, 1).contiguous()
 
         out3 = self.conf3(x[2])
-        out3 = out3.permute(0, 2, 3, 1)
-        out3 = out3.contiguous().view(out3.shape[0], -1, self.num_classes)
+        out3 = out3.permute(0, 2, 3, 1).contiguous()
 
         out4 = self.conf4(x[3])
-        out4 = out4.permute(0, 2, 3, 1)
-        out4 = out4.contiguous().view(out4.shape[0], -1, self.num_classes)
+        out4 = out4.permute(0, 2, 3, 1).contiguous()
 
         out5 = self.conf5(x[4])
-        out5 = out5.permute(0, 2, 3, 1)
-        out5 = out5.contiguous().view(out5.shape[0], -1, self.num_classes)
+        out5 = out5.permute(0, 2, 3, 1).contiguous()
 
         out6 = self.conf6(x[5])
-        out6 = out6.permute(0, 2, 3, 1)
-        out6 = out6.contiguous().view(out6.shape[0], -1, self.num_classes)
+        out6 = out6.permute(0, 2, 3, 1).contiguous()
 
         del x
-        return [out1, out2, out3, out4, out5, out6]
+        out = [out1, out2, out3, out4, out5, out6]
+        del out1, out2, out3, out4, out5, out6
+        conf = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
+        del out
+        return conf
 
 
 class locHeads(nn.Module):
@@ -120,31 +118,29 @@ class locHeads(nn.Module):
     @autocast()
     def forward(self, x):
         out1 = self.loc1(x[0])
-        out1 = out1.permute(0, 2, 3, 1)
-        out1 = out1.contiguous().view(out1.shape[0], -1, 4)
+        out1 = out1.permute(0, 2, 3, 1).contiguous()
 
         out2 = self.loc2(x[1])
-        out2 = out2.permute(0, 2, 3, 1)
-        out2 = out2.contiguous().view(out2.shape[0], -1, 4)
+        out2 = out2.permute(0, 2, 3, 1).contiguous()
 
         out3 = self.loc3(x[2])
-        out3 = out3.permute(0, 2, 3, 1)
-        out3 = out3.contiguous().view(out3.shape[0], -1, 4)
+        out3 = out3.permute(0, 2, 3, 1).contiguous()
 
         out4 = self.loc4(x[3])
-        out4 = out4.permute(0, 2, 3, 1)
-        out4 = out4.contiguous().view(out4.shape[0], -1, 4)
+        out4 = out4.permute(0, 2, 3, 1).contiguous()
 
         out5 = self.loc5(x[4])
-        out5 = out5.permute(0, 2, 3, 1)
-        out5 = out5.contiguous().view(out5.shape[0], -1, 4)
+        out5 = out5.permute(0, 2, 3, 1).contiguous()
 
         out6 = self.loc6(x[5])
-        out6 = out6.permute(0, 2, 3, 1)
-        out6 = out6.contiguous().view(out6.shape[0], -1, 4)
+        out6 = out6.permute(0, 2, 3, 1).contiguous()
 
         del x
-        return [out1, out2, out3, out4, out5, out6]
+        out = [out1, out2, out3, out4, out5, out6]
+        del out1, out2, out3, out4, out5, out6
+        loc = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
+        del out
+        return loc
 
 
 if __name__ == "__main__":
