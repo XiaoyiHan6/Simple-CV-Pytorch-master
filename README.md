@@ -127,6 +127,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |                    
 |              |                 |----losses----|----__init.py
 |              |                 |              |----RetinaNetLoss.py
+|              |                 |              |----SSDLoss.py
 |
 |----results ( eg: detection ( VOC or COCO AP ) )
 |
