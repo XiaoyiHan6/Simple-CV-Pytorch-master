@@ -463,7 +463,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  Network: ssd
  backbone: VggNet
  neck: SSDNeck
- loss: xxx
+ loss: SSDLoss
  dataset: coco
  batch_size: 16
  optim: AdamW
