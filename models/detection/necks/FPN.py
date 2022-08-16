@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
+from torch.cuda.amp import autocast
 
 
 class FPN(nn.Module):
@@ -18,6 +19,7 @@ class FPN(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(planes, planes, kernel_size=3, stride=2, padding=1))
 
+    @autocast()
     def forward(self, inputs):
         [C3, C4, C5] = inputs
         P5 = self.P5_1(C5)

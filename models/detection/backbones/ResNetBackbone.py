@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.cuda.amp import autocast
 from models.classification.resnet import resnet18, resnet34, resnet50, \
     resnet101, resnet152
 
@@ -18,6 +19,7 @@ class ResNetBackbone(nn.Module):
         elif resnet_type == "resnet152":
             self.model = resnet152(pretrained=pretrained, include_top=include_top)
 
+    @autocast()
     def forward(self, x):
         x = self.model.conv1(x)
         x = self.model.bn1(x)

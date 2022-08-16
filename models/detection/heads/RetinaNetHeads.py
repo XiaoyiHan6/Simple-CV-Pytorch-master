@@ -3,8 +3,9 @@
 # then, for regHead, add 3x3 conv whose channels are (num_anchors x 4)
 
 # num_anchors = total anchors of all levels FPN feature maps
-import torch.nn as nn
 import torch
+import torch.nn as nn
+from torch.cuda.amp import autocast
 
 
 class clsHead(nn.Module):
@@ -34,6 +35,7 @@ class clsHead(nn.Module):
             nn.Conv2d(planes, num_anchors * num_classes, kernel_size=3, stride=1, padding=1),
             nn.Sigmoid())
 
+    @autocast()
     def forward(self, x):
         x = self.cls_head(x)
         # shape of x: (batch_size, C, H, W) with C = num_classes * num_anchors
@@ -66,6 +68,7 @@ class regHead(nn.Module):
 
             nn.Conv2d(inplanes, num_anchors * 4, kernel_size=3, stride=1, padding=1))
 
+    @autocast()
     def forward(self, x):
         out = self.reg_head(x)
         # shape of x: (batch_size, C, H, W), with C = 4*num_anchors
@@ -80,10 +83,7 @@ class regHead(nn.Module):
 
 if __name__ == "__main__":
     C = torch.randn([2, 256, 512, 512])
-
     ClsHead = clsHead(256)
-    print(ClsHead.cls_head[-2])
-
     RegHead = regHead(256)
     out = RegHead(C)
     print(out.shape)

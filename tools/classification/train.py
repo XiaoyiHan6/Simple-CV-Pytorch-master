@@ -333,7 +333,7 @@ def train():
             print('Sorry only .pth and .pkl files supported.')
     if args.init_weights:
         # initialize newly added models' weights with xavier method
-        if args.basenet == 'resnet':
+        if args.basenet == 'resnet' or args.basenet == 'shufflenet':
             print("There is no set init_weight, because I'm going to set object detection algorithm.")
         else:
             print("Initializing weights...")

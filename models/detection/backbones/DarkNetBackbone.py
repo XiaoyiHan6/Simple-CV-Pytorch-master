@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch.cuda.amp import autocast
 from models.detection import backbones
 
 
@@ -9,6 +10,7 @@ class Darknet19Backbone(nn.Module):
         del self.model.avgpool
         del self.model.layer7
 
+    @autocast()
     def forward(self, x):
         x = self.model.layer1(x)
         x = self.model.maxpool(x)
@@ -20,4 +22,3 @@ class Darknet19Backbone(nn.Module):
 
         del x
         return [C3, C4, C5]
-

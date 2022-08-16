@@ -13,15 +13,14 @@ from utils.get_logger import get_logger
 import torch
 import torch.optim as optim
 from torchvision import transforms
-
-from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
-    resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 from torch.utils.data import DataLoader
 from utils.augmentations import Resize, RandomFlip, Normalize
 from torch.cuda.amp import autocast, GradScaler
 from utils.Sampler import Sampler
 from utils.collate import collate
 from data import *
+from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
+    resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 
 assert torch.__version__.split('.')[0] == '1'
 

@@ -19,3 +19,10 @@ class L2Norm(nn.Module):
         x = torch.div(x, norm)
         out = self.weight.unsqueeze(0).unsqueeze(2).unsqueeze(3).expand_as(x) * x
         return out
+
+
+if __name__ == '__main__':
+    x = torch.randn(1, 512, 38, 38)
+    l2norm = L2Norm(512, 20)
+    out = l2norm(x)
+    print(out.shape)

@@ -1,8 +1,8 @@
 import math
-
-import numpy as np
 import torch
+import numpy as np
 import torch.nn as nn
+from torch.cuda.amp import autocast
 
 
 # anchors = [x_min, y_min, x_max, x_max]
@@ -26,6 +26,7 @@ class RetinaNetAnchors(nn.Module):
         if scales is None:
             self.scales = np.array([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
 
+    @autocast()
     def forward(self, image):
         """
         generate anchors
