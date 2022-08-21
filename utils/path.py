@@ -47,7 +47,7 @@ detection_eval_log = 'detection_eval'
 classification_evaluate = None
 
 # detection evaluate model path
-detection_evaluate = 'COCO_resnet50_0.pth'
+detection_evaluate = None
 
 # Images detection path
 image_det = '000001.jpg'

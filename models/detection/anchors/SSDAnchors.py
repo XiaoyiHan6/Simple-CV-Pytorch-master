@@ -19,36 +19,36 @@ class SSDAnchors(nn.Module):
                  max_sizes=[60, 111, 162, 213, 264, 315],
                  ):
         super(SSDAnchors, self).__init__()
-        if img_size == None:
-            self.img_size = 300
-        else:
+        if img_size == 300:
             self.img_size = img_size
-        if feature_maps == None:
-            self.feature_maps = [38, 19, 10, 5, 3, 1]
         else:
+            self.img_size = 300
+        if feature_maps == [38, 19, 10, 5, 3, 1]:
             self.feature_maps = feature_maps
-        if steps == None:
-            self.steps = [8, 16, 32, 64, 100, 300]
         else:
+            self.feature_maps = [38, 19, 10, 5, 3, 1]
+        if steps == [8, 16, 32, 64, 100, 300]:
             self.steps = steps
-        if aspect_ratios == None:
-            self.aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2], [2]]
         else:
+            self.steps = [8, 16, 32, 64, 100, 300]
+        if aspect_ratios == [[2], [2, 3], [2, 3], [2, 3], [2], [2]]:
             self.aspect_ratios = aspect_ratios
-        if clip == None:
-            self.clip = True
         else:
+            self.aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2], [2]]
+        if clip == True:
             self.clip = clip
-        if variance == None:
-            self.variance = [0.1, 0.2]
         else:
+            self.clip = True
+        if variance == [0.1, 0.2]:
             self.variance = variance
+        else:
+            self.variance = [0.1, 0.2]
         if version == 'VOC':
             self.version = version
-            if min_sizes == None:
-                self.min_sizes = [30, 60, 111, 162, 213, 264]
-            else:
+            if min_sizes == [30, 60, 111, 162, 213, 264]:
                 self.min_sizes = min_sizes
+            else:
+                self.min_sizes = [30, 60, 111, 162, 213, 264]
             if max_sizes == [60, 111, 162, 213, 264, 315]:
                 self.max_sizes = max_sizes
             else:
@@ -67,13 +67,13 @@ class SSDAnchors(nn.Module):
             raise ValueError("Dataset type is error!")
 
     @autocast()
-    def forward(self, x):
+    def forward(self):
         mean = []
 
         for k, f in enumerate(self.feature_maps):
             for i, j in product(range(f), repeat=2):
                 # feature_map of k-th
-                f_k = float(self.img_size) / float(self.steps[k])
+                f_k = self.img_size / self.steps[k]
 
                 # center
                 cx = (i + 0.5) / f_k
@@ -93,16 +93,23 @@ class SSDAnchors(nn.Module):
                     mean += [cx, cy, s_k * sqrt(r), s_k / sqrt(r)]
                     mean += [cx, cy, s_k / sqrt(r), s_k * sqrt(r)]
         # torch
-        boxes = torch.tensor(mean).view(-1, 4)
+        anchors = torch.tensor(mean).view(-1, 4)
         # norm [0,1]
         if self.clip:
-            boxes.clamp_(max=1, min=0)
+            anchors.clamp_(max=1, min=0)
         # anchor boxes
-        return boxes
+        return anchors
 
 
 if __name__ == "__main__":
-    anchors = SSDAnchors(version='COCO')
-    print(anchors.min_sizes)
-    print(anchors.forward().shape)
-    print(anchors.forward())
+    # voc
+    anchors1 = SSDAnchors(version='VOC')
+    print(anchors1.min_sizes)
+    print(anchors1().shape)
+    print(anchors1())
+
+    # coco
+    anchor2 = SSDAnchors(version='COCO')
+    print(anchor2.min_sizes)
+    print(anchor2().shape)
+    print(anchor2())

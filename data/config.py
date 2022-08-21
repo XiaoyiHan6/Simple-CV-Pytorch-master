@@ -27,16 +27,16 @@ checkpoint_path = path.CheckPoints
 # Results
 results_path = path.Results
 
-# Classification evaluate model path
+# classification evaluate model path
 classification_evaluate = path.classification_evaluate
 
-# Detection evaluate model path
+# detection evaluate model path
 detection_evaluate = path.detection_evaluate
 
-# Classification test images
+# classification test images
 images_cls_root = path.images_cls_path
 
-# Detection test images
+# detection test images
 images_det_root = path.images_det_path
 
 # Path to save tensorboard

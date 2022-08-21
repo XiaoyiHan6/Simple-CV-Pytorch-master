@@ -1,20 +1,21 @@
-import argparse
 import os
 import sys
-import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
-import logging
-from utils.get_logger import get_logger
+import time
 import torch
+import logging
+import argparse
+import numpy as np
+from data import *
 from torchvision import transforms
+from utils.get_logger import get_logger
+from models.detection.SSD import SSD
+from utils.augmentations import RetinaNetResize, Normalize, SSDResize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
-from utils.augmentations import Resize, Normalize
-from data import *
-import numpy as np
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -31,18 +32,19 @@ def parse_args():
                         type=str,
                         default=VOC_ROOT,
                         help='Path to COCO directory')
-    parser.add_argument('--basenet',
+    parser.add_argument('--model',
                         type=str,
-                        default='ResNet',
-                        help='Pretrained base model')
+                        default='ssd',
+                        choices=['retinanet', 'ssd'],
+                        help='Evaluation Model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Basenet depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=0,
+                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
     parser.add_argument('--training',
                         type=str,
                         default=False,
-                        help='Flie is training or testing')
+                        help='Model is training or testing')
     parser.add_argument('--pretrained',
                         default=True,
                         type=str,
@@ -83,14 +85,18 @@ def eval():
             raise ValueError('Must specify dataset_root if specifying dataset VOC')
         elif args.dataset_root is None:
             raise ValueError('Must provide --dataset_root when training on VOC')
+        if args.model == 'retinanet':
+            dataset_val = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                       transform=transforms.Compose([Normalize(), RetinaNetResize()]))
+        elif args.model == 'ssd':
+            dataset_val = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                       transform=transforms.Compose([Normalize(), SSDResize()]))
 
-        dataset_val = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
-                                   transform=transforms.Compose([Normalize(), Resize()]))
     else:
         raise ValueError('Dataset type not understood (must be voc), exiting.')
 
     # 3. Create the model
-    if args.basenet == 'ResNet':
+    if args.model == 'retinanet':
         if args.depth == 18:
             model = resnet18_retinanet(num_classes=dataset_val.num_classes(),
                                        pretrained=args.pretrained,
@@ -112,9 +118,16 @@ def eval():
                                         pretrained=args.pretrained,
                                         training=args.training)
         else:
-            raise ValueError("Unsupported model depth!")
-
+            raise ValueError("Unsupported RetinaNet model depth!")
         print("Using model retinanet...")
+
+    elif args.model == 'ssd':
+        if args.depth == 0:
+            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
+        else:
+            raise ValueError("Unsupported SSD Model depth!")
+        print("Using model ssd...")
+
     else:
         raise ValueError('Unsupported model type!')
 

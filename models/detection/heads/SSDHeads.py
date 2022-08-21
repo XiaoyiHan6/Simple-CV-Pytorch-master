@@ -70,7 +70,7 @@ class confHeads(nn.Module):
         del x
         out = [out1, out2, out3, out4, out5, out6]
         del out1, out2, out3, out4, out5, out6
-        conf = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
+        conf = torch.cat([o.view(o.size(0), -1, self.num_classes) for o in out], dim=1)
         del out
         return conf
 
@@ -138,7 +138,7 @@ class locHeads(nn.Module):
         del x
         out = [out1, out2, out3, out4, out5, out6]
         del out1, out2, out3, out4, out5, out6
-        loc = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
+        loc = torch.cat([o.view(o.size(0), -1, 4) for o in out], dim=1)
         del out
         return loc
 

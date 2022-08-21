@@ -71,7 +71,7 @@ def SSDNMS(boxes, scores, threshold=0.5, top_k=200):
         idx = idx[1:]
         xx1 = x1[idx].clamp(min=x1[i])
         yy1 = y1[idx].clamp(min=y1[i])
-        xx2 = x2[idx].clamp(max=y2[i])
+        xx2 = x2[idx].clamp(max=x2[i])
         yy2 = y2[idx].clamp(max=y2[i])
 
         w = (xx2 - xx1).clamp(min=0)

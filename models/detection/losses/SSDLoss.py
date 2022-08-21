@@ -17,7 +17,7 @@ def encode(matched, anchors, variances):
 
     # encode variance
     # shape [num_anchors,2]
-    g_cxcy /= (variances[0] * anchors[:, 2:])
+    g_cxcy /= (anchors[:, 2:] * variances[0])
 
     eps = 1e-5
     # match wh /anchor wh
@@ -138,7 +138,6 @@ def match(threshold, truths, anchors, variances, labels, loc_t, conf_t, idx):
 
     # Shape: [num_anchors]
     conf = labels[best_truth_idx] + 1
-
     # label as background
     # bg 0
     conf[best_truth_overlap < threshold] = 0
@@ -186,7 +185,6 @@ class SSDLoss(nn.Module):
             self.num_classes = 81
         else:
             raise ValueError("dataset is error!")
-
         # IoU 0.5
         self.threshold = overlap_thresh
         # background label 0
@@ -210,6 +208,7 @@ class SSDLoss(nn.Module):
         # conf_data.shape: [batch_size, total_anchor_nums, num_classes]
         # anchors.shape: [total_anchor_nums, 4]
         loc_data, conf_data, anchors = predictions
+        device = anchors.device
 
         # batch_size
         batch_size = loc_data.size(0)
@@ -222,10 +221,10 @@ class SSDLoss(nn.Module):
 
         # anchors & ground truth boxes
         # loc_t.shape: [batch_size,    8732,   4]
-        loc_t = torch.Tensor(batch_size, num_anchors, 4)
+        loc_t = torch.Tensor(batch_size, num_anchors, 4).to(device)
 
         # conf_t.shape: [batch_size,  8732]
-        conf_t = torch.LongTensor(batch_size, num_anchors)
+        conf_t = torch.LongTensor(batch_size, num_anchors).to(device)
         for idx in range(batch_size):
             # targets.shape: [num_objs,5]
             # truths.shape: [num_objs,4]
@@ -239,7 +238,6 @@ class SSDLoss(nn.Module):
             match(self.threshold, truths, defaults, self.variances, labels, loc_t, conf_t, idx)
 
         pos = conf_t > 0
-
         # Localization Loss (Smooth L1)
         # loc_data.shape: [batch_size,num_anchors,4]
         # pos.shape: [batch_size,num_anchors]
@@ -262,6 +260,7 @@ class SSDLoss(nn.Module):
         # filter out pos boxes for now
         # loss_c.shape: [batch_size*num_anchors,1]
         loss_c = loss_c.view(batch_size, -1)
+
         loss_c[pos] = 0
         _, loss_idx = loss_c.sort(1, descending=True)
         _, idx_rank = loss_idx.sort(1)

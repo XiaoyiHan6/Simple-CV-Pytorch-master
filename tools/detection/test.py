@@ -1,6 +1,4 @@
-import logging
 import os
-import argparse
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -9,16 +7,20 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
+
+import cv2
+import time
+import random
+import logging
+import argparse
 from data import *
+import torch.nn.parallel
+from torchvision import transforms
+from models.detection.SSD import SSD
+from utils.get_logger import get_logger
+from utils.augmentations import Normalize, RetinaNetResize, SSDResize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
-from torchvision import transforms
-import torch.nn.parallel
-import time
-from utils.augmentations import Normalize, Resize
-from utils.get_logger import get_logger
-import cv2
-import random
 
 devkit_path = results_path
 
@@ -36,18 +38,19 @@ def parse_args():
                         default=COCO_ROOT,
                         choices=[COCO_ROOT, VOC_ROOT],
                         help='Path to COCO or VOC directory')
-    parser.add_argument('--basenet',
+    parser.add_argument('--model',
                         type=str,
-                        default='ResNet',
-                        help='Pretrained base model')
+                        default='ssd',
+                        choices=['retinanet', 'ssd'],
+                        help='Testing Model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Backbone depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=0,
+                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
     parser.add_argument('--training',
                         type=str,
                         default=False,
-                        help='Flie is training or testing')
+                        help='Model is training or testing')
     parser.add_argument('--evaluate',
                         type=str,
                         default=config.detection_evaluate,
@@ -158,7 +161,7 @@ def Visualized(dataset, model):
         image_root = os.path.join(info[0], 'JPEGImages', info[1] + '.jpg')
     elif args.dataset == 'COCO':
         info = str(info).zfill(12)
-        image_root = os.path.join(COCO_ROOT, 'test2017', info + ".jpg")
+        image_root = os.path.join(COCO_ROOT, 'val2017', info + ".jpg")
 
     image = cv2.imread(image_root)
     for i, a in enumerate(annot):
@@ -215,17 +218,24 @@ def test():
         elif args.dataset_root is None:
             raise ValueError("WARNING: Using default COCO dataset, but " +
                              "--dataset_root was not specified.")
-
-        dataset_test = CocoDetection(args.dataset_root, set_name='test2017',
-                                     transform=transforms.Compose([Normalize(), Resize()]))
+        if args.model == 'retinanet':
+            dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
+                                         transform=transforms.Compose([Normalize(), RetinaNetResize()]))
+        elif args.model == 'ssd':
+            dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
+                                         transform=transforms.Compose([Normalize(), SSDResize()]))
     elif args.dataset == 'VOC':
         if args.dataset_root == COCO_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset VOC')
         elif args.dataset_root is None:
             raise ValueError('Must provide --dataset_root when training on VOC')
+        if args.model == 'retinanet':
+            dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                        transform=transforms.Compose([Normalize(), RetinaNetResize()]))
+        elif args.model == 'ssd':
+            dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                        transform=transforms.Compose([Normalize(), SSDResize()]))
 
-        dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
-                                    transform=transforms.Compose([Normalize(), Resize()]))
     else:
         raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
 
@@ -235,7 +245,7 @@ def test():
         num_class = 80
 
     # 4. Define to train mode
-    if args.basenet == 'ResNet':
+    if args.model == 'RetinaNet':
         if args.depth == 18:
             model = resnet18_retinanet(num_classes=num_class,
                                        pretrained=args.pretrained,
@@ -257,10 +267,15 @@ def test():
                                         pretrained=args.pretrained,
                                         training=args.training)
         else:
-            raise ValueError('Unsupported model depth!')
+            raise ValueError('Unsupported RetinaNet Model depth!')
 
         print("Using model retinanet...")
-
+    elif args.model == 'ssd':
+        if args.depth == 0:
+            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
+        else:
+            raise ValueError("Unsupported SSD Model depth!")
+        print("Using model ssd...")
 
     else:
         raise ValueError('Unsupported model type!')

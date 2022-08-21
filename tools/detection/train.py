@@ -6,19 +6,20 @@ import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
-
-import numpy as np
-import logging
-from utils.get_logger import get_logger
 import torch
+import logging
+import numpy as np
+from data import *
 import torch.optim as optim
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from utils.augmentations import Resize, RandomFlip, Normalize
-from torch.cuda.amp import autocast, GradScaler
 from utils.Sampler import Sampler
 from utils.collate import collate
-from data import *
+from torchvision import transforms
+from models.detection.SSD import SSD
+from torch.utils.data import DataLoader
+from utils.get_logger import get_logger
+from utils.augmentations import SSDResize
+from torch.cuda.amp import autocast, GradScaler
+from utils.augmentations import RetinaNetResize, RandomFlip, Normalize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 
@@ -39,15 +40,15 @@ def parse_args():
                         default=COCO_ROOT,
                         choices=[COCO_ROOT, VOC_ROOT],
                         help='Path to COCO or VOC directory')
-    parser.add_argument('--basenet',
+    parser.add_argument('--model',
                         type=str,
-                        default='resnet',
-                        choices=['resnet', 'vgg', 'googlenet', 'mobilenet', 'resnext', 'shufflenet'],
-                        help='Pretrained base model')
+                        default='ssd',
+                        choices=['retinanet', 'ssd'],
+                        help='Training Model')
     parser.add_argument('--depth',
                         type=int,
-                        default=50,
-                        help='Basenet depth, including ResNet of 18, 34, 50, 101, 152')
+                        default=0,
+                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
     parser.add_argument('--training',
                         type=str,
                         default=True,
@@ -96,7 +97,7 @@ def parse_args():
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
-                        default=30,
+                        default=12,
                         help='Number of epochs')
 
     return parser.parse_args()
@@ -123,18 +124,23 @@ def train():
         elif args.dataset_root is None:
             raise ValueError("WARNING: Using default COCO dataset, but " +
                              "--dataset_root was not specified.")
-
-        dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
-                                      transform=transforms.Compose([Normalize(), RandomFlip(), Resize()]))
-
+        if args.model == 'retinanet':
+            dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
+                                          transform=transforms.Compose([Normalize(), RandomFlip(), RetinaNetResize()]))
+        elif args.model == 'ssd':
+            dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
+                                          transform=transforms.Compose([Normalize(), RandomFlip(), SSDResize()]))
     elif args.dataset == 'VOC':
         if args.dataset_root == COCO_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset VOC')
         elif args.dataset_root is None:
             raise ValueError('Must provide --dataset_root when training on VOC')
-
-        dataset_train = VocDetection(args.dataset_root,
-                                     transform=transforms.Compose([Normalize(), RandomFlip(), Resize()]))
+        if args.model == 'retinanet':
+            dataset_train = VocDetection(args.dataset_root,
+                                         transform=transforms.Compose([Normalize(), RandomFlip(), RetinaNetResize()]))
+        elif args.model == 'ssd':
+            dataset_train = VocDetection(args.dataset_root,
+                                         transform=transforms.Compose([Normalize(), RandomFlip(), SSDResize()]))
     else:
         raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
 
@@ -143,7 +149,7 @@ def train():
                                   batch_sampler=sampler)
 
     # 4. Create the model
-    if args.basenet == 'resnet':
+    if args.model == 'retinanet':
         if args.depth == 18:
             model = resnet18_retinanet(num_classes=dataset_train.num_classes(),
                                        pretrained=args.pretrained,
@@ -165,9 +171,15 @@ def train():
                                         pretrained=args.pretrained,
                                         training=args.training)
         else:
-            raise ValueError("Unsupported ResNet BackBone depth!")
+            raise ValueError("Unsupported RetinaNet Model depth!")
 
         print("Using model retinanet...")
+    elif args.model == 'ssd':
+        if args.depth == 0:
+            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
+        else:
+            raise ValueError("Unsupported SSD Model depth!")
+        print("Using model ssd...")
 
     else:
         raise ValueError('Unsupported model type!')
@@ -190,10 +202,10 @@ def train():
 
     model.training = True
 
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr, eps=args.lr)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     scaler = GradScaler()
 
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[8, 10, args.epochs], gamma=0.1, verbose=True)
 
     loss_hist = collections.deque(maxlen=500)
 
@@ -275,11 +287,11 @@ def train():
             print('Saving state, iter: ', epoch_num)
             torch.save(model.state_dict(),
                        args.save_folder + '/' + args.dataset +
-                       '_' + args.basenet + str(args.depth) +
+                       '_' + args.model + str(args.depth) +
                        '_' + repr(epoch_num) + '.pth')
 
     torch.save(model.state_dict(), args.save_folder + '/' +
-               args.dataset + '_' + args.basenet +
+               args.dataset + '_' + args.model +
                str(args.depth) + '.pth')
 
     if args.tensorboard:

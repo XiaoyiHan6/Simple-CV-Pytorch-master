@@ -10,8 +10,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 
+class SSDResize(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, sample, side=300):
+        img, annots = sample['img'], sample['annot']
+        img = skimage.transform.resize(img, (300, 300))
+        height, width, depth = img.shape
+        scale = height / 300.0
+        return {'img': torch.from_numpy(img), 'annot': torch.from_numpy(annots), 'scale': scale}
+
+
 # 3.
-class Resize(object):
+class RetinaNetResize(object):
     def __init__(self):
         pass
 
@@ -145,7 +157,7 @@ if __name__ == '__main__':
     annot3 = np.array([[123.0, 155.0, 215.0, 195.0, 17.0], [239.0, 156.0, 307.0, 205.0, 8.0]])
     sample = {'img': img, 'annot': annot2}
     print("annot:{}".format(annot2))
-    resize = Resize()
+    resize = SSDResize()
     sample = resize(sample)
     img, annot, scale = sample['img'], sample['annot'], sample['scale']
     height, width, depth = img.shape
