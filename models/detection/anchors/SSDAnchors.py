@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from math import sqrt as sqrt
-import torch.nn.functional as F
 from torch.cuda.amp import autocast
 from itertools import product as product
 
@@ -44,7 +43,6 @@ class SSDAnchors(nn.Module):
         else:
             self.variance = [0.1, 0.2]
         if version == 'VOC':
-            self.version = version
             if min_sizes == [30, 60, 111, 162, 213, 264]:
                 self.min_sizes = min_sizes
             else:
@@ -54,7 +52,6 @@ class SSDAnchors(nn.Module):
             else:
                 self.max_sizes = [60, 111, 162, 213, 264, 315]
         elif version == 'COCO':
-            self.version = version
             if min_sizes == [21, 45, 99, 153, 207, 261]:
                 self.min_sizes = min_sizes
             else:
@@ -67,8 +64,9 @@ class SSDAnchors(nn.Module):
             raise ValueError("Dataset type is error!")
 
     @autocast()
-    def forward(self):
+    def forward(self, img):
         mean = []
+        w, h = img.shape[2], img.shape[3]
 
         for k, f in enumerate(self.feature_maps):
             for i, j in product(range(f), repeat=2):
@@ -98,18 +96,23 @@ class SSDAnchors(nn.Module):
         if self.clip:
             anchors.clamp_(max=1, min=0)
         # anchor boxes
+        anchors[:, 0] *= w
+        anchors[:, 2] *= w
+        anchors[:, 1] *= h
+        anchors[:, 3] *= h
         return anchors
 
 
 if __name__ == "__main__":
+    img = torch.randint(255, (1, 3, 300, 300))
     # voc
     anchors1 = SSDAnchors(version='VOC')
     print(anchors1.min_sizes)
-    print(anchors1().shape)
-    print(anchors1())
+    print(anchors1(img).shape)
+    print(anchors1(img))
 
     # coco
     anchor2 = SSDAnchors(version='COCO')
     print(anchor2.min_sizes)
-    print(anchor2().shape)
-    print(anchor2())
+    print(anchor2(img).shape)
+    print(anchor2(img))

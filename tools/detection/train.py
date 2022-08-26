@@ -1,15 +1,15 @@
-import argparse
-import collections
 import os
 import sys
-import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
+import time
 import torch
 import logging
+import argparse
 import numpy as np
 from data import *
+import collections
 import torch.optim as optim
 from utils.Sampler import Sampler
 from utils.collate import collate
@@ -17,11 +17,11 @@ from torchvision import transforms
 from models.detection.SSD import SSD
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
-from utils.augmentations import SSDResize
 from torch.cuda.amp import autocast, GradScaler
-from utils.augmentations import RetinaNetResize, RandomFlip, Normalize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
+from utils.augmentations import RetinaNetResize, RandomFlip, Normalize, SSDResize, SSDRandSampleCrop, \
+    SSDToPercentCoords, SSDToAbsoluteCoords, SSDExpand
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -93,11 +93,11 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-4,
+                        default=1e-3,
                         help='learning rate')
     parser.add_argument('--epochs',
                         type=int,
-                        default=12,
+                        default=4,
                         help='Number of epochs')
 
     return parser.parse_args()
@@ -126,10 +126,20 @@ def train():
                              "--dataset_root was not specified.")
         if args.model == 'retinanet':
             dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
-                                          transform=transforms.Compose([Normalize(), RandomFlip(), RetinaNetResize()]))
+                                          transform=transforms.Compose([
+                                              Normalize(),
+                                              RandomFlip(),
+                                              RetinaNetResize()]))
         elif args.model == 'ssd':
             dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
-                                          transform=transforms.Compose([Normalize(), RandomFlip(), SSDResize()]))
+                                          transform=transforms.Compose([
+                                              SSDToAbsoluteCoords(),
+                                              SSDExpand(),
+                                              SSDRandSampleCrop(),
+                                              RandomFlip(),
+                                              SSDToPercentCoords(),
+                                              SSDResize(),
+                                          ]))
     elif args.dataset == 'VOC':
         if args.dataset_root == COCO_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset VOC')
@@ -137,10 +147,20 @@ def train():
             raise ValueError('Must provide --dataset_root when training on VOC')
         if args.model == 'retinanet':
             dataset_train = VocDetection(args.dataset_root,
-                                         transform=transforms.Compose([Normalize(), RandomFlip(), RetinaNetResize()]))
+                                         transform=transforms.Compose([
+                                             Normalize(),
+                                             RandomFlip(),
+                                             RetinaNetResize()]))
         elif args.model == 'ssd':
             dataset_train = VocDetection(args.dataset_root,
-                                         transform=transforms.Compose([Normalize(), RandomFlip(), SSDResize()]))
+                                         transform=transforms.Compose([
+                                             SSDToAbsoluteCoords(),
+                                             SSDExpand(),
+                                             SSDRandSampleCrop(),
+                                             RandomFlip(),
+                                             SSDToPercentCoords(),
+                                             SSDResize(),
+                                         ]))
     else:
         raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
 
@@ -176,7 +196,9 @@ def train():
         print("Using model retinanet...")
     elif args.model == 'ssd':
         if args.depth == 0:
-            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
+            model = SSD(version=args.dataset,
+                        training=args.training,
+                        batch_norm=False)
         else:
             raise ValueError("Unsupported SSD Model depth!")
         print("Using model ssd...")
@@ -203,9 +225,9 @@ def train():
     model.training = True
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    scaler = GradScaler()
+    scaler = GradScaler(enabled=True)
 
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[8, 10, args.epochs], gamma=0.1, verbose=True)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1, 2, 3], gamma=0.1)
 
     loss_hist = collections.deque(maxlen=500)
 
@@ -236,7 +258,7 @@ def train():
                         annots = annots.cuda()
                 else:
                     imgs = imgs.float()
-                with autocast():
+                with autocast(enabled=True):
                     con_loss, loc_loss = model([imgs, annots])
 
                     con_loss = con_loss.mean()
@@ -247,7 +269,7 @@ def train():
                 if bool(loss == 0):
                     continue
                 scaler.scale(loss).backward()
-
+                scaler.unscale_(optimizer)
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.1)
 
                 scaler.step(optimizer)
@@ -273,8 +295,8 @@ def train():
                 print(e)
                 continue
 
-        scheduler.step(np.mean(epoch_loss))
-        # scheduler.step()
+        # scheduler.step(np.mean(epoch_loss))
+        scheduler.step()
         t2 = time.time()
         h_time = (t2 - t1) // 3600
         m_time = ((t2 - t1) % 3600) // 60

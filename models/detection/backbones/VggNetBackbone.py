@@ -158,9 +158,9 @@ class VggNetBackbone(nn.Module):
 
         x = self.block4_1(x)
         x = self.block4_2(x)
-        out1 = self.block4_3(x)
+        x = self.block4_3(x)
 
-        x = self.L2Norm(out1)
+        out1 = self.L2Norm(x)
 
         x = self.pool4(x)
 

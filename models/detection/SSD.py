@@ -8,7 +8,6 @@ from models.detection.necks.SSDNecks import SSDNecks
 from models.detection.anchors.SSDAnchors import SSDAnchors
 from models.detection.heads.SSDHeads import confHeads, locHeads
 from models.detection.backbones.VggNetBackbone import VggNetBackbone
-import numpy as np
 
 backbone = {
     '300': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M', 512, 512, 512],
@@ -41,12 +40,14 @@ class SSD(nn.Module):
         self.training = training
         self.size = size
         self.version = version
-        if self.version == 'VOC':
+        if version == 'VOC':
             self.num_classes = 21
-        elif self.version == 'COCO':
+
+        elif version == 'COCO':
             self.num_classes = 81
         else:
-            raise ValueError("dataset is error!")
+            raise ValueError("Dataset type is error!")
+
         # backbone
         self.backbone = backbones(cfg=backbone['300'], i=3, batch_norm=batch_norm)
         # neck
@@ -58,7 +59,7 @@ class SSD(nn.Module):
         self.anchors = SSDAnchors(version=self.version)
         self.freeze_bn()
         if self.training:
-            self.loss = SSDLoss(version=self.version)
+            self.loss = SSDLoss(num_classes=self.num_classes)
         else:
             self.softmax = nn.Softmax(dim=-1)
             self.top_k = 200
@@ -99,8 +100,8 @@ class SSD(nn.Module):
 
         del features
 
-        # anchors = self.anchors(img_batch)
-        anchors = self.anchors()
+        anchors = self.anchors(img_batch)
+        # anchors = self.anchors()
         anchors = anchors.to(device)
         if self.training:
             return self.loss([loc_heads, conf_heads, anchors], annots)

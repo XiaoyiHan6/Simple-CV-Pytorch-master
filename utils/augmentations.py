@@ -1,13 +1,157 @@
-import skimage
-import skimage.transform
-import numpy as np
 import os
 import sys
 import torch
+import random
+import skimage
+import numpy as np
+import skimage.transform
 import matplotlib.pyplot as plt
+from utils.iou import iou_numpy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
+
+
+class SSDExpand(object):
+    def __init__(self, mean=(104, 117, 123), flip_prob=0.5):
+        self.flip_prob = flip_prob
+        self.mean = mean
+
+    def __call__(self, sample):
+        img, annots = sample['img'], sample['annot']
+        if annots.shape[0] == 0:
+            return sample
+        if np.random.uniform(0, 1) > self.flip_prob:
+            height, width, channels = img.shape
+            ratio = random.uniform(1, 4)
+            left = random.uniform(0, width * ratio - width)
+            top = random.uniform(0, height * ratio - height)
+            expand_image = np.zeros((int(height * ratio), int(width * ratio), channels), dtype=img.dtype)
+            expand_image[:, :, :] = self.mean
+            expand_image[int(top):int(top + height), int(left):int(left + width)] = img
+            img = expand_image
+
+            annots = annots.copy()
+            annots[:, :2] += (int(left), int(top))
+            annots[:, 2:4] += (int(left), int(top))
+            sample['img'] = img
+            sample['annot'] = annots
+            return sample
+        else:
+            return sample
+
+
+class SSDToAbsoluteCoords(object):
+    def __call__(self, sample):
+        img, annots = sample['img'], sample['annot']
+        if annots.shape[0] == 0:
+            return sample
+        height, width, _ = img.shape
+        annots[:, 0] *= width
+        annots[:, 2] *= width
+        annots[:, 1] *= height
+        annots[:, 3] *= height
+        sample['img'] = img
+        sample['annot'] = annots
+        return sample
+
+
+class SSDToPercentCoords(object):
+    def __call__(self, sample):
+        img, annots = sample['img'], sample['annot']
+        if annots.shape[0] == 0:
+            return sample
+        height, width, _ = img.shape
+        annots[:, 0] /= width
+        annots[:, 2] /= width
+        annots[:, 1] /= height
+        annots[:, 3] /= height
+        sample['img'] = img
+        sample['annot'] = annots
+        return sample
+
+
+class SSDRandSampleCrop(object):
+    def __init__(self):
+        super(SSDRandSampleCrop, self).__init__()
+        self.sample_optins = (
+            # using original input image
+            None,
+            # min_iou and max_iou
+            (0.1, None),
+            (0.3, None),
+            (0.7, None),
+            (0.9, None),
+            # randomly sample a patch
+            (None, None),
+        )
+
+    def __call__(self, sample):
+        img, annots = sample['img'], sample['annot']
+        if annots.shape[0] == 0:
+            return sample
+        height, width, _ = img.shape
+        while True:
+            mode = random.choice(self.sample_optins)
+            if mode is None:
+                return sample
+            min_iou, max_iou = mode
+            if min_iou is None:
+                min_iou = float('-inf')
+            if max_iou is None:
+                max_iou = float('inf')
+
+            # max iter (50)
+            for _ in range(50):
+                current_img = img
+
+                w = random.uniform(0.3 * width, width)
+                h = random.uniform(0.3 * height, height)
+
+                if h / w < 0.5 or h / w > 2:
+                    continue
+                left = random.uniform(0, width - w)
+                top = random.uniform(0, height - h)
+
+                # rect.shape: [x1,y1,x2,y2]
+                rect = [int(left), int(top), int(left + w), int(top + h)]
+                overlap = []
+                for i, annot in enumerate(annots):
+                    overlap.append(iou_numpy(annot[:4], rect))
+                overlap = np.array(overlap)
+                if overlap.min() < min_iou and max_iou < overlap.max():
+                    continue
+
+                # cut the crop from the image
+                current_img = current_img[rect[1]:rect[3], rect[0]:rect[2], :]
+
+                # keep overlap with gt box IF center in sampled patch
+                centers = (annots[:, :2] + annots[:, 2:4]) / 2.0
+
+                # mask in all gt boxes that above and to the left of centers
+                m1 = (rect[0] < centers[:, 0]) * (rect[1] < centers[:, 1])
+
+                # mask in all gt boxes that under and to the right of centers
+                m2 = (rect[2] > centers[:, 0]) * (rect[3] > centers[:, 1])
+
+                # mask in that both m1 and m2 are true
+                mask = m1 * m2
+
+                if not mask.any():
+                    continue
+
+                # take only matching gt boxes
+                current_annots = annots[mask, :].copy()
+                # should we use the box left and top corner or the crop's
+                current_annots[:, :2] = np.maximum(current_annots[:, :2], rect[:2])
+                # adjust to crop (by substracting crop's left top)
+                current_annots[:, :2] -= rect[:2]
+
+                current_annots[:, 2:4] = np.minimum(current_annots[:, 2:4], rect[2:])
+                current_annots[:, 2:4] -= rect[:2]
+                sample['img'] = current_img
+                sample['annot'] = current_annots
+                return sample
 
 
 class SSDResize(object):
@@ -16,9 +160,16 @@ class SSDResize(object):
 
     def __call__(self, sample, side=300):
         img, annots = sample['img'], sample['annot']
-        img = skimage.transform.resize(img, (300, 300))
+
         height, width, depth = img.shape
-        scale = height / 300.0
+
+        img = skimage.transform.resize(img, (side, side))
+        annots[:, 0] = annots[:, 0] / width * 300
+        annots[:, 2] = annots[:, 2] / width * 300
+        annots[:, 1] = annots[:, 1] / height * 300
+        annots[:, 3] = annots[:, 3] / height * 300
+        scale = height / width
+
         return {'img': torch.from_numpy(img), 'annot': torch.from_numpy(annots), 'scale': scale}
 
 
@@ -71,9 +222,9 @@ class RandomFlip(object):
         img, annots = sample['img'], sample['annot']
         if annots.shape[0] == 0:
             return sample
-        if np.random.uniform(0, 1) < self.flip_prob:
+        if np.random.uniform(0, 1) > self.flip_prob:
+            width = img.shape[1]
             img = img[:, ::-1, :]
-            height, width, _ = img.shape
 
             x1 = annots[:, 0].copy()
             x2 = annots[:, 2].copy()
@@ -82,7 +233,7 @@ class RandomFlip(object):
         return {'img': img, 'annot': annots}
 
 
-class RandomCrop(object):
+class RetinaNetRandomCrop(object):
     def __init__(self, crop_prob=0.5):
         self.crop_prob = crop_prob
 
@@ -91,7 +242,7 @@ class RandomCrop(object):
         if annots.shape[0] == 0:
             return img, annots
 
-        if np.random.uniform(0, 1) < self.crop_prob:
+        if np.random.uniform(0, 1) > self.crop_prob:
             h, w, _ = img.shape
             max_bbox = np.concatenate([
                 np.min(annots[:, 0:2], axis=0),
@@ -150,24 +301,67 @@ class UnNormalize(object):
 if __name__ == '__main__':
     img_root = os.path.join(BASE_DIR, 'images', 'detection', '000002.jpg')
     img = skimage.io.imread(img_root)
-    print("height:{} , width:{}, depth:{}".format(img.shape[0], img.shape[1], img.shape[2]))
     height, width, depth = img.shape
+    print("height:{} , width:{}, depth:{}".format(height, width, depth))
     annot2 = np.array([[139.0, 200.0, 207.0, 301.0, 18.0]])
     annot1 = np.array([[48.0, 240.0, 195.0, 371.0, 11.0], [8.0, 12.0, 352.0, 498.0, 14.0]])
     annot3 = np.array([[123.0, 155.0, 215.0, 195.0, 17.0], [239.0, 156.0, 307.0, 205.0, 8.0]])
     sample = {'img': img, 'annot': annot2}
-    print("annot:{}".format(annot2))
-    resize = SSDResize()
-    sample = resize(sample)
-    img, annot, scale = sample['img'], sample['annot'], sample['scale']
-    height, width, depth = img.shape
-    skimage.io.imshow(img.numpy())
-    plt.show()
-    plt.imshow(img, plt.cm.gray)
-    for i in range(len(annot)):
-        a = plt.Rectangle((annot[i][0], annot[i][1]), annot[i][2] - annot[i][0],
-                          annot[i][3] - annot[i][1], fill=False, edgecolor='r', linewidth=0.5)
+    skimage.io.imshow(img)
+    for i, coord in enumerate(sample['annot']):
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='r', linewidth=2)
         plt.gca().add_patch(a)
     plt.show()
-    print("new_height:{} , new_width:{}, new_depth:{}, scale:{}".format(height, width, depth, scale))
-    print("annot:{}".format(annot))
+
+    expand = SSDExpand()
+    sample = expand(sample)
+    img, annots = sample['img'], sample['annot']
+    height, width, depth = img.shape
+    skimage.io.imshow(img)
+    for i, coord in enumerate(annots):
+        print("expand coord:", coord)
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='b', linewidth=2)
+        plt.gca().add_patch(a)
+    plt.show()
+    print("expand new_height:{} , new_width:{}, new_depth:{}".format(height, width, depth))
+
+    crop = SSDRandSampleCrop()
+    sample = crop(sample)
+    img, annots = sample['img'], sample['annot']
+    height, width, depth = img.shape
+    skimage.io.imshow(img)
+    for i, coord in enumerate(annots):
+        print("crop coord:", coord)
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='b', linewidth=2)
+        plt.gca().add_patch(a)
+    plt.show()
+    print("crop new_height:{} , new_width:{}, new_depth:{}".format(height, width, depth))
+
+    randomflip = RandomFlip()
+    sample = randomflip(sample)
+    img, annots = sample['img'], sample['annot']
+    height, width, depth = img.shape
+    skimage.io.imshow(img)
+    for i, coord in enumerate(annots):
+        print("randomflip coord:", coord)
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='g', linewidth=2)
+        plt.gca().add_patch(a)
+    plt.show()
+    print("randomflip new_height:{} , new_width:{}, new_depth:{}".format(height, width, depth))
+
+    resize = SSDResize()
+    sample = resize(sample)
+    img, annots, scale = sample['img'], sample['annot'], sample['scale']
+    height, width, depth = img.shape
+    skimage.io.imshow(img.numpy())
+    for i, coord in enumerate(annots):
+        print("resize coord:", coord)
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='g', linewidth=2)
+        plt.gca().add_patch(a)
+    plt.show()
+    print("resize new_height:{} , new_width:{}, new_depth:{}, scale:{}".format(height, width, depth, scale))

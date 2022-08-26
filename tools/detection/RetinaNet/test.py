@@ -1,8 +1,7 @@
-import os
 import warnings
 
 warnings.filterwarnings('ignore')
-
+import os
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -16,9 +15,8 @@ import argparse
 from data import *
 import torch.nn.parallel
 from torchvision import transforms
-from models.detection.SSD import SSD
 from utils.get_logger import get_logger
-from utils.augmentations import Normalize, RetinaNetResize, SSDResize
+from utils.augmentations import Normalize, RetinaNetResize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 
@@ -40,13 +38,12 @@ def parse_args():
                         help='Path to COCO or VOC directory')
     parser.add_argument('--model',
                         type=str,
-                        default='ssd',
-                        choices=['retinanet', 'ssd'],
+                        default='retinanet',
                         help='Testing Model')
     parser.add_argument('--depth',
                         type=int,
-                        default=0,
-                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
+                        default=50,
+                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152')
     parser.add_argument('--training',
                         type=str,
                         default=False,
@@ -75,10 +72,6 @@ def parse_args():
                         type=str,
                         default=False,
                         help='Models was pretrained')
-    parser.add_argument('--thresh',
-                        type=float,
-                        default=0.3,
-                        help='Thresh')
 
     return parser.parse_args()
 
@@ -120,8 +113,9 @@ def write_test_results(dataset, model):
         pred_bbox /= scale
 
         pred_num = 0
+        thresh = pred_score[0]
         for index in range(len(pred_score)):
-            if pred_score[index] >= args.thresh:
+            if pred_score[index] > thresh:
                 if pred_num == 0:
                     with open(filename, mode='a') as f:
                         f.write('PREDICTIONS: ' + '\n')
@@ -131,6 +125,7 @@ def write_test_results(dataset, model):
                             + str((pred_label[index]).numpy()) + ' || ' + 'score: ' +
                             str((pred_score[index]).numpy()) + ' || ' + 'coords: ' + ' || '.join(
                         str(c.numpy()) for c in pred_bbox[index]) + '\n')
+                thresh = pred_score[index]
 
 
 def Visualized(dataset, model):
@@ -172,9 +167,11 @@ def Visualized(dataset, model):
         label_a = str(int(a[4].numpy()))
         cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
         font = cv2.FONT_HERSHEY_PLAIN
-        cv2.putText(image, label_a, (xmin + 2, ymin + 2), font, 1, (0, 255, 0), 1)
+        cv2.putText(image, label_a, (xmin, ymin), font, 1, (0, 0, 255), 1)
+
+    thresh = pred_score[0]
     for i, pred_s in enumerate(pred_score):
-        if pred_s >= args.thresh:
+        if pred_s > thresh:
             xmin = int(pred_bbox[i][0].numpy())
             ymin = int(pred_bbox[i][1].numpy())
             xmax = int(pred_bbox[i][2].numpy())
@@ -183,7 +180,8 @@ def Visualized(dataset, model):
             score_b = str(round(float(pred_score[i].numpy()), 2))
             text = label_b + ' | ' + score_b
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (255, 0, 255), 2)
-            cv2.putText(image, text, (xmax - 2, ymax - 2), font, 1, (250, 0, 255), 1)
+            cv2.putText(image, text, (xmin, ymax), font, 1, (255, 0, 0), 1)
+            thresh = pred_s
     if args.dataset == 'VOC':
         filename = os.path.join(devkit_path, info[1] + '_VOC.jpg')
     elif args.dataset == 'COCO':
@@ -218,23 +216,21 @@ def test():
         elif args.dataset_root is None:
             raise ValueError("WARNING: Using default COCO dataset, but " +
                              "--dataset_root was not specified.")
-        if args.model == 'retinanet':
-            dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
-                                         transform=transforms.Compose([Normalize(), RetinaNetResize()]))
-        elif args.model == 'ssd':
-            dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
-                                         transform=transforms.Compose([Normalize(), SSDResize()]))
+
+        dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
+                                     transform=transforms.Compose([Normalize(),
+                                                                   RetinaNetResize()]))
+
     elif args.dataset == 'VOC':
         if args.dataset_root == COCO_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset VOC')
         elif args.dataset_root is None:
             raise ValueError('Must provide --dataset_root when training on VOC')
-        if args.model == 'retinanet':
-            dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
-                                        transform=transforms.Compose([Normalize(), RetinaNetResize()]))
-        elif args.model == 'ssd':
-            dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
-                                        transform=transforms.Compose([Normalize(), SSDResize()]))
+
+        dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                    transform=transforms.Compose([Normalize(),
+                                                                  RetinaNetResize()]))
+
 
     else:
         raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
@@ -270,13 +266,6 @@ def test():
             raise ValueError('Unsupported RetinaNet Model depth!')
 
         print("Using model retinanet...")
-    elif args.model == 'ssd':
-        if args.depth == 0:
-            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
-        else:
-            raise ValueError("Unsupported SSD Model depth!")
-        print("Using model ssd...")
-
     else:
         raise ValueError('Unsupported model type!')
 

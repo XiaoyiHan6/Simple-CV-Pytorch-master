@@ -1,4 +1,6 @@
+import numpy as np
 import torch
+
 
 # shape of a,b : x1, y1, x2, y2
 def cal_ciou(a, b):
@@ -17,3 +19,16 @@ def cal_ciou(a, b):
     IoU = intersection / ua
 
     return IoU
+
+
+def iou_numpy(a, b):
+    min_xy = np.maximum(a[:2], b[:2])
+    max_xy = np.minimum(a[2:], b[2:])
+
+    wh = np.clip((max_xy - min_xy), a_min=0, a_max=np.inf)
+    inter = wh[0] * wh[1]
+
+    area_a = (a[2] - a[0]) * (a[3] - a[1])
+    area_b = (b[2] - b[0]) * (b[3] - b[1])
+    iou = area_a + area_b - inter
+    return iou

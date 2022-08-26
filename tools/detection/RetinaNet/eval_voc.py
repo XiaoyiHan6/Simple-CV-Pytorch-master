@@ -8,10 +8,11 @@ import time
 import torch
 import logging
 import argparse
+import numpy as np
 from data import *
 from torchvision import transforms
-from models.detection.SSD import SSD
 from utils.get_logger import get_logger
+from models.detection.SSD import SSD
 from utils.augmentations import RetinaNetResize, Normalize, SSDResize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
@@ -25,21 +26,20 @@ def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch detection Evaluation')
     parser.add_argument('--dataset',
                         type=str,
-                        default='COCO',
-                        help='Dataset type, must be COCO.')
+                        default='VOC',
+                        help='Dataset type, must be one of VOC.')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=COCO_ROOT,
+                        default=VOC_ROOT,
                         help='Path to COCO directory')
     parser.add_argument('--model',
                         type=str,
-                        default='ssd',
-                        choices=['retinanet', 'ssd'],
+                        default='retinanet',
                         help='Evaluation Model')
     parser.add_argument('--depth',
                         type=int,
-                        default=0,
-                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
+                        default=50,
+                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152')
     parser.add_argument('--training',
                         type=str,
                         default=False,
@@ -79,20 +79,19 @@ logger = logging.getLogger(args.log_name)
 
 def eval():
     # 2. Create the data loaders
-    if args.dataset == 'COCO':
-        if args.dataset_root == VOC_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset COCO')
+    if args.dataset == 'VOC':
+        if args.dataset_root == COCO_ROOT:
+            raise ValueError('Must specify dataset_root if specifying dataset VOC')
         elif args.dataset_root is None:
-            raise ValueError("WARNING: Using default COCO dataset, but " +
-                             "--dataset_root was not specified.")
-        if args.model == 'retinanet':
-            dataset_val = CocoDetection(args.dataset_root, set_name='val2017',
-                                        transform=transforms.Compose([Normalize(), RetinaNetResize()]))
-        elif args.model == 'ssd':
-            dataset_val = CocoDetection(args.dataset_root, set_name='val2017',
-                                        transform=transforms.Compose([Normalize(), SSDResize()]))
+            raise ValueError('Must provide --dataset_root when training on VOC')
+
+        dataset_val = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
+                                   transform=transforms.Compose([Normalize(),
+                                                                 RetinaNetResize()]))
+
+
     else:
-        raise ValueError('Dataset type not understood (must be coco), exiting.')
+        raise ValueError('Dataset type not understood (must be voc), exiting.')
 
     # 3. Create the model
     if args.model == 'retinanet':
@@ -117,15 +116,8 @@ def eval():
                                         pretrained=args.pretrained,
                                         training=args.training)
         else:
-            raise ValueError("Unsupported model depth!")
-
+            raise ValueError("Unsupported RetinaNet model depth!")
         print("Using model retinanet...")
-    elif args.model == 'ssd':
-        if args.depth == 0:
-            model = SSD(version=args.dataset, training=args.training, batch_norm=False)
-        else:
-            raise ValueError("Unsupported SSD Model depth!")
-        print("Using model ssd...")
 
     else:
         raise ValueError('Unsupported model type!')
@@ -149,21 +141,11 @@ def eval():
     logger.info(f"{args}")
     t0 = time.time()
     # 4. interference
-    all_eval_result = evaluate_coco(dataset_val, model)
-    if all_eval_result:
-        logger.info(
-            f"IoU=0.5:0.95, area=all, maxDets=100, mAP:{all_eval_result[0]:.3f}, "
-            f"IoU=0.5, area=all, maxDets=100, mAP:{all_eval_result[1]:.3f}, "
-            f"IoU=0.75, area=all, maxDets=100, mAP:{all_eval_result[2]:.3f}, "
-            f"IoU=0.5:0.95, area=small, maxDets=100, mAP:{all_eval_result[3]:.3f}, "
-            f"IoU=0.5:0.95, area=medium,maxDets=100,mAP:{all_eval_result[4]:.3f}, "
-            f"IoU=0.5:0.95,area=large,maxDets=100,mAP:{all_eval_result[5]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=1,mAR:{all_eval_result[6]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=10,mAR:{all_eval_result[7]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=100,mAR:{all_eval_result[8]:.3f}, "
-            f"IoU=0.5:0.95,area=small,maxDets=100,mAR:{all_eval_result[9]:.3f}, "
-            f"IoU=0.5:0.95,area=medium,maxDets=100,mAR:{all_eval_result[10]:.3f}, "
-            f"IoU=0.5:0.95,area=large,maxDets=100,mAR:{all_eval_result[11]:.3f}.")
+    aps, labelmap = evaluate_voc(dataset_val, model)
+    if aps:
+        for index, ap in enumerate(aps):
+            logger.info(f"{labelmap[index]}:{ap:1.4f}")
+        logger.info(f"Mean AP:{np.mean(aps):1.4f}")
 
     t1 = time.time()
     m = (t1 - t0) // 60

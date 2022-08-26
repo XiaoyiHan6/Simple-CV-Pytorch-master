@@ -33,7 +33,8 @@ def decode(loc, anchors, variances):
     boxes = torch.cat((anchors[:, :2] + loc[:, :2] * variances[0] * anchors[:, 2:],
                        anchors[:, 2:] * torch.exp(loc[:, 2:] * variances[1])), 1)
 
-    boxes = point_form(boxes)
+    boxes[:, :2] -= boxes[:, 2:] / 2
+    boxes[:, 2:] += boxes[:, :2]
     return boxes
 
 
@@ -52,7 +53,7 @@ def center_size(boxes):
     """
     (xmin,ymin,xmax,ymax) -> (cx,cy,w,h)
     """
-    return torch.cat((boxes[:, :2] + boxes[:, 2:]) / 2,
+    return torch.cat((boxes[:, 2:] + boxes[:, :2]) / 2,
                      (boxes[:, 2:] - boxes[:, :2]), 1)
 
 
@@ -153,7 +154,7 @@ def match(threshold, truths, anchors, variances, labels, loc_t, conf_t, idx):
 
 
 def log_sum_exp(x):
-    x_max = x.detach().max()
+    x_max = x.data.max()
     return torch.log(torch.sum(torch.exp(x - x_max), 1, keepdim=True)) + x_max
 
 
@@ -175,16 +176,11 @@ class SSDLoss(nn.Module):
                  neg_overlap=0.5,
                  encode_target=False,
                  variances=[0.1, 0.2],
-                 version='VOC'):
-
+                 num_classes=21):
         super(SSDLoss, self).__init__()
 
-        if version == 'VOC':
-            self.num_classes = 21
-        elif version == 'COCO':
-            self.num_classes = 81
-        else:
-            raise ValueError("dataset is error!")
+        self.num_classes = num_classes
+
         # IoU 0.5
         self.threshold = overlap_thresh
         # background label 0
@@ -199,11 +195,11 @@ class SSDLoss(nn.Module):
         self.negpos_ratio = neg_pos
         # 0.5
         self.neg_overlap = neg_overlap
-        self.version = version
+        self.num_classes = num_classes
         self.variances = variances
 
     def forward(self, predictions, targets):
-        # total_anchor_nums=8732, num_classes=21
+        # total_anchor_nums=8732, num_classes=20
         # loc_data.shape: [batch_size, total_anchor_nums, 4]
         # conf_data.shape: [batch_size, total_anchor_nums, num_classes]
         # anchors.shape: [total_anchor_nums, 4]
@@ -233,9 +229,8 @@ class SSDLoss(nn.Module):
             # labels.shape; [num_objs]
             labels = targets[idx][:, -1].data
 
-            # [8732, 4]
-            defaults = anchors.data
-            match(self.threshold, truths, defaults, self.variances, labels, loc_t, conf_t, idx)
+            # anchors.data.shape:[8732, 4]
+            match(self.threshold, truths, anchors.data, self.variances, labels, loc_t, conf_t, idx)
 
         pos = conf_t > 0
         # Localization Loss (Smooth L1)
@@ -246,16 +241,16 @@ class SSDLoss(nn.Module):
         loc_p = loc_data[pos_idx].view(-1, 4)
         # gt
         loc_t = loc_t[pos_idx].view(-1, 4)
-        loss_l = F.smooth_l1_loss(loc_p, loc_t)
+        loss_l = F.smooth_l1_loss(loc_p, loc_t, reduction='sum')
 
         # Compute max conf across batch for hard negative mining
         # conf_data.shape: [batch_size,num_anchors,num_classes]
         # batch_conf.data:[batch_size*num_anchors,num_classes]
         # reshape
-        batch_conf = conf_data.view(-1, self.num_classes)
+
         # conf_t.shape: [batch_size,num_anchors]
         # loss_c.shape: [batch_size*num_anchors,1]
-        loss_c = (log_sum_exp(batch_conf) - batch_conf.gather(1, conf_t.view(-1, 1))).data
+        loss_c = -F.log_softmax(conf_data, dim=2)[:, :, 0]
         # Hard Negative Mining
         # filter out pos boxes for now
         # loss_c.shape: [batch_size*num_anchors,1]
@@ -275,15 +270,21 @@ class SSDLoss(nn.Module):
         # neg.shape: [batch_size,num_anchors]
         # neg_idx.shape: [batch_size,num_anchors,num_classes]
         neg_idx = neg.unsqueeze(2).expand_as(conf_data)
+
         # pos_idx,neg_idx
+        # conf_data.shape:[batch_size,num_anchors,num_classes]
+        # conf_p.shape: [num_obj,num_classes]
         conf_p = conf_data[(pos_idx + neg_idx).gt(0)].view(-1, self.num_classes)
+        # conf_t.shape:[batch_size,num_anchors]
+        # targets_weighted.shape:[num_obj]
         targets_weighted = conf_t[(pos + neg).gt(0)]
-        loss_c = F.cross_entropy(conf_p, targets_weighted)
+
+        loss_c = F.cross_entropy(conf_p, targets_weighted, reduction='sum')
 
         # Sum of losses: L(x,c,l,g) = (Lconf(x,c)+ αLloc(x,l,g))/N
-        N = num_pos.detach().sum().float()
-        loss_c /= N
-        loss_l /= N
+        # N = num_pos.data.sum().float()
+        loss_c /= pos_idx.sum()
+        loss_l /= pos_idx.sum()
         return loss_c, loss_l
 
 
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     p = (l, c, anchors)
 
     loc = torch.randn(1, 10, 4)
-    label = torch.randint(20, (1, 10, 1))
+    label = torch.randint(21, (1, 10, 1))
     t = torch.cat((loc, label.float()), dim=2)
 
     c, l = loss(p, t)

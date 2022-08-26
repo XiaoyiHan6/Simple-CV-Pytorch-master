@@ -70,8 +70,9 @@ class confHeads(nn.Module):
         del x
         out = [out1, out2, out3, out4, out5, out6]
         del out1, out2, out3, out4, out5, out6
-        conf = torch.cat([o.view(o.size(0), -1, self.num_classes) for o in out], dim=1)
+        conf = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
         del out
+        conf = conf.view(conf.size(0), -1, self.num_classes)
         return conf
 
 
@@ -84,7 +85,8 @@ class locHeads(nn.Module):
                          padding=1)
 
         v += 1
-        loc2 = nn.Conv2d(in_channels=vgg.block7[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3, stride=1,
+        loc2 = nn.Conv2d(in_channels=vgg.block7[0].out_channels, out_channels=cfg[v] * 4, kernel_size=3,
+                         stride=1,
                          padding=1)
 
         v += 1
@@ -138,8 +140,9 @@ class locHeads(nn.Module):
         del x
         out = [out1, out2, out3, out4, out5, out6]
         del out1, out2, out3, out4, out5, out6
-        loc = torch.cat([o.view(o.size(0), -1, 4) for o in out], dim=1)
+        loc = torch.cat([o.view(o.size(0), -1) for o in out], dim=1)
         del out
+        loc = loc.view(loc.size(0), -1, 4)
         return loc
 
 
@@ -163,5 +166,5 @@ if __name__ == "__main__":
 
     backbones_2 = VggNetBackbone(backbone['300'], 3)
     necks_2 = SSDNecks(neck['300'], 1024)
-    conf_head = confHeads(backbones_2, necks_2, head['300'], 21)
+    conf_head = confHeads(backbones_2, necks_2, head['300'], 20)
     print(conf_head)
