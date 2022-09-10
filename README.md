@@ -510,9 +510,9 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 |:--------:|:----------:|:------------:|:------------:|:------------:|
 |    120   |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
 
-**visualize
+**visualize**
 
-![SSD_Visualize](results/VOC/006996_VOC.jpg)
+![SSD_Visualize](results/SSD/VOC/006996_VOC.jpg)
 
 ******************************
 
