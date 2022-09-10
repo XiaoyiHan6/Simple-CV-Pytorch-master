@@ -1,8 +1,8 @@
-from pycocotools.cocoeval import COCOeval
+import os
 import json
 import torch
 from data.config import results_path
-import os
+from pycocotools.cocoeval import COCOeval
 
 
 def get_output_dir(name, phase):

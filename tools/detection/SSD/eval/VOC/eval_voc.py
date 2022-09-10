@@ -10,9 +10,9 @@ import logging
 import argparse
 import numpy as np
 from data import *
+from voc_eval import evaluate_voc
 from models.detection.SSD import SSD
 from utils.get_logger import get_logger
-from voc_eval import evaluate_voc
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -111,7 +111,8 @@ def eval():
     logger.info(f"{args}")
     t0 = time.time()
     # 4. interference
-    aps, labelmap = evaluate_voc(dataset_val, model)
+    with torch.no_grad():
+        aps, labelmap = evaluate_voc(dataset_val, model)
 
     if aps:
         for index, ap in enumerate(aps):

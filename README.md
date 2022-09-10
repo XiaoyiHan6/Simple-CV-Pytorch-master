@@ -2,7 +2,7 @@
 
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later.
 
-For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet. Then I will reproduce ShuffleNet, EiffcientNet, etc.
+For classification, I reproduced LeNet5, VGG, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet, shufflenet. Then I will reproduce ShuffleNet, EiffcientNet, etc.
 
 For object detection, I reproduced RetinaNet and SSD. (I broke the code up into modules, such as backbones, necks, heads,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
@@ -16,12 +16,13 @@ You should create **checkpoint**(model save), **log**, **results** and **tenshor
 package.
 
 
-Now, need to modify:
+## Now, need to modify:
 
+```
 1.SSD(tools/detection/SSD/COCO) COCO (data/coco.py)
 
 2.RetinaNet
-
+```
 
 ## Compiling environment
 
@@ -158,19 +159,20 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----tools                       |----eval.py
 |         |----classification----|----train.py
 |         |                      |----test.py
-|         |
-|         |                                   |----coco_eval.py
-|         |                                   |----eval_coco.py
-|         |                                   |----test.py        (need modify)
-|         |----detection----|----RetinaNet----|----train.py
-|                           |                 |----voc_eval.py
-|                           |                 |----eval_voc.py
+|         |               
+|         |                                                |----COCO----|----eval_coco.py         
+|         |                                                |            |----coco_eval.py
+|         |                                                |
+|         |                                                |----VOC----|----eval_voc.py  
+|         |----detection----|----RetinaNet----|----eval----|           |----voc_eval.py        (need modify)
+|                           |                 |----train.py
+|                           |                 |----test.py 
 |                           |                                   
-|                           |                                     |----eval_coco.py
-|                           |                        |----COCO----|----coco_eval.py
-|                           |                        |
-|                           |                        |           |----eval_voc.py
-|                           |----SSD----|----eval----|----VOC----|----voc_eval.py
+|                           |                        |----COCO----|----eval_coco.py
+|                           |                        |            |----coco_eval.py
+|                           |                        |            
+|                           |                        |----VOC----|----eval_voc.py
+|                           |----SSD----|----eval----|           |----voc_eval.py
 |                           |           |----train.py
 |                           |           |----visualize.py
 | 

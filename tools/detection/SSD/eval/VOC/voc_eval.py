@@ -1,20 +1,17 @@
 """ SSD VOC EVAL"""
 import os
 import sys
-import time
-
 import torch
+from data import *
 import numpy as np
 from tqdm import tqdm
+from data.config import results_path
+from utils.augmentations.SSDAugmentations import BaseTransform
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
 else:
     import xml.etree.ElementTree as ET
-
-from data import *
-from data.config import results_path
-from utils.augmentations.SSDAugmentations import BaseTransform
 
 YEAR = '2007'
 # annopath = /data/VOCdevkit/VOC2007/Annotations
@@ -27,7 +24,7 @@ imgpath = os.path.join(VOC_ROOT, 'VOC' + YEAR, 'JPEGImages', '%s.jpg')
 imgsetpath = os.path.join(VOC_ROOT, 'VOC' + YEAR, 'ImageSets', 'Main', '{:s}.txt')
 
 # devkit_path = /data/PycharmProject/Simple-CV-Pytorch-master/result/SSD/VOC
-devkit_path = os.path.join(results_path, 'SSD', '')
+devkit_path = os.path.join(results_path, 'SSD', 'VOC')
 
 dataset_mean = (104, 117, 123)
 

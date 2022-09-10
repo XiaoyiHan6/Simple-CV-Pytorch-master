@@ -11,16 +11,16 @@ import numpy as np
 from data import *
 import collections
 import torch.optim as optim
+from tools.detection.SSD.eval.VOC.voc_eval import evaluate_voc
 from utils.Sampler import Sampler
+from tools.detection.SSD.eval.COCO.coco_eval import evaluate_coco
 from models.detection.SSD import SSD
 from utils.collate import ssd_collate
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from torch.cuda.amp import autocast, GradScaler
-from utils.scheduler import WarmupCosineSchedule
-from tools.detection.SSD.eval.VOC.voc_eval import evaluate_voc
-from tools.detection.SSD.eval.COCO.coco_eval import evaluate_coco
 from utils.augmentations.SSDAugmentations import SSDAugmentation
+from utils.scheduler import WarmupLinearSchedule, WarmupCosineSchedule
 
 assert torch.__version__.split('.')[0] == '1'
 print('CUDA available: {}'.format(torch.cuda.is_available()))
@@ -78,7 +78,7 @@ def parse_args():
                         default=config.detection_train_log)
     parser.add_argument('--resume',
                         type=str,
-                        default='voc_ssd.pth',
+                        default=None,
                         help='Checkpoint state_dict file to resume training from')
     parser.add_argument('--save_folder',
                         type=str,
@@ -167,10 +167,12 @@ def train():
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     # optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
     scaler = GradScaler(enabled=True)
 
-    scheduler = WarmupCosineSchedule(optimizer, 500, 120000)
+    scheduler = WarmupCosineSchedule(optimizer, 5, 119)
 
+    # scheduler = WarmupLinearSchedule(optimizer, 5, 119)
     # len(dataset_train): 16551, iter_size: 1034
     loss_hist = collections.deque(maxlen=1034)
 
@@ -249,38 +251,39 @@ def train():
 
         print(
             "epoch {} is finished, and the time is {}h{}m{}s".format(epoch_num, int(h_time), int(m_time), int(s_time)))
+        if epoch_num > 20:
+            print('Evaluation ssd...')
+            t_eval_start = time.time()
+            model.eval()
+            model.training = False
+            with torch.no_grad():
+                if args.dataset == 'VOC':
+                    aps, labelmap = evaluate_voc(dataset_val, model)
+                    logger.info(f"Mean AP:{np.mean(aps):1.4f}")
+                elif args.dataset == "COCO":
+                    all_eval_result = evaluate_coco(dataset_val, model)
+                    aps = all_eval_result[1]
+                    logger.info(f"IoU=0.5, area=all, maxDets=100, mAP:{aps:1.4f}")
 
-        print('Evaluation ssd...')
-        t_eval_start = time.time()
-        model.training = False
-        model.eval()
+                else:
+                    raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
 
-        if args.dataset == 'VOC':
-            aps, labelmap = evaluate_voc(dataset_val, model)
-            logger.info(f"Mean AP:{np.mean(aps):1.4f}")
-        elif args.dataset == "COCO":
-            all_eval_result = evaluate_coco(dataset_val, model)
-            aps = all_eval_result[1]
-            logger.info(f"IoU=0.5, area=all, maxDets=100, mAP:{aps:1.4f}")
+            if np.mean(aps) > best_map:
+                print('Saving best mAP state, iter: ', epoch_num)
+                torch.save(model.state_dict(),
+                           args.save_folder + '/' + args.model + '_' +
+                           args.dataset.lower() + '_' + 'best' + '.pth')
+                best_map = np.mean(aps)
+            t_eval_end = time.time()
 
-        else:
-            raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
+            h_eval = (t_eval_end - t_eval_start) // 3600
+            m_eval = ((t_eval_end - t_eval_start) % 3600) // 60
+            s_eval = ((t_eval_end - t_eval_start) % 3600) % 60
+            print(
+                "Evaluation is finished, and the time is {}h{}m{}s".format(int(h_eval), int(m_eval), int(s_eval)))
+            model.training = True
+            model.train()
 
-        if np.mean(aps) > best_map:
-            print('Saving best mAP state, iter: ', epoch_num)
-            torch.save(model.state_dict(),
-                       args.save_folder + '/' + args.model + '_' +
-                       args.dataset.lower() + '_' + 'best' + '.pth')
-            best_map = np.mean(aps)
-        t_eval_end = time.time()
-
-        h_eval = (t_eval_end - t_eval_start) // 3600
-        m_eval = ((t_eval_end - t_eval_start) % 3600) // 60
-        s_eval = ((t_eval_end - t_eval_start) % 3600) % 60
-        print(
-            "Evaluation is finished, and the time is {}h{}m{}s".format(int(h_eval), int(m_eval), int(s_eval)))
-        model.training = True
-        model.train()
     if args.tensorboard:
         writer.close()
 

@@ -155,6 +155,7 @@ def write_test_results(dataset, model, transform, img_size=300):
                                 str(c) for c in coord) + '\n')
 
             pbar.update(1)
+    pbar.close()
     return
 
 
