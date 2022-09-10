@@ -513,7 +513,11 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 + visualize
 
-<center>![ssd_visualize](results/SSD/VOC/006996_VOC.jpg)</center>
+<center>
+
+![ssd_visualize](results/SSD/VOC/006996_VOC.jpg)
+
+</center>
 
 ******************************
 
