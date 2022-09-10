@@ -52,6 +52,7 @@ cifar path: /data/cifar
 |----cifar-10-python.tar.gz
 
 
+
 I use Ubuntu20.04 (OS).
 
 project path: /data/PycharmProject
@@ -63,14 +64,12 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
 |            |----CIAR_labels.txt
 |            |----coco.py
-|            |----coco_eval.py
 |            |----coco_labels.txt
 |----data----|----__init__.py
 |            |----config.py ( path )
 |            |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
 |            |----ImageNet_labels.txt
 |            |----voc0712.py
-|            |----voc_eval.py
 |            |----voc_labels.txt
 |                                     |----automobile.png
 |----images----|----classification----|----crash_helmet.png
@@ -78,12 +77,25 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----sunflower.png
 |              |
 |              |----detection----|----000001.jpg
-|                                |----000001.xml
-|                                |----000002.jpg
-|                                |----000002.xml
-|                                |----000003.jpg
-|                                |----000003.xml
-|
+|              |                 |----000001.xml
+|              |                 |----000002.jpg
+|              |                 |----000002.xml
+|              |                 |----000003.jpg
+|              |                 |----000003.xml
+|              | 
+|              |----icon----|----alexnet.png
+|              |            |----googlenet.png
+|              |            |----lenet5.png
+|              |            |----mobilenet_v2.png
+|              |            |----mobilenet_v3_large.png
+|              |            |----mobilenet_v3_small.png
+|              |            |----resnet.png
+|              |            |----resnext.png
+|              |            |----retinanet.png
+|              |            |----shufflenet_v2.png
+|              |            |----ssd.png
+|              |            |----vgg.png
+|                     
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
 |----models----|----classification----|----__init__.py
@@ -108,7 +120,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
 |              |                 |             |----FPN.txt
-|              |                 |             |----SSDNecks.py
 |              |                 | 
 |              |                 |----heads----|----__init.py
 |              |                 |             |----RetinaNetHeads.py
@@ -122,7 +133,11 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |              |----RetinaNetLoss.py
 |              |                 |              |----SSDLoss.py
 |
-|----results ( eg: detection ( VOC or COCO AP ) )
+|----results----|----SSD----|----VOC
+|               |           |----COCO
+|               |                          ( eg: detection ( VOC or COCO AP ) )
+|               |----RetinaNet----|----VOC
+|               |                 |----COCO
 |
 |----tensorboard ( Loss visualization )
 |
@@ -130,24 +145,35 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |         |----classification----|----train.py
 |         |                      |----test.py
 |         |
-|         |                 |----eval_coco.py
-|         |                 |----eval_voc.py
-|         |----detection----|----test.py
-|                           |----train.py
-|                      
-|
+|         |                                   |----coco_eval.py
+|         |                                   |----eval_coco.py
+|         |                                   |----test.py        (need modify)
+|         |----detection----|----RetinaNet----|----train.py
+|                           |                 |----voc_eval.py
+|                           |                 |----eval_voc.py
+|                           |                                   
+|                           |                                     |----eval_coco.py
+|                           |                        |----COCO----|----coco_eval.py
+|                           |                        |
+|                           |                        |           |----eval_voc.py
+|                           |----SSD----|----eval----|----VOC----|----voc_eval.py
+|                           |           |----train.py
+|                           |           |----visualize.py
+| 
+|                                   |----RetinaNetAugmentations.py      
+|             |----augmentations----|----SSDAugmentations.py
+|             |----accuracy.py
 |             |----AverageMeter.py
 |             |----BBoxTransform.py
 |             |----ClipBoxes.py
-|             |----Sampler.py 
-|             |----iou.py            
-|----utils----|----__init__.py
-|             |----accuracy.py
-|             |----augmentations.py
 |             |----collate.py
 |             |----get_logger.py
+|             |----iou.py            
+|----utils----|----L2Norm.py
 |             |----nms.py
 |             |----path.py
+|             |----Sampler.py 
+|             |----scheduler.py
 |
 |----FolderOrganization.txt
 |
@@ -156,5 +182,3 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----README.md
 |
 |----requirements.txt
-
-

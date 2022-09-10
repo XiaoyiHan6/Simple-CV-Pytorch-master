@@ -4,7 +4,7 @@ This code includes detection and classification tasks in Computer Vision, and se
 
 For classification, I reproduced LeNet5, VGG16, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet. Then I will reproduce ShuffleNet, EiffcientNet, etc.
 
-For object detection, I reproduced RetinaNet. (I broke the code up into modules, such as backbones, necks, heads,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
+For object detection, I reproduced RetinaNet and SSD. (I broke the code up into modules, such as backbones, necks, heads,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
 
 Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
@@ -14,6 +14,14 @@ Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
 You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
 package.
+
+
+Now, need to modify:
+
+1.SSD(tools/detection/SSD/COCO) COCO (data/coco.py)
+
+2.RetinaNet
+
 
 ## Compiling environment
 
@@ -42,7 +50,7 @@ matplotlib
 
 opencv-python 
 
-skimage
+skimage (maybe you want to use it.)
 
 tensorboard
 
@@ -70,14 +78,12 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
 |            |----CIAR_labels.txt
 |            |----coco.py
-|            |----coco_eval.py
 |            |----coco_labels.txt
 |----data----|----__init__.py
 |            |----config.py ( path )
 |            |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
 |            |----ImageNet_labels.txt
 |            |----voc0712.py
-|            |----voc_eval.py
 |            |----voc_labels.txt
 |                                     |----automobile.png
 |----images----|----classification----|----crash_helmet.png
@@ -85,12 +91,25 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----sunflower.png
 |              |
 |              |----detection----|----000001.jpg
-|                                |----000001.xml
-|                                |----000002.jpg
-|                                |----000002.xml
-|                                |----000003.jpg
-|                                |----000003.xml
-|
+|              |                 |----000001.xml
+|              |                 |----000002.jpg
+|              |                 |----000002.xml
+|              |                 |----000003.jpg
+|              |                 |----000003.xml
+|              | 
+|              |----icon----|----alexnet.png
+|              |            |----googlenet.png
+|              |            |----lenet5.png
+|              |            |----mobilenet_v2.png
+|              |            |----mobilenet_v3_large.png
+|              |            |----mobilenet_v3_small.png
+|              |            |----resnet.png
+|              |            |----resnext.png
+|              |            |----retinanet.png
+|              |            |----shufflenet_v2.png
+|              |            |----ssd.png
+|              |            |----vgg.png
+|                     
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
 |----models----|----classification----|----__init__.py
@@ -115,7 +134,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----necks----|----__init__.py
 |              |                 |             |----FPN.py
 |              |                 |             |----FPN.txt
-|              |                 |             |----SSDNecks.py
 |              |                 | 
 |              |                 |----heads----|----__init.py
 |              |                 |             |----RetinaNetHeads.py
@@ -129,7 +147,11 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |              |----RetinaNetLoss.py
 |              |                 |              |----SSDLoss.py
 |
-|----results ( eg: detection ( VOC or COCO AP ) )
+|----results----|----SSD----|----VOC
+|               |           |----COCO
+|               |                          ( eg: detection ( VOC or COCO AP ) )
+|               |----RetinaNet----|----VOC
+|               |                 |----COCO
 |
 |----tensorboard ( Loss visualization )
 |
@@ -137,24 +159,35 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |         |----classification----|----train.py
 |         |                      |----test.py
 |         |
-|         |                 |----eval_coco.py
-|         |                 |----eval_voc.py
-|         |----detection----|----test.py
-|                           |----train.py
-|                      
-|
+|         |                                   |----coco_eval.py
+|         |                                   |----eval_coco.py
+|         |                                   |----test.py        (need modify)
+|         |----detection----|----RetinaNet----|----train.py
+|                           |                 |----voc_eval.py
+|                           |                 |----eval_voc.py
+|                           |                                   
+|                           |                                     |----eval_coco.py
+|                           |                        |----COCO----|----coco_eval.py
+|                           |                        |
+|                           |                        |           |----eval_voc.py
+|                           |----SSD----|----eval----|----VOC----|----voc_eval.py
+|                           |           |----train.py
+|                           |           |----visualize.py
+| 
+|                                   |----RetinaNetAugmentations.py      
+|             |----augmentations----|----SSDAugmentations.py
+|             |----accuracy.py
 |             |----AverageMeter.py
 |             |----BBoxTransform.py
 |             |----ClipBoxes.py
-|             |----Sampler.py 
-|             |----iou.py            
-|----utils----|----__init__.py
-|             |----accuracy.py
-|             |----augmentations.py
 |             |----collate.py
 |             |----get_logger.py
+|             |----iou.py            
+|----utils----|----L2Norm.py
 |             |----nms.py
 |             |----path.py
+|             |----Sampler.py 
+|             |----scheduler.py
 |
 |----FolderOrganization.txt
 |
@@ -174,8 +207,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   1).EfficientNet
 
-  (They should be placed in backbone of object detection, but they are used to extract features, just like
-  classification networks)
+  (They should be placed in backbone of object detection, but they are used to extract features, just like classification networks)
 
   1).DarkNet
 
@@ -470,13 +502,17 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  lr: 0.0001
  scheduler: ReduceLROnPlateau
  patience: 3
- epoch: 30
+ epoch: 120
  pretrained: True
 ```
 
 |  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
 |:--------:|:----------:|:------------:|:------------:|:------------:|
-|    30    |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
+|    120   |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
+
+**visualize
+
+![SSD_Visualize](results/VOC/006996_VOC.jpg)
 
 ******************************
 
@@ -509,7 +545,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 ```
 #!/bin/bash
 conda activate base
-python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(train.py or eval_coco.py or eval_voc.py or test.py)
+python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD or RetinaNet)/XXX.py(train.py or COCO/eval_coco.py or VOC/eval_voc.py or visualize.py)
 ```
 
 ### 3.semantic segmentation
@@ -522,10 +558,6 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX.py(trai
 
   3.U-Net
   
-
-### PS
-
-Next, I will modify this project architecture that I will split 'models'(directory) into classification networks and detection networks. And for 'tools'(directory), I'm going to add '.yaml' files. 
 
 ## references
 

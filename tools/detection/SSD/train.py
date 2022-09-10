@@ -12,51 +12,44 @@ from data import *
 import collections
 import torch.optim as optim
 from utils.Sampler import Sampler
-from utils.collate import collate
-from torchvision import transforms
 from models.detection.SSD import SSD
+from utils.collate import ssd_collate
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from torch.cuda.amp import autocast, GradScaler
-from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
-    resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
-from utils.augmentations import RetinaNetResize, RandomFlip, Normalize, SSDResize, SSDRandSampleCrop, \
-    SSDToPercentCoords, SSDToAbsoluteCoords, SSDExpand
+from utils.scheduler import WarmupCosineSchedule
+from tools.detection.SSD.eval.VOC.voc_eval import evaluate_voc
+from tools.detection.SSD.eval.COCO.coco_eval import evaluate_coco
+from utils.augmentations.SSDAugmentations import SSDAugmentation
 
 assert torch.__version__.split('.')[0] == '1'
-
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch detection Training')
+    parser = argparse.ArgumentParser(description='PyTorch SSD Training')
     parser.add_argument('--dataset',
                         type=str,
-                        default='COCO',
+                        default='VOC',
                         choices=['COCO', 'VOC'],
                         help='Dataset type, must be one of VOC or COCO.')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=COCO_ROOT,
+                        default=VOC_ROOT,
                         choices=[COCO_ROOT, VOC_ROOT],
                         help='Path to COCO or VOC directory')
     parser.add_argument('--model',
                         type=str,
                         default='ssd',
-                        choices=['retinanet', 'ssd'],
                         help='Training Model')
-    parser.add_argument('--depth',
-                        type=int,
-                        default=0,
-                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152, SSD of 0')
     parser.add_argument('--training',
                         type=str,
                         default=True,
                         help='Model is training or testing')
     parser.add_argument('--pretrained',
-                        default=True,
+                        default='vgg16_reducedfc.pth',
                         type=str,
-                        help='Models was pretrained')
+                        help='Pretrained base model')
     parser.add_argument('--batch_size',
                         type=int,
                         default=16,
@@ -64,10 +57,10 @@ def parse_args():
     parser.add_argument('--num_workers',
                         type=int,
                         default=2,
-                        help='Number of workers user in dataloading')
+                        help='Number of workers used in dataloading')
     parser.add_argument('--tensorboard',
                         type=str,
-                        default=False,
+                        default=True,
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--tensorboard_log',
                         type=str,
@@ -85,7 +78,7 @@ def parse_args():
                         default=config.detection_train_log)
     parser.add_argument('--resume',
                         type=str,
-                        default=None,
+                        default='voc_ssd.pth',
                         help='Checkpoint state_dict file to resume training from')
     parser.add_argument('--save_folder',
                         type=str,
@@ -93,11 +86,11 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-3,
-                        help='learning rate')
+                        default=3e-2,
+                        help='initial learning rate')
     parser.add_argument('--epochs',
                         type=int,
-                        default=4,
+                        default=120,
                         help='Number of epochs')
 
     return parser.parse_args()
@@ -124,87 +117,33 @@ def train():
         elif args.dataset_root is None:
             raise ValueError("WARNING: Using default COCO dataset, but " +
                              "--dataset_root was not specified.")
-        if args.model == 'retinanet':
-            dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
-                                          transform=transforms.Compose([
-                                              Normalize(),
-                                              RandomFlip(),
-                                              RetinaNetResize()]))
-        elif args.model == 'ssd':
-            dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
-                                          transform=transforms.Compose([
-                                              SSDToAbsoluteCoords(),
-                                              SSDExpand(),
-                                              SSDRandSampleCrop(),
-                                              RandomFlip(),
-                                              SSDToPercentCoords(),
-                                              SSDResize(),
-                                          ]))
+
+        dataset_train = CocoDetection(args.dataset_root, set_name='train2017',
+                                      transform=SSDAugmentation())
+        dataset_val = CocoDetection(args.dataset_root, set_name='val2017')
+
     elif args.dataset == 'VOC':
         if args.dataset_root == COCO_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset VOC')
+            raise ValueError('Must specify dataset_root if specifying dataset_root VOC')
         elif args.dataset_root is None:
             raise ValueError('Must provide --dataset_root when training on VOC')
-        if args.model == 'retinanet':
-            dataset_train = VocDetection(args.dataset_root,
-                                         transform=transforms.Compose([
-                                             Normalize(),
-                                             RandomFlip(),
-                                             RetinaNetResize()]))
-        elif args.model == 'ssd':
-            dataset_train = VocDetection(args.dataset_root,
-                                         transform=transforms.Compose([
-                                             SSDToAbsoluteCoords(),
-                                             SSDExpand(),
-                                             SSDRandSampleCrop(),
-                                             RandomFlip(),
-                                             SSDToPercentCoords(),
-                                             SSDResize(),
-                                         ]))
-    else:
-        raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
 
-    sampler = Sampler(dataset_train, batch_size=args.batch_size, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=args.num_workers, collate_fn=collate,
+        dataset_train = VocDetection(args.dataset_root,
+                                     transform=SSDAugmentation())
+        dataset_val = VocDetection(args.dataset_root, image_sets=[('2007', 'test')])
+    else:
+        raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
+
+    sampler = Sampler(dataset_train, batch_size=args.batch_size, drop_last=True)
+
+    dataloader_train = DataLoader(dataset_train, num_workers=args.num_workers, collate_fn=ssd_collate,
                                   batch_sampler=sampler)
 
     # 4. Create the model
-    if args.model == 'retinanet':
-        if args.depth == 18:
-            model = resnet18_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 34:
-            model = resnet34_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 50:
-            model = resnet50_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 101:
-            model = resnet101_retinanet(num_classes=dataset_train.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        elif args.depth == 152:
-            model = resnet152_retinanet(num_classes=dataset_train.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        else:
-            raise ValueError("Unsupported RetinaNet Model depth!")
-
-        print("Using model retinanet...")
-    elif args.model == 'ssd':
-        if args.depth == 0:
-            model = SSD(version=args.dataset,
-                        training=args.training,
-                        batch_norm=False)
-        else:
-            raise ValueError("Unsupported SSD Model depth!")
-        print("Using model ssd...")
-
-    else:
-        raise ValueError('Unsupported model type!')
+    model = SSD(version=args.dataset,
+                training=args.training,
+                batch_norm=False)
+    print("Using model ssd...")
 
     if args.cuda:
         if torch.cuda.is_available():
@@ -217,33 +156,36 @@ def train():
         other, ext = os.path.splitext(args.resume)
         if ext == '.pkl' or '.pth':
             model_load = os.path.join(args.save_folder, args.resume)
+            print("Resuming training, loading {}...".format(args.resume))
             model.load_state_dict(torch.load(model_load))
-            print("Loading weights into state dict...")
         else:
-            print("Sorry only .pth and .pkl files supported.")
-
-    model.training = True
+            raise ValueError("Sorry only .pth and .pkl files supported.")
+    else:
+        vgg_weights = os.path.join(args.save_folder, args.pretrained)
+        print('Loading base betwork...')
+        model.module.backbone.vgg.load_state_dict(torch.load(vgg_weights))
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    # optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scaler = GradScaler(enabled=True)
 
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1, 2, 3], gamma=0.1)
+    scheduler = WarmupCosineSchedule(optimizer, 500, 120000)
 
-    loss_hist = collections.deque(maxlen=500)
+    # len(dataset_train): 16551, iter_size: 1034
+    loss_hist = collections.deque(maxlen=1034)
 
     model.train()
-    model.module.freeze_bn()
     iter = 0
 
     iter_size = len(dataset_train) // args.batch_size
     print("len(dataset_train): {}, iter_size: {}".format(len(dataset_train), iter_size))
     logger.info(f"{args}")
     t0 = time.time()
+    best_map = 0.0
     # 5. training
     for epoch_num in range(args.epochs):
         t1 = time.time()
         model.train()
-        model.module.freeze_bn()
 
         epoch_loss = []
 
@@ -251,25 +193,28 @@ def train():
             try:
                 iter += 1
                 optimizer.zero_grad()
-                imgs, annots, scales = data['img'], data['annot'], data['scale']
+                imgs, annots = data['img'], data['annot']
                 if args.cuda:
                     if torch.cuda.is_available():
                         imgs = imgs.cuda().float()
-                        annots = annots.cuda()
+                        annots = [ann.cuda() for ann in annots]
                 else:
                     imgs = imgs.float()
                 with autocast(enabled=True):
-                    con_loss, loc_loss = model([imgs, annots])
+                    conf_loss, loc_loss = model([imgs, annots])
 
-                    con_loss = con_loss.mean()
-                    loc_loss = loc_loss.mean()
+                conf_loss = conf_loss.mean()
+                loc_loss = loc_loss.mean()
 
-                    loss = con_loss + loc_loss
+                loss = conf_loss + loc_loss
 
                 if bool(loss == 0):
                     continue
-                scaler.scale(loss).backward()
+
+                scaler.scale(loss).backward(retain_graph=True)
+
                 scaler.unscale_(optimizer)
+
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.1)
 
                 scaler.step(optimizer)
@@ -285,17 +230,17 @@ def train():
                 if iter % 100 == 0:
                     logger.info(
                         f"Epoch: {epoch_num} | Iteration: {iter}  | lr: {optimizer.param_groups[0]['lr']} | "
-                        f"Classification loss: {float(con_loss):1.5f} | "
-                        f"Regression loss: {float(loc_loss):1.5f} | Loss: {loss:1.5f} | "
-                        f"np.mean(loss_hist): {np.mean(loss_hist):1.5f} | np.mean(total_loss): {np.mean(epoch_loss):1.5f}")
+                        f"Classification loss: {float(conf_loss):1.3f} | "
+                        f"Regression loss: {float(loc_loss):1.3f} | Loss: {loss:1.3f} | "
+                        f"np.mean(loss_hist): {np.mean(loss_hist):1.3f} | np.mean(total_loss): {np.mean(epoch_loss):1.3f}")
 
-                del con_loss
+                del conf_loss
                 del loc_loss
             except Exception as e:
                 print(e)
                 continue
+            # scheduler.step()
 
-        # scheduler.step(np.mean(epoch_loss))
         scheduler.step()
         t2 = time.time()
         h_time = (t2 - t1) // 3600
@@ -305,17 +250,37 @@ def train():
         print(
             "epoch {} is finished, and the time is {}h{}m{}s".format(epoch_num, int(h_time), int(m_time), int(s_time)))
 
-        if epoch_num % 1 == 0:
-            print('Saving state, iter: ', epoch_num)
+        print('Evaluation ssd...')
+        t_eval_start = time.time()
+        model.training = False
+        model.eval()
+
+        if args.dataset == 'VOC':
+            aps, labelmap = evaluate_voc(dataset_val, model)
+            logger.info(f"Mean AP:{np.mean(aps):1.4f}")
+        elif args.dataset == "COCO":
+            all_eval_result = evaluate_coco(dataset_val, model)
+            aps = all_eval_result[1]
+            logger.info(f"IoU=0.5, area=all, maxDets=100, mAP:{aps:1.4f}")
+
+        else:
+            raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
+
+        if np.mean(aps) > best_map:
+            print('Saving best mAP state, iter: ', epoch_num)
             torch.save(model.state_dict(),
-                       args.save_folder + '/' + args.dataset +
-                       '_' + args.model + str(args.depth) +
-                       '_' + repr(epoch_num) + '.pth')
+                       args.save_folder + '/' + args.model + '_' +
+                       args.dataset.lower() + '_' + 'best' + '.pth')
+            best_map = np.mean(aps)
+        t_eval_end = time.time()
 
-    torch.save(model.state_dict(), args.save_folder + '/' +
-               args.dataset + '_' + args.model +
-               str(args.depth) + '.pth')
-
+        h_eval = (t_eval_end - t_eval_start) // 3600
+        m_eval = ((t_eval_end - t_eval_start) % 3600) // 60
+        s_eval = ((t_eval_end - t_eval_start) % 3600) % 60
+        print(
+            "Evaluation is finished, and the time is {}h{}m{}s".format(int(h_eval), int(m_eval), int(s_eval)))
+        model.training = True
+        model.train()
     if args.tensorboard:
         writer.close()
 

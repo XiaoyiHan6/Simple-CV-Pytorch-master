@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-def collate(data):
+def retinanet_collate(data):
     """Custom collate fn for dealing with batches of images that have a different
     number of associated object annotations (bounding boxes).
     Arguments:
@@ -49,3 +49,10 @@ def collate(data):
     scales = torch.from_numpy(scales)
 
     return {'img': padded_imgs, 'annot': annots, 'scale': scales}
+
+
+def ssd_collate(data):
+    imgs = [d['img'] for d in data]
+    imgs = torch.from_numpy(np.ascontiguousarray(imgs)).permute(0, 3, 1, 2)
+    annots = [torch.FloatTensor(d['annot']) for d in data]
+    return {'img': imgs, 'annot': annots}

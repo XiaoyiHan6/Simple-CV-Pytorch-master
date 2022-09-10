@@ -1,4 +1,4 @@
-from torch import Tensor
+import torchvision
 import torch
 from utils.iou import cal_ciou
 
@@ -42,41 +42,11 @@ def nms(boxes, scores, overlap=0.5):
     return keep
 
 
-def SSDNMS(boxes, scores, threshold=0.5, top_k=200):
-    """
-    boxes: pred boxes, Shape: [M,4]
-    scores: conf, Shape: [M]
-    threshold:
-    top_k: top k boxes
-    :return:
-    keep: boxes after nms -> index
-    count: boxes
-    """
-    keep = scores.new(scores.size(0)).zero_().long()
-    x1 = boxes[:, 0]
-    y1 = boxes[:, 1]
-    x2 = boxes[:, 2]
-    y2 = boxes[:, 3]
-
-    area = (x2 - x1) * (y2 - y1)
-    _, idx = scores.sort(0, descending=True)
-    idx = idx[:top_k]
-    count = 0
-    while idx.numel():
-        i = idx[0]
-        keep[count] = i
-        count += 1
-        if idx.size(0) == 1:
-            break
-        idx = idx[1:]
-        xx1 = x1[idx].clamp(min=x1[i])
-        yy1 = y1[idx].clamp(min=y1[i])
-        xx2 = x2[idx].clamp(max=x2[i])
-        yy2 = y2[idx].clamp(max=y2[i])
-
-        w = (xx2 - xx1).clamp(min=0)
-        h = (yy2 - yy1).clamp(min=0)
-        inter = w * h
-        iou = inter / (area[i] + area[idx] - inter)
-        idx = idx[iou.le(threshold)]
-    return keep, count
+def ssd_nms(boxes, scores, labels, overlap=0.5):
+    if boxes.numel() == 0:
+        return torch.empty((0,), dtype=torch.int64, device=boxes.device)
+    max_coord = boxes.max()
+    offsets = labels.to(boxes) * (max_coord + 1)
+    boxes_for_nms = boxes + offsets[:, None]
+    keep = torchvision.ops.nms(boxes_for_nms, scores, overlap)
+    return keep

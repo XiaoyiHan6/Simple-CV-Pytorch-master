@@ -47,7 +47,7 @@ detection_eval_log = 'detection_eval'
 classification_evaluate = None
 
 # detection evaluate model path
-detection_evaluate = None
+detection_evaluate = 'ssd_voc_best.pth'
 
 # Images detection path
 image_det = '000001.jpg'

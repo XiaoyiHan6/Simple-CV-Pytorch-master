@@ -1,10 +1,11 @@
 """VOC Dataset Classes"""
+# cv2 bgr -> rgb
 import os
-from skimage import io, color
-import numpy as np
-from torch.utils.data import Dataset
-from utils.path import VOC_path
 import sys
+import cv2
+import numpy as np
+from utils.path import VOC_path
+from torch.utils.data import Dataset
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
@@ -100,16 +101,13 @@ class VocDetection(Dataset):
         sample = {'img': img, 'annot': annot}
         if self.transform:
             sample = self.transform(sample)
-
+        sample['img'] = sample['img'][:, :, (2, 1, 0)]
         return sample
 
     def load_image(self, idx):
-        img = io.imread(self._imgpath % self.ids[idx])
+        img = cv2.imread(self._imgpath % self.ids[idx], 1)
         height, width, channels = img.shape
-        if len(img.shape) == 2:
-            img = color.gray2rgb(img)
-
-        return img.astype(np.float32) / 255.0
+        return img
 
     def load_annots(self, idx):
         target = ET.parse(self._annopath % self.ids[idx]).getroot()
@@ -146,3 +144,22 @@ class VocDetection(Dataset):
 
     def num_classes(self):
         return 20
+
+
+if __name__ == '__main__':
+    from torch.utils.data import DataLoader
+    from utils.collate import ssd_collate
+    from utils.augmentations.SSDAugmentations import SSDAugmentation
+
+    Data = VocDetection(VOC_ROOT, transform=SSDAugmentation())
+    data_loader = DataLoader(Data,
+                             batch_size=16,
+                             num_workers=0,
+                             shuffle=True,
+                             pin_memory=True,
+                             collate_fn=ssd_collate)
+    print('the data length is : ', len(data_loader))
+    for data in data_loader:
+        img, annots = data['img'], data['annot']
+        print("img.shape:", img.shape)
+        print("annots:", annots)

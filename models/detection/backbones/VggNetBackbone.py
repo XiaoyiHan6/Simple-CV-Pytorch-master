@@ -1,186 +1,112 @@
 import torch
 from torch import nn
-from torch.cuda.amp import autocast
 from utils.L2Norm import L2Norm
+from torch.cuda.amp import autocast
+from torchvision import models
+
+
+# "vgg16_bn": "https://download.pytorch.org/models/vgg16_bn-6c64b313.pth",
+# "vgg16": "https://download.pytorch.org/models/vgg16-397923af.pth",
+
+def add_vgg():
+    vgg16 = models.vgg16()
+    vggs = vgg16.features
+    vggs[16] = nn.MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+    vggs[-1] = nn.MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+    conv6 = nn.Conv2d(in_channels=512, out_channels=1024, kernel_size=3, padding=6, dilation=6)
+    conv7 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=1)
+    relu = nn.ReLU(inplace=True)
+    vggs.add_module('31', conv6)
+    vggs.add_module('32', relu)
+    vggs.add_module('33', conv7)
+    vggs.add_module('34', relu)
+    return vggs
+
+
+def add_extras(batch_norm=False):
+    """
+           batch_norm: whether to use BN
+    """
+    layers = []
+    conv8_1 = nn.Conv2d(in_channels=1024, out_channels=256, kernel_size=1, stride=1)
+    batch_norm8_1 = nn.BatchNorm2d(256)
+
+    conv8_2 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, stride=2, padding=1)
+    batch_norm8_2 = nn.BatchNorm2d(512)
+
+    conv9_1 = nn.Conv2d(in_channels=512, out_channels=128, kernel_size=1, stride=1)
+    batch_norm9_1 = nn.BatchNorm2d(128)
+
+    conv9_2 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1)
+    batch_norm9_2 = nn.BatchNorm2d(256)
+
+    conv10_1 = nn.Conv2d(in_channels=256, out_channels=128, kernel_size=1, stride=1)
+    batch_norm10_1 = nn.BatchNorm2d(128)
+
+    conv10_2 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1)
+    batch_norm10_2 = nn.BatchNorm2d(256)
+
+    conv11_1 = nn.Conv2d(in_channels=256, out_channels=128, kernel_size=1, stride=1)
+    batch_norm11_1 = nn.BatchNorm2d(128)
+
+    conv11_2 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1)
+    batch_norm11_2 = nn.BatchNorm2d(256)
+
+    relu = nn.ReLU(inplace=True)
+
+    if batch_norm:
+        layers = [conv8_1, batch_norm8_1, relu,
+                  conv8_2, batch_norm8_2, relu,
+                  conv9_1, batch_norm9_1, relu,
+                  conv9_2, batch_norm9_2, relu,
+                  conv10_1, batch_norm10_1, relu,
+                  conv10_2, batch_norm10_2, relu,
+                  conv11_1, batch_norm11_1, relu,
+                  conv11_2, batch_norm11_2, relu]
+    else:
+        layers = [conv8_1, relu,
+                  conv8_2, relu,
+                  conv9_1, relu,
+                  conv9_2, relu,
+                  conv10_1, relu,
+                  conv10_2, relu,
+                  conv11_1, relu,
+                  conv11_2, relu]
+    return layers
 
 
 class VggNetBackbone(nn.Module):
-    def __init__(self, cfg, i=3, batch_norm=False):
+    def __init__(self, batch_norm=False):
         super(VggNetBackbone, self).__init__()
-        """
-        cfg: channels of layer
-        i: nput_channels
-        batch_norm: whether to use BN
-        """
-        in_channels = i
-        v = 0
-        conv1_1 = nn.Conv2d(in_channels=in_channels, out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm1_1 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv1_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm1_2 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        pool1 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
-
-        v += 1
-        conv2_1 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm2_1 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv2_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm2_2 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        pool2 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
-
-        v += 1
-        conv3_1 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm3_1 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv3_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm3_2 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv3_3 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm3_3 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        pool3 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
-
-        v += 1
-        conv4_1 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm4_1 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv4_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm4_2 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv4_3 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm4_3 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        pool4 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
-
-        v += 1
-        conv5_1 = nn.Conv2d(in_channels=cfg[v - 2], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm5_1 = nn.BatchNorm2d(cfg[v])
-
-        v += 1
-        conv5_2 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm5_2 = nn.BatchNorm2d(cfg[v])
-        v += 1
-        conv5_3 = nn.Conv2d(in_channels=cfg[v - 1], out_channels=cfg[v], kernel_size=3, stride=1, padding=1)
-        batch_norm5_3 = nn.BatchNorm2d(cfg[v])
-
-        pool5 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
-        conv6 = nn.Conv2d(in_channels=512, out_channels=1024, kernel_size=3, stride=1, padding=6, dilation=6)
-        batch_norm6 = nn.BatchNorm2d(1024)
-        conv7 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=1, stride=1)
-        batch_norm7 = nn.BatchNorm2d(1024)
-        relu = nn.ReLU()
-        if batch_norm:
-            self.block1_1 = nn.Sequential(conv1_1, batch_norm1_1, relu)
-            self.block1_2 = nn.Sequential(conv1_2, batch_norm1_2, relu)
-            self.pool1 = nn.Sequential(pool1)
-
-            self.block2_1 = nn.Sequential(conv2_1, batch_norm2_1, relu)
-            self.block2_2 = nn.Sequential(conv2_2, batch_norm2_2, relu)
-            self.pool2 = nn.Sequential(pool2)
-
-            self.block3_1 = nn.Sequential(conv3_1, batch_norm3_1, relu)
-            self.block3_2 = nn.Sequential(conv3_2, batch_norm3_2, relu)
-            self.block3_3 = nn.Sequential(conv3_3, batch_norm3_3, relu)
-            self.pool3 = nn.Sequential(pool3)
-
-            self.block4_1 = nn.Sequential(conv4_1, batch_norm4_1, relu)
-            self.block4_2 = nn.Sequential(conv4_2, batch_norm4_2, relu)
-            self.block4_3 = nn.Sequential(conv4_3, batch_norm4_3, relu)
-
-            self.L2Norm = nn.Sequential(L2Norm(512, 20))
-
-            self.pool4 = nn.Sequential(pool4)
-
-            self.block5_1 = nn.Sequential(conv5_1, batch_norm5_1, relu)
-            self.block5_2 = nn.Sequential(conv5_2, batch_norm5_2, relu)
-            self.block5_3 = nn.Sequential(conv5_3, batch_norm5_3, relu)
-            self.pool5 = nn.Sequential(pool5)
-
-            self.block6 = nn.Sequential(conv6, batch_norm6, relu)
-            self.block7 = nn.Sequential(conv7, batch_norm7, relu)
-        else:
-            self.block1_1 = nn.Sequential(conv1_1, relu)
-            self.block1_2 = nn.Sequential(conv1_2, relu)
-            self.pool1 = nn.Sequential(pool1)
-
-            self.block2_1 = nn.Sequential(conv2_1, relu)
-            self.block2_2 = nn.Sequential(conv2_2, relu)
-            self.pool2 = nn.Sequential(pool2)
-
-            self.block3_1 = nn.Sequential(conv3_1, relu)
-            self.block3_2 = nn.Sequential(conv3_2, relu)
-            self.block3_3 = nn.Sequential(conv3_3, relu)
-            self.pool3 = nn.Sequential(pool3)
-
-            self.block4_1 = nn.Sequential(conv4_1, relu)
-            self.block4_2 = nn.Sequential(conv4_2, relu)
-            self.block4_3 = nn.Sequential(conv4_3, relu)
-
-            self.L2Norm = nn.Sequential(L2Norm(512, 20))
-
-            self.pool4 = nn.Sequential(pool4)
-
-            self.block5_1 = nn.Sequential(conv5_1, relu)
-            self.block5_2 = nn.Sequential(conv5_2, relu)
-            self.block5_3 = nn.Sequential(conv5_3, relu)
-            self.pool5 = nn.Sequential(pool5)
-
-            self.block6 = nn.Sequential(conv6, relu)
-            self.block7 = nn.Sequential(conv7, relu)
+        self.vgg = add_vgg()
+        self.extras = nn.ModuleList(add_extras(batch_norm=batch_norm))
+        self.l2_norm = L2Norm(512, scale=20)
+        self.batch_norm = batch_norm
 
     @autocast()
     def forward(self, x):
-        x = self.block1_1(x)
-        x = self.block1_2(x)
-        x = self.pool1(x)
+        features = []
+        for i in range(23):
+            x = self.vgg[i](x)  # Conv4_3
+        s = self.l2_norm(x)  # L2 normalization
+        features.append(s)
 
-        x = self.block2_1(x)
-        x = self.block2_2(x)
-        x = self.pool2(x)
+        for i in range(23, len(self.vgg)):
+            x = self.vgg[i](x)  # Conv 7
+        features.append(x)
 
-        x = self.block3_1(x)
-        x = self.block3_2(x)
-        x = self.block3_3(x)
-        x = self.pool3(x)
-
-        x = self.block4_1(x)
-        x = self.block4_2(x)
-        x = self.block4_3(x)
-
-        out1 = self.L2Norm(x)
-
-        x = self.pool4(x)
-
-        x = self.block5_1(x)
-        x = self.block5_2(x)
-        x = self.block5_3(x)
-        x = self.pool5(x)
-
-        x = self.block6(x)
-        out2 = self.block7(x)
-
-        return [out1, out2]
+        for k, v in enumerate(self.extras):
+            x = v(x)
+            if self.batch_norm:
+                if k % 6 == 5:
+                    features.append(x)
+            else:
+                if k % 4 == 3:
+                    features.append(x)
+        return features
 
 
 if __name__ == "__main__":
-    backbone = {
-        '300': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M', 512, 512, 512],
-        '512': [],
-    }
-    layers_1 = VggNetBackbone(backbone['300'], 3, batch_norm=True)
-    print(layers_1)
-    layers_2 = VggNetBackbone(backbone['300'], 3)
-    print(layers_2)
+    layers = VggNetBackbone(batch_norm=False)
+    x = torch.randn(16, 3, 300, 300)
+    layers(x)

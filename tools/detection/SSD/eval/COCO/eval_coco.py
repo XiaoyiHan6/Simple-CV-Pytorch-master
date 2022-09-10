@@ -9,6 +9,7 @@ import torch
 import logging
 import argparse
 from data import *
+from tools.detection.SSD.eval.COCO.coco_eval import evaluate_coco
 from torchvision import transforms
 from utils.get_logger import get_logger
 from utils.augmentations.RetinaNetAugmentations import RetinaNetResize, Normalize

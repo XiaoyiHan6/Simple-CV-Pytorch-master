@@ -1,6 +1,25 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
+
+
+def hard_neg_mining(loss_c, labels, neg_pos_ratio):
+    """
+    Args:
+    loss: (N, num_anchors): the loss for each example.
+    labels: (N, num_anchors): the labels.
+    neg_pos_ratio: the ratio between the negative examples and positive examples.
+    """
+    pos_mask = labels > 0
+    num_pos = pos_mask.long().sum(dim=1, keepdim=True)
+    num_neg = num_pos * neg_pos_ratio
+    loss_c[pos_mask] = -math.inf
+    _, index = loss_c.sort(dim=1, descending=True)
+    _, idx_rank = loss_c.sort(dim=1)
+    neg_mask = idx_rank < num_neg
+    return pos_mask | neg_mask
 
 
 def encode(matched, anchors, variances):
@@ -19,10 +38,9 @@ def encode(matched, anchors, variances):
     # shape [num_anchors,2]
     g_cxcy /= (anchors[:, 2:] * variances[0])
 
-    eps = 1e-5
     # match wh /anchor wh
     g_wh = (matched[:, 2:] - matched[:, :2]) / anchors[:, 2:]
-    g_wh = torch.log(g_wh + eps) / variances[1]
+    g_wh = torch.log(g_wh) / variances[1]
 
     # return target for smooth_L1_loss
     # [num_anchors,4]
@@ -96,66 +114,43 @@ def jaccard(box_a, box_b):
     return inter / union
 
 
-def match(threshold, truths, anchors, variances, labels, loc_t, conf_t, idx):
+def match(gt_truths, gt_labels, anchors, variances, threshold):
     """
-    threshold: (float) The overlap threshold used when mathing boxes.
-    truths: (tensor) Ground truth boxes, Shape: [num_obj, num_anchors].
-    anchors: (tensor) Anchor boxes from anchor layers, Shape: [num_anchors, 4].
-    variances: (tensor) Variances corresponding to each anchor coord, Shape: [2]
-    labels: (tensor) All the class labels for the image, Shape: [num_obj].
-    loc_t: (tensor) Tensor to be filled w/ endcoded location targets.
-    conf_t: (tensor) Tensor to be filled w/ matched indices for conf preds.
-    idx: (int) current batch index
-
-    :return
-    The matched indices corresponding to 1) location and 2) confidence preds.
+    Args:
+        gt_truths: (tensor) Ground truth boxes, Shape: [num_obj,4].
+        gt_labels: (tensor) All the class labels for the image, Shape: [num_obj].
+        anchors: (tensor) Anchor boxes from anchor layers, Shape: [num_anchors, 4].
+        variances: (tensor) Variances corresponding to each anchor coord, Shape: [2].
+        threshold: (float) The overlap threshold used when mathing boxes.
+    Return:
+        boxes: Shape: [num_anchors,4]
+        labels: Shape: [num_anchors]
     """
-    # jaccard index
-    overlaps = jaccard(truths, point_form(anchors))
+    # overlap.shape: [num_obj,num_anchors]
+    overlaps = jaccard(gt_truths, point_form(anchors))
 
-    # (Bipartite, Matching)
-    # [1, num_obj] best anchor for each ground truth
-    best_anchor_overlap, best_anchor_idx = overlaps.max(1, keepdim=True)
+    # size: num_anchors
+    best_anchor_overlap, best_anchor_idx = overlaps.max(dim=1, keepdim=True)
 
-    # [1, num_anchors] best ground truth for each anchor
-    best_truth_overlap, best_truth_idx = overlaps.max(0, keepdim=True)
+    # size: num_obj
+    best_truth_overlap, best_truth_idx = overlaps.max(dim=0, keepdim=True)
 
-    best_truth_idx.squeeze_(0)
     best_truth_overlap.squeeze_(0)
+    best_truth_idx.squeeze_(0)
 
-    best_anchor_idx.squeeze_(1)
     best_anchor_overlap.squeeze_(1)
+    best_anchor_idx.squeeze_(1)
 
-    # ensure best anchor
-    # 2 > threshold
-    best_truth_overlap.index_fill_(0, best_anchor_idx, 2)
-
-    # ensure every gt matches with its anchor of max overlap
+    best_truth_overlap.index_fill_(0, best_anchor_idx, 2)  # ensure best prior
+    # TODO refactor: index  best_prior_idx with long tensor
+    # ensure every gt matches with its prior of max overlap
     for j in range(best_anchor_idx.size(0)):
         best_truth_idx[best_anchor_idx[j]] = j
-
-    # Shape: [num_anchors,4]
-    matches = truths[best_truth_idx]
-
-    # Shape: [num_anchors]
-    conf = labels[best_truth_idx] + 1
-    # label as background
-    # bg 0
-    conf[best_truth_overlap < threshold] = 0
-    loc = encode(matches, anchors, variances)
-
-    # [num_anchors,4]
-    # encoded offsets to learn
-    loc_t[idx] = loc
-
-    # [num_anchors]
-    # top class label for each anchor
-    conf_t[idx] = conf
-
-
-def log_sum_exp(x):
-    x_max = x.data.max()
-    return torch.log(torch.sum(torch.exp(x - x_max), 1, keepdim=True)) + x_max
+    labels = gt_labels[best_truth_idx] + 1
+    labels[best_truth_overlap < threshold] = 0
+    boxes = gt_truths[best_truth_idx]
+    location = encode(boxes, anchors, variances)
+    return location, labels
 
 
 class SSDLoss(nn.Module):
@@ -199,92 +194,50 @@ class SSDLoss(nn.Module):
         self.variances = variances
 
     def forward(self, predictions, targets):
-        # total_anchor_nums=8732, num_classes=20
+        # total_anchor_nums=8732, num_classes=21
         # loc_data.shape: [batch_size, total_anchor_nums, 4]
         # conf_data.shape: [batch_size, total_anchor_nums, num_classes]
         # anchors.shape: [total_anchor_nums, 4]
         loc_data, conf_data, anchors = predictions
         device = anchors.device
 
-        # batch_size
-        batch_size = loc_data.size(0)
+        batch_size = loc_data.shape[0]
+        num_anchors = loc_data.shape[1]
 
-        # loc_data.size(1) = 8732
-        anchors = anchors[:loc_data.size(1), :]
-
-        # num_anchors = 8732
-        num_anchors = (anchors.size(0))
-
-        # anchors & ground truth boxes
-        # loc_t.shape: [batch_size,    8732,   4]
+        # anchor boxes
         loc_t = torch.Tensor(batch_size, num_anchors, 4).to(device)
-
-        # conf_t.shape: [batch_size,  8732]
+        # anchor labels
         conf_t = torch.LongTensor(batch_size, num_anchors).to(device)
-        for idx in range(batch_size):
-            # targets.shape: [num_objs,5]
-            # truths.shape: [num_objs,4]
-            truths = targets[idx][:, :-1].data
 
-            # labels.shape; [num_objs]
-            labels = targets[idx][:, -1].data
+        for i in range(batch_size):
+            # targets.shape: [batch_size, num_obj, 5]
+            # truths.shape: [num_obj, 4]
+            # labels.shape:[num_obj]
+            gt_truths = targets[i][:, :-1].data
+            gt_labels = targets[i][:, -1].data
 
-            # anchors.data.shape:[8732, 4]
-            match(self.threshold, truths, anchors.data, self.variances, labels, loc_t, conf_t, idx)
+            location, labels = match(gt_truths, gt_labels, anchors, variances=self.variances,
+                                     threshold=self.threshold)
 
-        pos = conf_t > 0
-        # Localization Loss (Smooth L1)
-        # loc_data.shape: [batch_size,num_anchors,4]
-        # pos.shape: [batch_size,num_anchors]
-        # pos_idx.shape: [batch_size,num_anchors,4]
-        pos_idx = pos.unsqueeze(pos.dim()).expand_as(loc_data)
-        loc_p = loc_data[pos_idx].view(-1, 4)
-        # gt
-        loc_t = loc_t[pos_idx].view(-1, 4)
-        loss_l = F.smooth_l1_loss(loc_p, loc_t, reduction='sum')
+            loc_t[i, :, :] = location
+            conf_t[i, :] = labels
+        num_classes = conf_data.size(2)
+        with torch.no_grad():
+            loss_c = -F.log_softmax(conf_data, dim=2)[:, :, 0]
+            mask = hard_neg_mining(loss_c, conf_t, self.negpos_ratio)
+        conf_data = conf_data[mask, :]
+        loss_c = F.cross_entropy(conf_data.view(-1, num_classes), conf_t[mask], reduction='sum')
 
-        # Compute max conf across batch for hard negative mining
-        # conf_data.shape: [batch_size,num_anchors,num_classes]
-        # batch_conf.data:[batch_size*num_anchors,num_classes]
-        # reshape
+        pos_mask = conf_t > 0
+        loc_t = loc_t[pos_mask, :].view(-1, 4)
+        loc_data = loc_data[pos_mask, :].view(-1, 4)
+        loss_l = F.smooth_l1_loss(loc_data, loc_t, reduction='sum')
 
-        # conf_t.shape: [batch_size,num_anchors]
-        # loss_c.shape: [batch_size*num_anchors,1]
-        loss_c = -F.log_softmax(conf_data, dim=2)[:, :, 0]
-        # Hard Negative Mining
-        # filter out pos boxes for now
-        # loss_c.shape: [batch_size*num_anchors,1]
-        loss_c = loss_c.view(batch_size, -1)
+        num_pos = loc_t.size(0)
 
-        loss_c[pos] = 0
-        _, loss_idx = loss_c.sort(1, descending=True)
-        _, idx_rank = loss_idx.sort(1)
-        # num_pos.shape: [batch_size,1]
-        num_pos = pos.long().sum(1, keepdim=True)
-        num_neg = torch.clamp(self.negpos_ratio * num_pos, max=pos.size(1) - 1)
-        neg = idx_rank < num_neg.expand_as(idx_rank)
-        # Confidence Loss Including Positive and Negative Examples
-        # pos.shape: [batch_size,num_anchors]
-        # pos_idx.shape: [batch_size,num_anchors,num_classes]
-        pos_idx = pos.unsqueeze(2).expand_as(conf_data)
-        # neg.shape: [batch_size,num_anchors]
-        # neg_idx.shape: [batch_size,num_anchors,num_classes]
-        neg_idx = neg.unsqueeze(2).expand_as(conf_data)
+        loss_c /= num_pos
+        loss_l /= num_pos
 
-        # pos_idx,neg_idx
-        # conf_data.shape:[batch_size,num_anchors,num_classes]
-        # conf_p.shape: [num_obj,num_classes]
-        conf_p = conf_data[(pos_idx + neg_idx).gt(0)].view(-1, self.num_classes)
-        # conf_t.shape:[batch_size,num_anchors]
-        # targets_weighted.shape:[num_obj]
-        targets_weighted = conf_t[(pos + neg).gt(0)]
-
-        loss_c = F.cross_entropy(conf_p, targets_weighted, reduction='sum')
-
-        # Sum of losses: L(x,c,l,g) = (Lconf(x,c)+ αLloc(x,l,g))/N
-        # N = num_pos.data.sum().float()
-        loss_c /= pos_idx.sum()
-        loss_l /= pos_idx.sum()
         return loss_c, loss_l
 
 
@@ -302,8 +255,8 @@ if __name__ == "__main__":
     p = (l, c, anchors)
 
     loc = torch.randn(1, 10, 4)
-    label = torch.randint(21, (1, 10, 1))
+    label = torch.randint(20, (1, 10, 1))
     t = torch.cat((loc, label.float()), dim=2)
 
     c, l = loss(p, t)
-    print("conf: ", c, ", loss: ", l)
+    print("conf_loss: ", c, ", loc_loss: ", l)
