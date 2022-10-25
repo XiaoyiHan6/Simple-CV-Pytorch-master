@@ -1,6 +1,5 @@
-import logging
 import os
-import os.path
+import logging
 
 
 def get_logger(log_dir, log_name):

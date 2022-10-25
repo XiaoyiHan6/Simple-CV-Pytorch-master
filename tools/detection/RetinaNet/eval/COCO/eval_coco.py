@@ -8,10 +8,9 @@ import time
 import torch
 import logging
 import argparse
-from data import *
 from torchvision import transforms
 from utils.get_logger import get_logger
-from utils.augmentations.RetinaNetAugmentations import RetinaNetResize, Normalize
+from models.detection.RetinaNet.transform.augmentations import RetinaNetResize, Normalize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 

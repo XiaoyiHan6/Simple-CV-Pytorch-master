@@ -1,0 +1,31 @@
+MODEL:
+  NAME: SSD300
+  BATCH_NORM: False
+DATA:
+  NAME: VOC
+  NUM_CLASSES: 21
+  SIZE: 300
+  ROOT: '/data/VOCdevkit'
+OPTIMIZE:
+  OPTIMIZER: sgd
+  LR: 0.001
+  LR_STEP: [ 80000, 100000, 120000 ]
+  SCHEDULER: adjust_learning_rate
+  BATCH_SIZE: 16
+  EPOCH: 115
+PRIOR_BOX:
+  FEATURE_MAPS: [ 38, 19, 10, 5, 3, 1 ]
+  STEPS: [ 8, 16, 32, 64, 100, 300 ]
+  MIN_SIZES: [ 30, 60, 111, 162, 213, 264 ]
+  MAX_SIZES: [ 60, 111, 162, 213, 264, 315 ]
+  ASPECT_RATIOS: [ [ 2 ], [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [ 2 ], [ 2 ] ]
+  VARIANCE: [ 0.1, 0.2 ]
+  CLIP: True
+TRAIN:
+  MATCH_THRESH: 0.5
+  NEG_POS: 3
+  NEG_THRESH: 0.5
+TEST:
+  TOP_K: 150
+  CONF_THRESH: 0.05 # confidence thresh to keep at test time
+  NMS_THRESH: 0.5  # nms iou thresh at test time

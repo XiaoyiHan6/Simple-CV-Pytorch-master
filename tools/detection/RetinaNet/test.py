@@ -12,11 +12,10 @@ import time
 import random
 import logging
 import argparse
-from data import *
 import torch.nn.parallel
 from torchvision import transforms
 from utils.get_logger import get_logger
-from utils.augmentations.RetinaNetAugmentations import Normalize, RetinaNetResize
+from models.detection.RetinaNet.transform.augmentations import Normalize, RetinaNetResize
 from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 

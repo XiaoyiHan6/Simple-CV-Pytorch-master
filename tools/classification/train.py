@@ -12,25 +12,26 @@ sys.path.append(BASE_DIR)
 
 import time
 import torch
-from data import *
 import torchvision
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim as optim
 from torchvision import transforms
-from utils.accuracy import accuracy
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from models.classification.lenet5 import lenet5
-from models.classification.alexnet import alexnet
-from utils.AverageMeter import AverageMeter
 from torch.cuda.amp import autocast, GradScaler
-from models.classification.mobilenet_v3 import MobileNet_v3
+from models.classification.alexnet import alexnet
 from models.classification.googlenet import GoogLeNet
-from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.classification.utils.accuracy import accuracy
 from models.classification.mobilenet_v2 import MobileNet_v2
-from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
-    resnext101_32x8d
+from models.classification.mobilenet_v3 import MobileNet_v3
+from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.classification.utils.AverageMeter import AverageMeter
+from utils.path import log, CheckPoints, CIFAR_ROOT, ImageNet_TRAIN_ROOT, tensorboard_log, \
+    classification_train_log
+from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, \
+    resnext50_32x4d, resnext101_32x8d
 from models.classification.shufflenet import shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5, \
     shufflenet_v2_x2_0
 
@@ -45,8 +46,8 @@ def parse_args():
                         help='ImageNet, CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=ImageNet_Train_ROOT,
-                        choices=[ImageNet_Train_ROOT, CIFAR_ROOT],
+                        default=ImageNet_TRAIN_ROOT,
+                        choices=[ImageNet_TRAIN_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
@@ -80,7 +81,7 @@ def parse_args():
                         help='Gradient acumulation steps')
     parser.add_argument('--save_folder',
                         type=str,
-                        default=config.checkpoint_path,
+                        default=CheckPoints,
                         help='Directory for saving checkpoint models')
     parser.add_argument('--tensorboard',
                         type=str,
@@ -88,15 +89,15 @@ def parse_args():
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--log_folder',
                         type=str,
-                        default=config.log,
+                        default=log,
                         help='Log Folder')
     parser.add_argument('--log_name',
                         type=str,
-                        default=config.classification_train_log,
+                        default=classification_train_log,
                         help='Log Name')
     parser.add_argument('--tensorboard_log',
                         type=str,
-                        default=config.tensorboard_log,
+                        default=tensorboard_log,
                         help='Use tensorboard for loss visualization')
     parser.add_argument('--lr',
                         type=float,
@@ -176,7 +177,7 @@ def train():
         if args.dataset_root == CIFAR_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset ImageNet2012.')
 
-        elif os.path.exists(ImageNet_Train_ROOT) is None:
+        elif os.path.exists(ImageNet_TRAIN_ROOT) is None:
             raise ValueError("WARNING: Using default ImageNet2012 dataset_root because " +
                              "--dataset_root was not specified.")
 
@@ -191,7 +192,7 @@ def train():
             ]))
 
     elif args.dataset == 'CIFAR':
-        if args.dataset_root == ImageNet_Train_ROOT:
+        if args.dataset_root == ImageNet_TRAIN_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset CIFAR10.')
 
         elif args.dataset_root is None:

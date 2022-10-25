@@ -12,24 +12,25 @@ sys.path.append(BASE_DIR)
 
 import time
 import torch
-from data import *
 import torchvision
 import torch.nn.parallel
 from torchvision import transforms
-from utils.accuracy import accuracy
 from utils.get_logger import get_logger
 from torch.utils.data import DataLoader
 from models.classification.lenet5 import lenet5
 from models.classification.alexnet import alexnet
-from utils.AverageMeter import AverageMeter
-from models.classification.mobilenet_v3 import MobileNet_v3
-from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
 from models.classification.googlenet import googlenet
+from models.classification.utils.accuracy import accuracy
+from models.classification.mobilenet_v3 import MobileNet_v3
 from models.classification.mobilenet_v2 import mobilenet_v2
-from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
-    resnext101_32x8d
+from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from models.classification.utils.AverageMeter import AverageMeter
+from utils.path import log, CheckPoints, ImageNet_EVAL_ROOT, CIFAR_ROOT, classification_evaluate, \
+    classification_eval_log
 from models.classification.shufflenet import shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5, \
     shufflenet_v2_x2_0
+from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
+    resnext101_32x8d
 
 
 def parse_args():
@@ -42,8 +43,8 @@ def parse_args():
                         help='ImageNet,CIFAR')
     parser.add_argument('--dataset_root',
                         type=str,
-                        default=ImageNet_Eval_ROOT,
-                        choices=[ImageNet_Eval_ROOT, CIFAR_ROOT],
+                        default=ImageNet_EVAL_ROOT,
+                        choices=[ImageNet_EVAL_ROOT, CIFAR_ROOT],
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
@@ -61,7 +62,7 @@ def parse_args():
                         help='Batch size for training')
     parser.add_argument('--evaluate',
                         type=str,
-                        default=config.classification_evaluate,
+                        default=classification_evaluate,
                         help='Checkpoint state_dict file to evaluate training from')
     parser.add_argument('--num_workers',
                         type=int,
@@ -73,15 +74,15 @@ def parse_args():
                         help='Use CUDA to eval model')
     parser.add_argument('--save_folder',
                         type=str,
-                        default=config.checkpoint_path,
+                        default=CheckPoints,
                         help='Directory for saving checkpoint models')
     parser.add_argument('--log_folder',
                         type=str,
-                        default=config.log,
+                        default=log,
                         help='Log Folder')
     parser.add_argument('--log_name',
                         type=str,
-                        default=config.classification_eval_log,
+                        default=classification_eval_log,
                         help='Log Name')
     parser.add_argument('--num_classes',
                         type=int,
@@ -127,7 +128,7 @@ def eval():
     if args.dataset == 'ImageNet':
         if args.dataset_root == CIFAR_ROOT:
             raise ValueError("Must specify dataset_root if specifying dataset ImageNet")
-        elif os.path.exists(ImageNet_Eval_ROOT) is None:
+        elif os.path.exists(ImageNet_EVAL_ROOT) is None:
             raise ValueError("WARNING: Using default ImageNet dataset_root because " +
                              "--dataset_root was not specified.")
 
@@ -142,7 +143,7 @@ def eval():
             ]))
 
     elif args.dataset == 'CIFAR':
-        if args.dataset_root == ImageNet_Eval_ROOT:
+        if args.dataset_root == ImageNet_EVAL_ROOT:
             raise ValueError('Must specify dataset_root if specifying dataset CIFAR')
         elif args.dataset_root is None:
             raise ValueError("Must provide --dataset_root when training on CIFAR")

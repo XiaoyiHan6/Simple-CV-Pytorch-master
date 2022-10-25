@@ -8,20 +8,18 @@ import torch
 import logging
 import argparse
 import numpy as np
-from data import *
 import collections
 import torch.optim as optim
-from utils.Sampler import Sampler
-from utils.collate import ssd_collate, retinanet_collate
+from models.detection.SSD.utils.Sampler import Sampler
+from utils.collate import retinanet_collate
 from torchvision import transforms
-from models.detection.SSD import SSD
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from torch.cuda.amp import autocast, GradScaler
-from utils.augmentations.SSDAugmentations import SSDAugmentation
-from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
+from models.detection.RetinaNet.transform.augmentations import RetinaNetResize, \
+    RandomFlip, Normalize
+from models.detection.RetinaNet.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
-from utils.augmentations.RetinaNetAugmentations import RetinaNetResize, RandomFlip, Normalize
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -186,14 +184,6 @@ def train():
             raise ValueError("Unsupported RetinaNet Model depth!")
 
         print("Using model retinanet...")
-    elif args.model == 'ssd':
-        if args.depth == 0:
-            model = SSD(version=args.dataset,
-                        training=args.training,
-                        batch_norm=False)
-        else:
-            raise ValueError("Unsupported SSD Model depth!")
-        print("Using model ssd...")
 
     else:
         raise ValueError('Unsupported model type!')

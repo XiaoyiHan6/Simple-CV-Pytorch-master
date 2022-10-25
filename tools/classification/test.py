@@ -11,17 +11,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 sys.path.append(BASE_DIR)
 
 import time
-from data import *
 from PIL import Image
 import torch.nn.parallel
 from torchvision import transforms
 from utils.get_logger import get_logger
 from models.classification.lenet5 import lenet5
 from models.classification.alexnet import alexnet
-from models.classification.mobilenet_v3 import MobileNet_v3
-from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
 from models.classification.googlenet import googlenet
 from models.classification.mobilenet_v2 import mobilenet_v2
+from models.classification.mobilenet_v3 import MobileNet_v3
+from models.classification.vgg import vgg11, vgg13, vgg16, vgg19
+from utils.path import log, CheckPoints, images_cls_root, classification_evaluate, classification_test_log
 from models.classification.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
     resnext101_32x8d
 from models.classification.shufflenet import shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5, \
@@ -38,7 +38,7 @@ def parse_args():
                         help='ImageNet,  CIFAR')
     parser.add_argument('--images_root',
                         type=str,
-                        default=config.images_cls_root,
+                        default=images_cls_root,
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
@@ -52,19 +52,19 @@ def parse_args():
                         help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3, ShuffleNet of 5, 10, 15, 20')
     parser.add_argument('--evaluate',
                         type=str,
-                        default=config.classification_evaluate,
+                        default=classification_evaluate,
                         help='Checkpoint state_dict file to evaluate training from')
     parser.add_argument('--save_folder',
                         type=str,
-                        default=config.checkpoint_path,
+                        default=CheckPoints,
                         help='Directory for saving checkpoint models')
     parser.add_argument('--log_folder',
                         type=str,
-                        default=config.log,
+                        default=log,
                         help='Log Folder')
     parser.add_argument('--log_name',
                         type=str,
-                        default=config.classification_test_log,
+                        default=classification_test_log,
                         help='Log Name')
     parser.add_argument('--cuda',
                         type=str,

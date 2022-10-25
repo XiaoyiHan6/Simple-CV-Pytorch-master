@@ -2,9 +2,9 @@
 
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later.
 
-For classification, I reproduced LeNet5, VGG, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet, shufflenet. Then I will reproduce ShuffleNet, EiffcientNet, etc.
+For classification, I reproduced LeNet5, VGG, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet, shuffleNet. Then I will reproduce EiffcientNet, etc.
 
-For object detection, I reproduced RetinaNet and SSD. (I broke the code up into modules, such as backbones, necks, heads,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms will be added later.
+For object detection, I reproduced RetinaNet and SSD. (I broke the code up into modules, such as backbone, neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like RetinaNet) will be added later.
 
 Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
@@ -15,13 +15,10 @@ Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
 package.
 
-
 ## Now, need to modify:
 
 ```
-1.SSD(tools/detection/SSD/COCO) COCO (data/coco.py)
-
-2.RetinaNet
+1.RetinaNet
 ```
 
 ## Compiling environment
@@ -49,20 +46,17 @@ Cython
 
 matplotlib
 
-opencv-python 
-
-skimage (maybe you want to use it.)
+opencv-python  (maybe you want to use skimage or PIL etc...)
 
 tensorboard
 
 tqdm
 
-thop
 ```
 
 ## Dataset Path
 
-Please, watch FolderOrganization.txt ( There are more details. )
+Please, watch FolderOrganization.txt ( There are more details.)
 
 ## Folder Organization
 
@@ -76,18 +70,20 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
 |----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
 |
-|            |----cifar.py （ null, I just use torchvision.datasets.ImageFolder ）
-|            |----CIAR_labels.txt
-|            |----coco.py
-|            |----coco_labels.txt
-|----data----|----__init__.py
-|            |----config.py ( path )
-|            |----imagenet.py ( null, I just use torchvision.datasets.ImageFolder )
-|            |----ImageNet_labels.txt
-|            |----voc0712.py
-|            |----voc_labels.txt
+|            
+|----configs----|----classification
+|               |
+|               |----detection----|----ssd300_voc.yaml
+|                                 |----ssd300_coco.yaml            
+|               
+|----data----|----classification----|----CIAR_labels.txt（ cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
+|            |                      |----ImageNet_labels.txt ( imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
+|            | 
+|            |----detection----|----SSD----|----coco.py (/data/coco/coco2017/coco_labels.txt)
+|                                          |----voc0712.py
+|            
 |                                     |----automobile.png
-|----images----|----classification----|----crash_helmet.png
+|              |----classification----|----crash_helmet.png
 |              |                      |----photocopier.png
 |              |                      |----sunflower.png
 |              |
@@ -97,23 +93,24 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----000002.xml
 |              |                 |----000003.jpg
 |              |                 |----000003.xml
-|              | 
+|----images----| 
 |              |----icon----|----alexnet.png
-|              |            |----googlenet.png
-|              |            |----lenet5.png
-|              |            |----mobilenet_v2.png
-|              |            |----mobilenet_v3_large.png
-|              |            |----mobilenet_v3_small.png
-|              |            |----resnet.png
-|              |            |----resnext.png
-|              |            |----retinanet.png
-|              |            |----shufflenet_v2.png
-|              |            |----ssd.png
-|              |            |----vgg.png
+|                           |----googlenet.png
+|                           |----lenet5.png
+|                           |----mobilenet_v2.png
+|                           |----mobilenet_v3_large.png
+|                           |----mobilenet_v3_small.png
+|                           |----resnet.png
+|                           |----resnext.png
+|                           |----retinanet.png
+|                           |----shufflenet_v2.png
+|                           |----ssd.png
+|                           |----vgg.png
 |                     
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
-|----models----|----classification----|----__init__.py
+|              |----classification----|----utils----|----accuracy.py
+|              |                      |             |----AverageMeter.py
 |              |                      |----lenet5.py
 |              |                      |----alexnet.py
 |              |                      |----vgg.py
@@ -122,81 +119,71 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py 
 |              |                      |----shufflenet.py
-|              |                     
-|              |----detection----|----__init__.py
-|              |                 |----RetinaNet.py
-|              |                 |----SSD.py   
-|              |                 |----backbones----|----__init__.py ( Don't finish writing )
-|              |                 |                 |----DarkNetBackbone.py
-|              |                 |                 |----ResNetBackbone.py
-|              |                 |                 |----VggNetBackbone.py
-|              |                 |                 |----VovNetBackbone.py
-|              |                 |                           
-|              |                 |----necks----|----__init__.py
-|              |                 |             |----FPN.py
-|              |                 |             |----FPN.txt
-|              |                 | 
-|              |                 |----heads----|----__init.py
-|              |                 |             |----RetinaNetHeads.py
-|              |                 |             |----SSDHeads.py
+|              |                    
+|              |----detection----|----RetinaNet----|----anchor----|----__init__.py
+|              |                 |                 |              |----RetinaNetAnchors.py
+|              |                 |                 |----backbone----|----__init__.py ( Don't finish writing )
+|              |                 |                 |                |----ResNetBackbone.py
+|              |                 |                 |                |----VovNetBackbone.py
+|              |                 |                 |----head----|----__init__.py
+|              |                 |                 |            |----RetinaNetHeads.py
+|              |                 |                 |
+|              |                 |                 |----loss----|----__init__.py
+|              |                 |                 |            |----RetinaNetLoss.py
+|              |                 |                 |
+|              |                 |                 |----neck----|----__init__.py
+|----models----|                 |                 |            |----FPN.py
+|              |                 |                 |            |----FPN.txt
+|              |                 |                 |----transform----|----augmentations.py
+|              |                 |                 |----utils----|----BBoxTransform.py
+|              |                 |                 |             |----ClipBoxes.py
+|              |                 |                 |             |----collate.py
+|              |                 |                 |             |----iou.py
+|              |                 |                 |----RetinaNet.py
 |              |                 |
-|              |                 |----anchor----|----__init__.py
-|              |                 |              |----RetinaNetAnchors.py
-|              |                 |              |----SSDAnchors.py
-|              |                 |                    
-|              |                 |----losses----|----__init.py
-|              |                 |              |----RetinaNetLoss.py
-|              |                 |              |----SSDLoss.py
-|
-|----results----|----SSD----|----VOC
-|               |           |----COCO
-|               |                          ( eg: detection ( VOC or COCO AP ) )
+|              |                 |----SSD----|----anchor----|----prior_box.py
+|              |                             |----backbone----|----vgg.py
+|              |                             |----box_head----|----box_predictor.py
+|              |                             |                |----inference.py       
+|              |                             |                |----loss.py
+|              |                             |----utils----|----augmentations.py
+|              |                             |             |----box_utils.py
+|              |                             |             |----collate.py
+|              |                             |             |----l2norm.py
+|              |                             |----ssd.py
+|----options----|----detection----|----SSD----|----eval_options.py
+|                                             |----test_options.py
+|                                             |----train_options.py
+|----results----|----SSD----|----COCO
+|               |           |----VOC----|----annot_cache----|----XXX_pr.pkl
+|               |           |           |----detection----|----det_test_xxx.txt(eg: car AP)
+|               |           |           |----annots.pkl
+|               |           |           |----detections.pkl
+|               |           |           |----visualize.txt
+|               |           |----XX(name: 000478)_XX(COCO or VOC).jpg
 |               |----RetinaNet----|----VOC
 |               |                 |----COCO
-|
 |----tensorboard ( Loss visualization )
-|
-|----tools                       |----eval.py
-|         |----classification----|----train.py
-|         |                      |----test.py
-|         |               
-|         |                                                |----COCO----|----eval_coco.py         
-|         |                                                |            |----coco_eval.py
-|         |                                                |
-|         |                                                |----VOC----|----eval_voc.py  
-|         |----detection----|----RetinaNet----|----eval----|           |----voc_eval.py        (need modify)
-|                           |                 |----train.py
-|                           |                 |----test.py 
-|                           |                                   
-|                           |                        |----COCO----|----eval_coco.py
-|                           |                        |            |----coco_eval.py
-|                           |                        |            
-|                           |                        |----VOC----|----eval_voc.py
-|                           |----SSD----|----eval----|           |----voc_eval.py
-|                           |           |----train.py
-|                           |           |----visualize.py
-| 
-|                                   |----RetinaNetAugmentations.py      
-|             |----augmentations----|----SSDAugmentations.py
-|             |----accuracy.py
-|             |----AverageMeter.py
-|             |----BBoxTransform.py
-|             |----ClipBoxes.py
-|             |----collate.py
-|             |----get_logger.py
-|             |----iou.py            
-|----utils----|----L2Norm.py
-|             |----nms.py
+|----tools----|----classification----|----eval.py
+|             |                      |----train.py
+|             |                      |----test.py
+|             |----detection----|----RetinaNet----|----eval----|----COCO----|----eval_coco.py         
+|                               |                 |            |            |----coco_eval.py
+|                               |                 |            |----VOC----|----eval_voc.py 
+|                               |                 |                        |----voc_eval.py        (need modify)
+|                               |                 |----test.py
+|                               |                 |----train.py   
+|                               |----SSD----|----eval_coco.py        
+|                                           |----eval_voc.py
+|                                           |----train.py
+|                                           |----visualize.py
+|             |----get_logger.py         
+|----utils----|----optimizer.py
 |             |----path.py
-|             |----Sampler.py 
 |             |----scheduler.py
-|
 |----FolderOrganization.txt
-|
 |----main.py
-|
 |----README.md
-|
 |----requirements.txt
 
 ```
@@ -209,19 +196,18 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   1).EfficientNet
 
-  (They should be placed in backbone of object detection, but they are used to extract features, just like classification networks)
+  (They should be placed in backbone of object detection, but they are used to extract features, just like
+  classification networks)
 
   1).DarkNet
 
   2).VovNet
 
   (finished)
-  
 
 **1).LeNet5(models/classification/lenet5.py)**[1]
 
 ![LeNet5](images/icon/lenet5.png)
-
 
 ```
  I add nn.BatchNorm2d(). This is because that I was so upset about the poor accuracy.
@@ -297,7 +283,6 @@ Total:
 | epochs |  times   |   avg top1 acc (%)  | avg top5 acc (%) |
 |:------:|:--------:|:-------------------:|:----------------:|
 |   30   | 1h23m43s |        76.56        |      96.44       |
-
 
 ******************************
 
@@ -488,45 +473,58 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
   2).YOLO
 
   (finished)
-  
+
 **1.SSD(models/detection/SSD.py)**[10]
- 
+
 ![SSD](images/icon/ssd.png)
- 
+
 ```
  Network: ssd
- backbone: VggNet
- neck: SSDNeck
- loss: SSDLoss
- dataset: coco
+ backbone: vgg+add_extras
+ loss: cls(cross_entropy_loss)+reg(smooth_l1_loss)
+ dataset: voc
  batch_size: 16
- optim: AdamW
- lr: 0.0001
- scheduler: ReduceLROnPlateau
- patience: 3
+ optim: SGD
+ lr: 0.001
+ scheduler: adjust_learning_rate
  epoch: 120
- pretrained: True
 ```
 
-|  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
-|:--------:|:----------:|:------------:|:------------:|:------------:|
-|    120   |  xxhxxmxxs |  xxhxxminxxs |    xxxxx     |    xxxxx     |
-
+|  epochs  | batch norm |    times   | Mean AP  (%) |                  Download Baidu yun                   |     Code     |
+|:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
+|    120   |    False   |  5h10m46s  |      75.4    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
+|    120   |    True    |  XXhXXmXXs |      XXX     |[Link]()                                               |              |
 
 + visualize
 
-<center>
+![ssd_voc_visualize](results/SSD/007099_voc.jpg)
 
-![ssd_visualize](results/SSD/VOC/006996_VOC.jpg)
+```
+ Network: ssd
+ backbone: vgg+add_extras
+ loss: cls(cross_entropy_loss)+reg(smooth_l1_loss)
+ dataset: coco
+ batch_size: 16
+ optim: SGD
+ lr: 0.001
+ scheduler: adjust_learning_rate
+ epoch: 55
+```
 
-</center>
+|  epochs  | batch norm |    times   | IoU=0.5 AP(%)|                  Download Baidu yun                   |     Code     |
+|:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
+|    55    |    False   |  XXhXXmXXs  |     38.0    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
+|    XX    |    True    |  XXhXXmXXs  |     XXX     |[Link]()                                               |              |
 
++ visualize
+
+![ssd_coco_visualize](results/SSD/324818_coco.jpg)
 ******************************
 
 **2.RetinaNet(models/detection/RetinaNet.py)**[11]
- 
+
 ![RetinaNet](images/icon/retinanet.png)
- 
+
 ```
  Network: RetinaNet
  backbone: ResNet
@@ -546,7 +544,6 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 |:--------:|:----------:|:------------:|:------------:|:------------:|
 |    30    |  44h29m40s |  ~1h29min39s |    xxxxx     |    xxxxx     |
 
-
 - Run
 
 ```
@@ -564,7 +561,6 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD 
   2.DeepLab
 
   3.U-Net
-  
 
 ## references
 
@@ -576,13 +572,13 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD 
 
 [[4] He K, Zhang X, Ren S, et al. Deep residual learning for image recognition[C]//Proceedings of the IEEE conference on computer vision and pattern recognition. 2016: 770-778.](https://arxiv.org/abs/1512.03385)
 
-[[5] Xie S, Girshick R, Dollár P, et al.  Aggregated residual transformations for deep neural  networks[C]//Proceedings of the IEEE conference on computer vision and  pattern recognition. 2017: 1492-1500.](https://arxiv.org/pdf/1611.05431.pdf)
+[[5] Xie S, Girshick R, Dollár P, et al. Aggregated residual transformations for deep neural  networks[C]//Proceedings of the IEEE conference on computer vision and  pattern recognition. 2017: 1492-1500.](https://arxiv.org/pdf/1611.05431.pdf)
 
 [[6] Szegedy C, Liu W, Jia Y, et al. Going deeper with convolutions[C]//Proceedings of the IEEE conference on computer vision and pattern recognition. 2015: 1-9.](https://sci-hub.wf/10.1109/cvpr.2015.7298594)
 
-[[7] Sandler M, Howard A, Zhu M, et al.  Mobilenetv2: Inverted residuals and linear bottlenecks[C]//Proceedings  of the IEEE conference on computer vision and pattern recognition. 2018:  4510-4520.](https://openaccess.thecvf.com/content_cvpr_2018/papers/Sandler_MobileNetV2_Inverted_Residuals_CVPR_2018_paper.pdf)
+[[7] Sandler M, Howard A, Zhu M, et al. Mobilenetv2: Inverted residuals and linear bottlenecks[C]//Proceedings  of the IEEE conference on computer vision and pattern recognition. 2018:  4510-4520.](https://openaccess.thecvf.com/content_cvpr_2018/papers/Sandler_MobileNetV2_Inverted_Residuals_CVPR_2018_paper.pdf)
 
-[[8] Howard A, Sandler M, Chu G, et al.  Searching for mobilenetv3[C]//Proceedings of the IEEE/CVF international  conference on computer vision. 2019: 1314-1324.](https://openaccess.thecvf.com/content_ICCV_2019/papers/Howard_Searching_for_MobileNetV3_ICCV_2019_paper.pdf)
+[[8] Howard A, Sandler M, Chu G, et al. Searching for mobilenetv3[C]//Proceedings of the IEEE/CVF international  conference on computer vision. 2019: 1314-1324.](https://openaccess.thecvf.com/content_ICCV_2019/papers/Howard_Searching_for_MobileNetV3_ICCV_2019_paper.pdf)
 
 [[9] Ma N, Zhang X, Zheng H T, et al. Shufflenet v2: Practical guidelines for efficient cnn architecture design[C]//Proceedings of the European conference on computer vision (ECCV). 2018: 116-131.
 ](https://openaccess.thecvf.com/content_ECCV_2018/papers/Ningning_Light-weight_CNN_Architecture_ECCV_2018_paper.pdf)
