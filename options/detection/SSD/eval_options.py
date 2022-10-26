@@ -43,7 +43,7 @@ def parse_args():
                         help='Use CUDA to train model')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/ssd300_coco.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/ssd300_voc.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()

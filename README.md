@@ -68,20 +68,20 @@ project path: /data/PycharmProject
 
 Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
-|----checkpoints ( resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet] )
+|----checkpoints(resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet])
 |
-|            
+|
 |----configs----|----classification
 |               |
 |               |----detection----|----ssd300_voc.yaml
-|                                 |----ssd300_coco.yaml            
-|               
-|----data----|----classification----|----CIAR_labels.txt（ cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
-|            |                      |----ImageNet_labels.txt ( imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
-|            | 
-|            |----detection----|----SSD----|----coco.py (/data/coco/coco2017/coco_labels.txt)
+|                                 |----ssd300_coco.yaml
+|
+|----data----|----classification----|----CIAR_labels.txt(cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
+|            |                      |----ImageNet_labels.txt(imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
+|            |
+|            |----detection----|----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
 |                                          |----voc0712.py
-|            
+|
 |                                     |----automobile.png
 |              |----classification----|----crash_helmet.png
 |              |                      |----photocopier.png
@@ -93,7 +93,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----000002.xml
 |              |                 |----000003.jpg
 |              |                 |----000003.xml
-|----images----| 
+|----images----|
 |              |----icon----|----alexnet.png
 |                           |----googlenet.png
 |                           |----lenet5.png
@@ -106,7 +106,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                           |----shufflenet_v2.png
 |                           |----ssd.png
 |                           |----vgg.png
-|                     
+|
 |----log(XXX[ detection or classification ]_XXX[  train or test or eval ].info.log)
 |
 |              |----classification----|----utils----|----accuracy.py
@@ -117,12 +117,12 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----resnet.py(include: resenext)
 |              |                      |----googlenet.py
 |              |                      |----mobilenet_v2.py
-|              |                      |----mobilenet_v3.py 
+|              |                      |----mobilenet_v3.py
 |              |                      |----shufflenet.py
-|              |                    
+|              |
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
 |              |                 |                 |              |----RetinaNetAnchors.py
-|              |                 |                 |----backbone----|----__init__.py ( Don't finish writing )
+|              |                 |                 |----backbone----|----__init__.py(Don't finish writing)
 |              |                 |                 |                |----ResNetBackbone.py
 |              |                 |                 |                |----VovNetBackbone.py
 |              |                 |                 |----head----|----__init__.py
@@ -144,7 +144,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----SSD----|----anchor----|----prior_box.py
 |              |                             |----backbone----|----vgg.py
 |              |                             |----box_head----|----box_predictor.py
-|              |                             |                |----inference.py       
+|              |                             |                |----inference.py
 |              |                             |                |----loss.py
 |              |                             |----utils----|----augmentations.py
 |              |                             |             |----box_utils.py
@@ -163,21 +163,21 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |               |           |----XX(name: 000478)_XX(COCO or VOC).jpg
 |               |----RetinaNet----|----VOC
 |               |                 |----COCO
-|----tensorboard ( Loss visualization )
+|----tensorboard(Loss Visualization)
 |----tools----|----classification----|----eval.py
 |             |                      |----train.py
 |             |                      |----test.py
-|             |----detection----|----RetinaNet----|----eval----|----COCO----|----eval_coco.py         
+|             |----detection----|----RetinaNet----|----eval----|----COCO----|----eval_coco.py
 |                               |                 |            |            |----coco_eval.py
-|                               |                 |            |----VOC----|----eval_voc.py 
-|                               |                 |                        |----voc_eval.py        (need modify)
+|                               |                 |            |----VOC----|----eval_voc.py
+|                               |                 |                        |----voc_eval.py(need modify)
 |                               |                 |----test.py
-|                               |                 |----train.py   
-|                               |----SSD----|----eval_coco.py        
+|                               |                 |----train.py
+|                               |----SSD----|----eval_coco.py
 |                                           |----eval_voc.py
 |                                           |----train.py
 |                                           |----visualize.py
-|             |----get_logger.py         
+|             |----get_logger.py
 |----utils----|----optimizer.py
 |             |----path.py
 |             |----scheduler.py

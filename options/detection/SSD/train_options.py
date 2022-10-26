@@ -54,7 +54,7 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/ssd300_coco.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/ssd300_voc.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()

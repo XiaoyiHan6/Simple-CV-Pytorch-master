@@ -16,7 +16,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from utils.get_logger import get_logger
 from torch.cuda.amp import autocast, GradScaler
-from models.detection.RetinaNet.transform.augmentations import RetinaNetResize, \
+from models.detection.RetinaNet.utils.augmentations import RetinaNetResize, \
     RandomFlip, Normalize
 from models.detection.RetinaNet.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
     resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
