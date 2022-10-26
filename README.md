@@ -134,8 +134,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |                 |----neck----|----__init__.py
 |----models----|                 |                 |            |----FPN.py
 |              |                 |                 |            |----FPN.txt
-|              |                 |                 |----transform----|----augmentations.py
-|              |                 |                 |----utils----|----BBoxTransform.py
+|              |                 |                 |----utils----|----augmentations.py
+|              |                 |                 |             |----BBoxTransform.py
 |              |                 |                 |             |----ClipBoxes.py
 |              |                 |                 |             |----collate.py
 |              |                 |                 |             |----iou.py
@@ -513,7 +513,7 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 |  epochs  | batch norm |    times   | IoU=0.5 AP(%)|                  Download Baidu yun                   |     Code     |
 |:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
-|    55    |    False   |  XXhXXmXXs  |     38.0    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
+|    55    |    False   |  14h49m46s  |     38.0    |[Link](https://pan.baidu.com/s/1r9mzN6EXsYfQChz9QE932w)|     j6wn     |
 |    XX    |    True    |  XXhXXmXXs  |     XXX     |[Link]()                                               |              |
 
 + visualize

@@ -122,8 +122,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |                 |----neck----|----__init__.py
 |----models----|                 |                 |            |----FPN.py
 |              |                 |                 |            |----FPN.txt
-|              |                 |                 |----transform----|----augmentations.py
-|              |                 |                 |----utils----|----BBoxTransform.py
+|              |                 |                 |----utils----|----augmentations.py
+|              |                 |                 |             |----BBoxTransform.py
 |              |                 |                 |             |----ClipBoxes.py
 |              |                 |                 |             |----collate.py
 |              |                 |                 |             |----iou.py
@@ -144,7 +144,7 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                                             |----train_options.py
 |----results----|----SSD----|----COCO
 |               |           |----VOC----|----annot_cache----|----XXX_pr.pkl
-|               |           |           |----detection----|----det_test_xxx.txt( eg: detection ( VOC or COCO AP ) )
+|               |           |           |----detection----|----det_test_xxx.txt(eg: car AP)
 |               |           |           |----annots.pkl
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
