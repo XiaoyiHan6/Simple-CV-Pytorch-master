@@ -24,7 +24,7 @@ def parse_args():
                         help='Model is training or testing')
     parser.add_argument('--pretrained',
                         type=str,
-                        default='vgg16_reducedfc.pth',
+                        default=False,
                         help='Pretrained base model')
     parser.add_argument('--tensorboard',
                         type=str,
