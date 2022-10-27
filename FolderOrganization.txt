@@ -59,14 +59,11 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----checkpoints(resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet])
 |
 |
-|----configs----|----classification
-|               |
-|               |----detection----|----ssd300_voc.yaml
+|----configs----|----detection----|----ssd300_voc.yaml
 |                                 |----ssd300_coco.yaml
 |
 |----data----|----classification----|----CIAR_labels.txt(cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
 |            |                      |----ImageNet_labels.txt(imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
-|            |
 |            |----detection----|----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
 |                                          |----voc0712.py
 |
@@ -74,15 +71,13 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |----classification----|----crash_helmet.png
 |              |                      |----photocopier.png
 |              |                      |----sunflower.png
-|              |
 |              |----detection----|----000001.jpg
 |              |                 |----000001.xml
 |              |                 |----000002.jpg
 |              |                 |----000002.xml
 |              |                 |----000003.jpg
 |              |                 |----000003.xml
-|----images----|
-|              |----icon----|----alexnet.png
+|----images----|----icon----|----alexnet.png
 |                           |----googlenet.png
 |                           |----lenet5.png
 |                           |----mobilenet_v2.png
@@ -142,13 +137,13 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |----options----|----detection----|----SSD----|----eval_options.py
 |                                             |----test_options.py
 |                                             |----train_options.py
-|----results----|----SSD----|----COCO
+|----results----|----SSD----|----COCO----|----coco_bbox_results.json
 |               |           |----VOC----|----annot_cache----|----XXX_pr.pkl
 |               |           |           |----detection----|----det_test_xxx.txt(eg: car AP)
 |               |           |           |----annots.pkl
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
-|               |           |----XX(name: 000478)_XX(COCO or VOC).jpg
+|               |           |----XX(name: 000478)_XX(coco or voc).jpg
 |               |----RetinaNet----|----VOC
 |               |                 |----COCO
 |----tensorboard(Loss Visualization)

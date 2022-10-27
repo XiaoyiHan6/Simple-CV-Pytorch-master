@@ -110,7 +110,7 @@ def get_label_file(filename):
 
 
 def dataset_labels_results(filename, output):
-    filename = os.path.join(BASE_DIR, 'data', filename + '_labels.txt')
+    filename = os.path.join(BASE_DIR, 'data/classification', filename + '_labels.txt')
     get_label_file(filename=filename)
     with open(file=filename, mode='r') as f:
         dict = f.readlines()

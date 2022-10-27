@@ -58,7 +58,7 @@ images_det_path = os.path.join(BASE_DIR, images_det_path, image_det)
 
 # Images classification path
 # /data/PycharmProject/Simple-CV-Pytorch-master/images/classification
-images_cls = 'automobile.png'
+images_cls = 'photocopier.png'
 images_cls_path = 'images/classification'
 images_cls_root = os.path.join(BASE_DIR, images_cls_path, images_cls)
 
