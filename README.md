@@ -482,13 +482,13 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  optim: SGD
  lr: 0.001
  scheduler: adjust_learning_rate
- epoch: 120
+ epoch: 115
 ```
 
 |  epochs  | batch norm |    times   | Mean AP  (%) |                  Download Baidu yun                   |     Code     |
 |:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
-|    120   |    False   |  5h10m46s  |      75.4    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
-|    120   |    True    |  XXhXXmXXs |      XXX     |[Link]()                                               |              |
+|    115   |    False   |  5h10m46s  |      75.4    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
+|    115   |    True    |  4h58m37s  |      76.2    |[Link](https://pan.baidu.com/s/1-bv56Jj4o91odPNtLX8YkQ)|     evxx     |
 
 + visualize
 
