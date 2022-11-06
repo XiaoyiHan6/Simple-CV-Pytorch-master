@@ -1,1 +1,1 @@
-from .RetinaNetAnchors import RetinaNetAnchors
+from .Anchor import RetinaNetAnchors

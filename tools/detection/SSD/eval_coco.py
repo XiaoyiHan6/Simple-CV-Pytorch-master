@@ -14,7 +14,7 @@ from models.detection.SSD.utils.augmentations import BaseTransform
 from options.detection.SSD.eval_options import args, cfg, dataset_eval
 
 assert torch.__version__.split('.')[0] == '1'
-print('eval_coco.py CUDA available: {}'.format(torch.cuda.is_available()))
+print('SSD eval_coco.py CUDA available: {}'.format(torch.cuda.is_available()))
 
 if args.cuda and torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')

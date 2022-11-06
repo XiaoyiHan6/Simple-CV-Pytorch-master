@@ -68,15 +68,18 @@ project path: /data/PycharmProject
 
 Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
-|----checkpoints(resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet])
+|----checkpoints(resnet50-19c8e357.pth or retinanet_resnet50_coco.pth)
 |
-|
-|----configs----|----detection----|----ssd300_voc.yaml
+|----configs----|----detection----|----retinanet_coco.yaml
+|                                 |----retinanet_voc.yaml
 |                                 |----ssd300_coco.yaml
-|
+|                                 |----ssd300_voc.yaml
+| 
 |----data----|----classification----|----CIAR_labels.txt(cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
 |            |                      |----ImageNet_labels.txt(imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
-|            |----detection----|----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
+|            |----detection----|----RetinaNet----|----coco.py
+|                              |                 |----voc.py
+|                              |----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
 |                                          |----voc0712.py
 |
 |                                     |----automobile.png
@@ -114,17 +117,17 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py
 |              |                      |----shufflenet.py
-|              |
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
-|              |                 |                 |              |----RetinaNetAnchors.py
+|              |                 |                 |              |----Anchor.py
 |              |                 |                 |----backbone----|----__init__.py(Don't finish writing)
-|              |                 |                 |                |----ResNetBackbone.py
-|              |                 |                 |                |----VovNetBackbone.py
+|              |                 |                 |                |----DarkNet.py
+|              |                 |                 |                |----ResNet.py
+|              |                 |                 |                |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
-|              |                 |                 |            |----RetinaNetHeads.py
+|              |                 |                 |            |----Head.py
 |              |                 |                 |
 |              |                 |                 |----loss----|----__init__.py
-|              |                 |                 |            |----RetinaNetLoss.py
+|              |                 |                 |            |----Loss.py
 |              |                 |                 |
 |              |                 |                 |----neck----|----__init__.py
 |----models----|                 |                 |            |----FPN.py
@@ -146,7 +149,10 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                             |             |----collate.py
 |              |                             |             |----l2norm.py
 |              |                             |----ssd.py
-|----options----|----detection----|----SSD----|----eval_options.py
+|----options----|----detection----|----RetinaNet----|----eval_options.py
+|                                 |                 |----test_options.py
+|                                 |                 |----train_options.py
+|                                 |----SSD----|----eval_options.py
 |                                             |----test_options.py
 |                                             |----train_options.py
 |----results----|----SSD----|----COCO----|----coco_bbox_results.json
@@ -156,18 +162,16 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
 |               |           |----XX(name: 000478)_XX(coco or voc).jpg
-|               |----RetinaNet----|----VOC
-|               |                 |----COCO
+|               |----RetinaNet----|----COCO
+|               |                 |----VOC
 |----tensorboard(Loss Visualization)
 |----tools----|----classification----|----eval.py
 |             |                      |----train.py
 |             |                      |----test.py
-|             |----detection----|----RetinaNet----|----eval----|----COCO----|----eval_coco.py
-|                               |                 |            |            |----coco_eval.py
-|                               |                 |            |----VOC----|----eval_voc.py
-|                               |                 |                        |----voc_eval.py(need modify)
-|                               |                 |----test.py
+|             |----detection----|----RetinaNet----|----eval_coco.py
+|                               |                 |----eval_voc.py
 |                               |                 |----train.py
+|                               |                 |----visualize.py
 |                               |----SSD----|----eval_coco.py
 |                                           |----eval_voc.py
 |                                           |----train.py
@@ -381,7 +385,7 @@ Total:
 
 ***b).MobileNet_v3***[8]
 
-****(1).Large****
++ (1).Large
 
 ![MobileNet_v3](images/icon/mobilenet_v3_large.png)
 
@@ -403,7 +407,7 @@ Total:
 |:--------:|:-----------:|:------------:|:------------:|
 |     5    |  3h58min13s |    71.15     |    90.32     |
 
-****(2).Small****
++ (2).Small
 
 ![MobileNet_v3](images/icon/mobilenet_v3_small.png)
 
@@ -508,8 +512,8 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 |  epochs  | batch norm |    times   | IoU=0.5 AP(%)|                  Download Baidu yun                   |     Code     |
 |:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
-|    55    |    False   |  14h49m46s  |     38.0    |[Link](https://pan.baidu.com/s/1r9mzN6EXsYfQChz9QE932w)|     j6wn     |
-|    XX    |    True    |  XXhXXmXXs  |     XXX     |[Link]()                                               |              |
+|    55    |    False   |  14h49m46s  |    38.0     |[Link](https://pan.baidu.com/s/1r9mzN6EXsYfQChz9QE932w)|     j6wn     |
+|    55    |    True    |  15h17m23s  |    37.7     |[Link](https://pan.baidu.com/s/18pKs05u5osoXdoMpj5rFWQ)|      7i64    |
 
 + visualize
 
@@ -522,29 +526,56 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 ```
  Network: RetinaNet
- backbone: ResNet
+ backbone: ResNet50
  neck: FPN
  loss: Focal Loss
- dataset: coco
- batch_size: 16
- optim: AdamW
- lr: 0.0001
+ dataset: voc
+ batch_size: 8
+ optim: Adam
+ lr: 0.00001
  scheduler: ReduceLROnPlateau
  patience: 3
  epoch: 30
  pretrained: True
 ```
 
-|  epochs  |    times   |  times/epoch | top1 acc (%) | top5 acc (%) |
-|:--------:|:----------:|:------------:|:------------:|:------------:|
-|    30    |  44h29m40s |  ~1h29min39s |    xxxxx     |    xxxxx     |
+|  epochs  |    times   | top1 acc (%) | top5 acc (%) |
+|:--------:|:----------:|:------------:|:------------:|
+|    30    |  44h29m40s |    xxxxx     |    xxxxx     |
+
++ visualize
+
+![retinanet_voc_visualize](results/retinanet/)
+
+```
+ Network: RetinaNet
+ backbone: ResNet50
+ neck: FPN
+ loss: Focal Loss
+ dataset: coco
+ batch_size: 8
+ optim: Adam
+ lr: 0.00001
+ scheduler: ReduceLROnPlateau
+ patience: 3
+ epoch: 30
+ pretrained: True
+```
+
+|  epochs  |    times   | top1 acc (%) | top5 acc (%) |
+|:--------:|:----------:|:------------:|:------------:|
+|    30    |  44h29m40s |    xxxxx     |    xxxxx     |
+
++ visualize
+
+![retinanet_coco_visualize](results/retinanet/)
 
 - Run
 
 ```
 #!/bin/bash
 conda activate base
-python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD or RetinaNet)/XXX.py(train.py or COCO/eval_coco.py or VOC/eval_voc.py or visualize.py)
+python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD or RetinaNet)/XXX.py(train.py or eval_coco.py or eval_voc.py or visualize.py)
 ```
 
 ### 3.semantic segmentation

@@ -56,15 +56,18 @@ project path: /data/PycharmProject
 
 Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |
-|----checkpoints(resnet50-19c8e357.pth \COCO_ResNet50.pth[RetinaNet]\ VOC_ResNet50.pth[RetinaNet])
+|----checkpoints(resnet50-19c8e357.pth or retinanet_resnet50_coco.pth)
 |
-|
-|----configs----|----detection----|----ssd300_voc.yaml
+|----configs----|----detection----|----retinanet_coco.yaml
+|                                 |----retinanet_voc.yaml
 |                                 |----ssd300_coco.yaml
+|                                 |----ssd300_voc.yaml
 |
 |----data----|----classification----|----CIAR_labels.txt(cifar.py is null, this is because I just use torchvision.datasets.CIFAR10）
 |            |                      |----ImageNet_labels.txt(imagenet.py is null, this is because I just use torchvision.datasets.ImageFolder)
-|            |----detection----|----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
+|            |----detection----|----RetinaNet----|----coco.py
+|                              |                 |----voc.py
+|                              |----SSD----|----coco.py(/data/coco/coco2017/coco_labels.txt)
 |                                          |----voc0712.py
 |
 |                                     |----automobile.png
@@ -102,17 +105,17 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----mobilenet_v2.py
 |              |                      |----mobilenet_v3.py
 |              |                      |----shufflenet.py
-|              |
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
-|              |                 |                 |              |----RetinaNetAnchors.py
+|              |                 |                 |              |----Anchor.py
 |              |                 |                 |----backbone----|----__init__.py(Don't finish writing)
-|              |                 |                 |                |----ResNetBackbone.py
-|              |                 |                 |                |----VovNetBackbone.py
+|              |                 |                 |                |----DarkNet.py
+|              |                 |                 |                |----ResNet.py
+|              |                 |                 |                |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
-|              |                 |                 |            |----RetinaNetHeads.py
+|              |                 |                 |            |----Head.py
 |              |                 |                 |
 |              |                 |                 |----loss----|----__init__.py
-|              |                 |                 |            |----RetinaNetLoss.py
+|              |                 |                 |            |----Loss.py
 |              |                 |                 |
 |              |                 |                 |----neck----|----__init__.py
 |----models----|                 |                 |            |----FPN.py
@@ -134,7 +137,10 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                             |             |----collate.py
 |              |                             |             |----l2norm.py
 |              |                             |----ssd.py
-|----options----|----detection----|----SSD----|----eval_options.py
+|----options----|----detection----|----RetinaNet----|----eval_options.py
+|                                 |                 |----test_options.py
+|                                 |                 |----train_options.py
+|                                 |----SSD----|----eval_options.py
 |                                             |----test_options.py
 |                                             |----train_options.py
 |----results----|----SSD----|----COCO----|----coco_bbox_results.json
@@ -144,18 +150,16 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
 |               |           |----XX(name: 000478)_XX(coco or voc).jpg
-|               |----RetinaNet----|----VOC
-|               |                 |----COCO
+|               |----RetinaNet----|----COCO
+|               |                 |----VOC
 |----tensorboard(Loss Visualization)
 |----tools----|----classification----|----eval.py
 |             |                      |----train.py
 |             |                      |----test.py
-|             |----detection----|----RetinaNet----|----eval----|----COCO----|----eval_coco.py
-|                               |                 |            |            |----coco_eval.py
-|                               |                 |            |----VOC----|----eval_voc.py
-|                               |                 |                        |----voc_eval.py(need modify)
-|                               |                 |----test.py
+|             |----detection----|----RetinaNet----|----eval_coco.py
+|                               |                 |----eval_voc.py
 |                               |                 |----train.py
+|                               |                 |----visualize.py
 |                               |----SSD----|----eval_coco.py
 |                                           |----eval_voc.py
 |                                           |----train.py

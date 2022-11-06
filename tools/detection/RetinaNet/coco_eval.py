@@ -1,7 +1,6 @@
 from pycocotools.cocoeval import COCOeval
 import json
 import torch
-from .config import results_path
 import os
 
 

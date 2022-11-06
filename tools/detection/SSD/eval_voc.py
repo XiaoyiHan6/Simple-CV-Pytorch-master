@@ -27,7 +27,7 @@ else:
     import xml.etree.ElementTree as ET
 
 assert torch.__version__.split('.')[0] == '1'
-print('eval_voc.py CUDA available: {}'.format(torch.cuda.is_available()))
+print('SSD eval_voc.py CUDA available: {}'.format(torch.cuda.is_available()))
 
 if args.cuda and torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')

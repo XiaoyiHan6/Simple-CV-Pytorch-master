@@ -1,18 +1,17 @@
 import os
 import sys
-import torch
-import random
 import skimage
 import numpy as np
 import skimage.transform
 import matplotlib.pyplot as plt
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(BASE_DIR)
 
 
 # 3.
-class RetinaNetResize(object):
+class Resize(object):
     def __init__(self):
         pass
 
@@ -43,10 +42,8 @@ class RetinaNetResize(object):
         new_image = np.zeros((height + pad_h, width + pad_w, depth)).astype(np.float32)
 
         new_image[:height, :width, :] = image.astype(np.float32)
-
         annots[:, :4] *= scale
-
-        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
+        return {'img': new_image, 'annot': annots, 'scale': scale}
 
 
 # 2.
@@ -71,7 +68,7 @@ class RandomFlip(object):
         return {'img': img, 'annot': annots}
 
 
-class RetinaNetRandomCrop(object):
+class RandomCrop(object):
     def __init__(self, crop_prob=0.5):
         self.crop_prob = crop_prob
 
@@ -151,7 +148,6 @@ if __name__ == '__main__':
                           coord[3] - coord[1], fill=False, edgecolor='r', linewidth=2)
         plt.gca().add_patch(a)
     plt.show()
-
     randomflip = RandomFlip()
     sample = randomflip(sample)
     img, annots = sample['img'], sample['annot']
@@ -164,3 +160,16 @@ if __name__ == '__main__':
         plt.gca().add_patch(a)
     plt.show()
     print("randomflip new_height:{} , new_width:{}, new_depth:{}".format(height, width, depth))
+
+    resize = Resize()
+    sample = resize(sample)
+    img, annots = sample['img'], sample['annot']
+    height, width, depth = img.shape
+    skimage.io.imshow(img)
+    for i, coord in enumerate(annots):
+        print("resize coord:", coord)
+        a = plt.Rectangle((coord[0], coord[1]), coord[2] - coord[0],
+                          coord[3] - coord[1], fill=False, edgecolor='b', linewidth=2)
+        plt.gca().add_patch(a)
+    plt.show()
+    print("resize new_height:{} , new_width:{}, new_depth:{}".format(height, width, depth))

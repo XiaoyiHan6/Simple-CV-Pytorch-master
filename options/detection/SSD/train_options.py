@@ -1,8 +1,7 @@
 import os
 import sys
-
-import torch
 import yaml
+import torch
 import argparse
 from torch.utils.data import DataLoader
 from models.detection.SSD.utils.collate import collate
@@ -24,7 +23,7 @@ def parse_args():
                         help='Model is training or testing')
     parser.add_argument('--pretrained',
                         type=str,
-                        default=False,
+                        default='vgg16_reducedfc.pth',
                         help='Pretrained base model')
     parser.add_argument('--tensorboard',
                         type=str,
@@ -54,7 +53,7 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/ssd300_voc.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/ssd300_coco.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()

@@ -19,7 +19,7 @@ from options.detection.SSD.test_options import args, cfg, dataset_test
 devkit_path = os.path.join(args.Results, 'SSD')
 
 assert torch.__version__.split('.')[0] == '1'
-print('visualize.py CUDA available: {}'.format(torch.cuda.is_available()))
+print('SSD visualize.py CUDA available: {}'.format(torch.cuda.is_available()))
 
 if args.cuda and torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')

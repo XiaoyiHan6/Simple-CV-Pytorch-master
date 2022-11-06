@@ -1,0 +1,16 @@
+MODEL:
+  NAME: RetinaNet
+  BACKBONE:
+    NAME: resnet
+    DEPTH: 50
+DATA:
+  NAME: VOC
+  ROOT: '/data/VOCdevkit'
+OPTIMIZE:
+  OPTIMIZER: adam
+  LR: 0.00001
+  SCHEDULER: ReduceLROnPlateau
+  BATCH_SIZE: 8
+  EPOCH: 115
+
+

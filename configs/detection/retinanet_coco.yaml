@@ -1,0 +1,14 @@
+MODEL:
+  NAME: RetinaNet
+  BACKBONE:
+    NAME: resnet
+    DEPTH: 50
+DATA:
+  NAME: COCO
+  ROOT: '/data/coco/coco2017'
+OPTIMIZE:
+  OPTIMIZER: adam
+  LR: 0.00001
+  SCHEDULER: ReduceLROnPlateau
+  BATCH_SIZE: 8
+  EPOCH: 30

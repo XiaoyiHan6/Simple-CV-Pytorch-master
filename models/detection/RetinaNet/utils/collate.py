@@ -17,7 +17,7 @@ def collate(data):
     scales = [d['scale'] for d in data]
 
     # skimage shape[0]=h,shape[1]=w
-    # B, H, W, 3-> ... -> B, 3, W, H
+    # B, H, W, 3-> ... -> B, 3, H, W
     heights = [int(img.shape[0]) for img in imgs]
     widths = [int(img.shape[1]) for img in imgs]
     batch_size = len(imgs)
@@ -29,7 +29,7 @@ def collate(data):
                            dtype=np.float32)
 
     for i, img in enumerate(imgs):
-        padded_imgs[i, :img.shape[0], :img.shape[1], :] = img
+        padded_imgs[i, :int(img.shape[0]), :int(img.shape[1]), :] = img
     padded_imgs = torch.from_numpy(padded_imgs)
     # B, 3, H, W
     padded_imgs = padded_imgs.permute(0, 3, 1, 2)

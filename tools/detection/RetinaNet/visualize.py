@@ -1,81 +1,19 @@
 import warnings
-
-warnings.filterwarnings('ignore')
 import os
 import sys
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(BASE_DIR)
-
 import cv2
 import time
 import random
 import logging
-import argparse
 import torch.nn.parallel
-from torchvision import transforms
 from utils.get_logger import get_logger
-from models.detection.RetinaNet.utils.augmentations import Normalize, RetinaNetResize
-from models.detection.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
-    resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
+from options.detection.RetinaNet.test_options import args, cfg, dataset_test, model
+
+warnings.filterwarnings('ignore')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
 
 devkit_path = results_path
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch detection Testing')
-    parser.add_mutually_exclusive_group()
-    parser.add_argument('--dataset',
-                        type=str,
-                        default='COCO',
-                        choices=['VOC', 'COCO'],
-                        help='Dataset type, must be one of VOC or COCO.')
-    parser.add_argument('--dataset_root',
-                        type=str,
-                        default=COCO_ROOT,
-                        choices=[COCO_ROOT, VOC_ROOT],
-                        help='Path to COCO or VOC directory')
-    parser.add_argument('--model',
-                        type=str,
-                        default='retinanet',
-                        help='Testing Model')
-    parser.add_argument('--depth',
-                        type=int,
-                        default=50,
-                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152')
-    parser.add_argument('--training',
-                        type=str,
-                        default=False,
-                        help='Model is training or testing')
-    parser.add_argument('--evaluate',
-                        type=str,
-                        default=config.detection_evaluate,
-                        help='Checkpoint state_dict file to evaluate training from')
-    parser.add_argument('--save_folder',
-                        type=str,
-                        default=config.checkpoint_path,
-                        help='Directory for saving checkpoint models')
-    parser.add_argument('--log_folder',
-                        type=str,
-                        default=config.log,
-                        help='Log Folder')
-    parser.add_argument('--log_name',
-                        type=str,
-                        default=config.detection_test_log,
-                        help='Log Name')
-    parser.add_argument('--cuda',
-                        type=str,
-                        default=True,
-                        help='Use CUDA to train model')
-    parser.add_argument('--pretrained',
-                        type=str,
-                        default=False,
-                        help='Models was pretrained')
-
-    return parser.parse_args()
-
-
-args = parse_args()
 
 
 def write_test_results(dataset, model):
@@ -209,64 +147,8 @@ logger = logging.getLogger(args.log_name)
 
 def test():
     # 3. Ready dataset
-    if args.dataset == 'COCO':
-        if args.dataset_root == VOC_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset COCO')
-        elif args.dataset_root is None:
-            raise ValueError("WARNING: Using default COCO dataset, but " +
-                             "--dataset_root was not specified.")
-
-        dataset_test = CocoDetection(args.dataset_root, set_name='val2017',
-                                     transform=transforms.Compose([Normalize(),
-                                                                   RetinaNetResize()]))
-
-    elif args.dataset == 'VOC':
-        if args.dataset_root == COCO_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset VOC')
-        elif args.dataset_root is None:
-            raise ValueError('Must provide --dataset_root when training on VOC')
-
-        dataset_test = VocDetection(args.dataset_root, image_sets=[('2007', 'test')],
-                                    transform=transforms.Compose([Normalize(),
-                                                                  RetinaNetResize()]))
-
-
-    else:
-        raise ValueError('Dataset type not understood (must be voc or coco), exiting.')
-
-    if args.dataset == 'VOC':
-        num_class = 20
-    elif args.dataset == 'COCO':
-        num_class = 80
 
     # 4. Define to train mode
-    if args.model == 'RetinaNet':
-        if args.depth == 18:
-            model = resnet18_retinanet(num_classes=num_class,
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 34:
-            model = resnet34_retinanet(num_classes=num_class,
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 50:
-            model = resnet50_retinanet(num_classes=num_class,
-                                       pretrained=args.pretrained,
-                                       training=args.training)  # False means the models is not trained
-        elif args.depth == 101:
-            model = resnet101_retinanet(num_classes=num_class,
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        elif args.depth == 152:
-            model = resnet152_retinanet(num_classes=num_class,
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        else:
-            raise ValueError('Unsupported RetinaNet Model depth!')
-
-        print("Using model retinanet...")
-    else:
-        raise ValueError('Unsupported model type!')
 
     if args.cuda:
         model = model.cuda()

@@ -12,7 +12,7 @@ else:
     import xml.etree.ElementTree as ET
 
 from data import *
-from .config import results_path
+from utils.path import results_path
 
 YEAR = '2007'
 # annopath = /data/public/PascalVOC/2007/VOC2007/Annotations

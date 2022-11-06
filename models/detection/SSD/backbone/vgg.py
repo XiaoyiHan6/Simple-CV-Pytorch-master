@@ -4,7 +4,7 @@ from torch import nn
 
 # This function is derived from torchvision VGG make_layers()
 # https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py
-def vgg(cfg, i, batch_norm=False):
+def vgg(cfg, i):
     layers = []
     in_channels = i
     for v in cfg:
@@ -14,20 +14,13 @@ def vgg(cfg, i, batch_norm=False):
             layers += [nn.MaxPool2d(kernel_size=2, stride=2, ceil_mode=True)]
         else:
             conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
-            if batch_norm:
-                layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
-            else:
-                layers += [conv2d, nn.ReLU(inplace=True)]
+            layers += [conv2d, nn.ReLU(inplace=True)]
             in_channels = v
     pool5 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
     conv6 = nn.Conv2d(512, 1024, kernel_size=3, padding=6, dilation=6)
     conv7 = nn.Conv2d(1024, 1024, kernel_size=1)
-    if batch_norm:
-        layers += [pool5, conv6, nn.BatchNorm2d(1024),
-                   nn.ReLU(inplace=True), conv7, nn.BatchNorm2d(1024), nn.ReLU(inplace=True)]
-    else:
-        layers += [pool5, conv6,
-                   nn.ReLU(inplace=True), conv7, nn.ReLU(inplace=True)]
+    layers += [pool5, conv6,
+               nn.ReLU(inplace=True), conv7, nn.ReLU(inplace=True)]
     return layers
 
 
@@ -81,7 +74,7 @@ if __name__ == '__main__':
         '300': [256, 'S', 512, 128, 'S', 256, 128, 256, 128, 256],
         '512': [],
     }
-    vgg = nn.Sequential(*vgg(cfg=base['300'], i=3, batch_norm=True))
+    vgg = nn.Sequential(*vgg(cfg=base['300'], i=3))
     print("vgg:", vgg)
     img = torch.randn(16, 3, 300, 300)
     output = vgg(img)

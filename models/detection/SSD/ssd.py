@@ -76,23 +76,16 @@ class SSD(nn.Module):
         conf = list()
 
         # apply vgg up to conv4_3 relu
-        if self.bn:
-            for k in range(33):
-                x = self.vgg[k](x)
-        else:
-            for k in range(23):
-                x = self.vgg[k](x)
+
+        for k in range(23):
+            x = self.vgg[k](x)
 
         s = self.L2Norm(x)
         sources.append(s)
 
         # apply vgg up to fc7
-        if self.bn:
-            for k in range(33, len(self.vgg)):
-                x = self.vgg[k](x)
-        else:
-            for k in range(23, len(self.vgg)):
-                x = self.vgg[k](x)
+        for k in range(23, len(self.vgg)):
+            x = self.vgg[k](x)
         sources.append(x)
 
         # apply extra layers and cache source layer outputs
@@ -156,7 +149,7 @@ def build_ssd(phase, cfg):
         print("ERROR: You specified size " + repr(size) + ". However, " +
               "currently only SSD300 (size=300) is supported!")
         return
-    base_, extras_, head_ = multibox(vgg(base[str(size)], 3, batch_norm),
+    base_, extras_, head_ = multibox(vgg(base[str(size)], 3),
                                      add_extras(batch_norm), num_classes, batch_norm)
     return SSD(phase, cfg, base_, extras_, head_, batch_norm)
 

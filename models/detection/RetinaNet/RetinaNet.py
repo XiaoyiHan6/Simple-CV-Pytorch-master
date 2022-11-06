@@ -17,7 +17,7 @@ from models.detection.RetinaNet.head import clsHead, regHead
 from models.detection.RetinaNet.anchor import RetinaNetAnchors
 from models.detection.RetinaNet.backbone import ResNetBackbone
 from models.detection.RetinaNet.utils.ClipBoxes import ClipBoxes
-from models.detection.RetinaNet.loss.RetinaNetLoss import FocalLoss
+from models.detection.RetinaNet.loss.Loss import FocalLoss
 from models.detection.RetinaNet.utils.BBoxTransform import BBoxTransform
 
 __all__ = [

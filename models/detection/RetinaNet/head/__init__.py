@@ -1,1 +1,1 @@
-from .RetinaNetHeads import clsHead, regHead
+from .Head import clsHead, regHead

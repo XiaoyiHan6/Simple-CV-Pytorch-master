@@ -18,7 +18,7 @@ from models.detection.SSD.utils.augmentations import BaseTransform
 from options.detection.SSD.train_options import args, cfg, dataloader_train, dataset_train, dataset_val, iter_size
 
 assert torch.__version__.split('.')[0] == '1'
-print('train.py CUDA available: {}'.format(torch.cuda.is_available()))
+print('SSD train.py CUDA available: {}'.format(torch.cuda.is_available()))
 
 get_logger(args.log_folder, args.log_name)
 logger = logging.getLogger(args.log_name)
@@ -132,6 +132,7 @@ def train():
             except Exception as e:
                 print(e)
                 continue
+        # scheduler.step()
         t_epoch_end = time.time()
         h_epoch = (t_epoch_end - t_epoch_start) // 3600
         m_epoch = ((t_epoch_end - t_epoch_start) % 3600) // 60
@@ -167,8 +168,7 @@ def train():
                 print("Saving best mAP state, epoch: {} | iter: {}".format(str(epoch_num + 1), iter))
                 torch.save(ssd_net.state_dict(), args.save_folder + '/' +
                            cfg['MODEL']['NAME'].lower() + "_" +
-                           cfg['DATA']['NAME'].lower() + "_" +
-                           'best.pth')
+                           cfg['DATA']['NAME'].lower() + "_best.pth")
                 best_map = maps
             t_eval_end = time.time()
             h_eval = (t_eval_end - t_eval_start) // 3600
@@ -198,6 +198,6 @@ def weights_init(m):
 
 
 if __name__ == '__main__':
-    logger.info("Training Program training started!")
+    logger.info("Program training started!")
     train()
     logger.info("Done!")

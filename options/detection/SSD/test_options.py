@@ -1,7 +1,7 @@
+import argparse
 import os
 import sys
 import yaml
-import argparse
 from data.detection.SSD.coco import COCO_ROOT, COCODetection
 from data.detection.SSD.voc0712 import VOC_ROOT, VOCDetection
 from utils.path import log, Results, CheckPoints, detection_evaluate, detection_test_log
@@ -47,7 +47,7 @@ def parse_args():
                         help='Final confidence threshold')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/ssd300_voc.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/ssd300_coco.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()
