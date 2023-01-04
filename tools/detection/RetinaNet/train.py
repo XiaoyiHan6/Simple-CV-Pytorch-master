@@ -8,6 +8,8 @@ import collections
 from utils.get_logger import get_logger
 from utils.optimizer import get_optimizer
 from utils.scheduler import get_scheduler
+from tools.detection.RetinaNet.eval_voc import eval_voc
+from tools.detection.RetinaNet.eval_coco import eval_coco
 from options.detection.RetinaNet.train_options import args, cfg, dataset_train, \
     dataset_val, dataloader_train, iter_size, retinanet, retinanet_eval
 
@@ -18,26 +20,24 @@ sys.path.append(BASE_DIR)
 assert torch.__version__.split('.')[0] == '1'
 print('RetinaNet train.py CUDA available: {}'.format(torch.cuda.is_available()))
 
-# 1. Log
+# Log
 get_logger(args.log_folder, args.log_name)
 logger = logging.getLogger(args.log_name)
 
+if __name__ == '__main__':
+    logger.info("Program training started!")
 
-def train():
-    # 2. Create SummaryWriter
+    # Create SummaryWriter
     if args.tensorboard:
         from torch.utils.tensorboard import SummaryWriter
+
         # tensorboard loss
         writer = SummaryWriter(args.tensorboard_log)
 
-    # 3. Create the model
+    # Create the model
     print("Using model retinanet...")
-
     if args.cuda and torch.cuda.is_available():
         model = retinanet.cuda()
-        model = torch.nn.DataParallel(model).cuda()
-    else:
-        model = torch.nn.DataParallel(retinanet)
 
     if args.resume:
         other, ext = os.path.splitext(args.resume)
@@ -48,29 +48,28 @@ def train():
         else:
             print("Sorry only .pth and .pkl files supported.")
 
+    if args.cuda and torch.cuda.is_available():
+        model = torch.nn.DataParallel(model).cuda()
+    else:
+        model = torch.nn.DataParallel(retinanet)
+
     model.training = True
-
     optimizer = get_optimizer(cfg=cfg, module=model)
-
     scheduler = get_scheduler(cfg=cfg, optimizer=optimizer)
     loss_hist = collections.deque(maxlen=500)
 
-    model.train()
-    model.module.freeze_bn()
-
     print("len(dataset_train): {}, iter_size: {}".format(len(dataset_train), iter_size))
     logger.info(f"args - {args}")
+
     iter = 0
     best_map = 0.0
     t_start = time.time()
-    # 5. training
+    # training
     for epoch_num in range(cfg['OPTIMIZE']['EPOCH']):
         t_epoch_start = time.time()
         model.train()
         model.module.freeze_bn()
-
         epoch_loss = []
-
         for data in dataloader_train:
             try:
                 iter += 1
@@ -114,20 +113,23 @@ def train():
                 print(e)
                 continue
 
-        scheduler.step(np.mean(epoch_loss))
+        # ReduceLROnPlateau
+        # scheduler.step(np.mean(epoch_loss))
+        scheduler.step()
         t_epoch_end = time.time()
         h_epoch = (t_epoch_end - t_epoch_start) // 3600
         m_epoch = ((t_epoch_end - t_epoch_start) % 3600) // 60
         s_epoch = ((t_epoch_end - t_epoch_start) % 3600) % 60
         print(
-            "epoch {} is finished, and the time is {}h{}m{}s".format(epoch_num, int(h_epoch), int(m_epoch),
+            "epoch {} is finished, and the time is {}h{}m{}s".format(epoch_num + 1, int(h_epoch), int(m_epoch),
                                                                      int(s_epoch)))
-        torch.save(model.state_dict(),
+        torch.save(model.module.state_dict(),
                    args.save_folder + '/' + cfg['MODEL']['NAME'].lower()
                    + '_' + cfg['MODEL']['BACKBONE']['NAME'].lower()
                    + str(cfg['MODEL']['BACKBONE']['DEPTH'])
                    + '_' + cfg['DATA']['NAME'].lower() + '.pth')
-        if (epoch_num + 1) > 30:
+
+        if (epoch_num + 1) > 15:
             print('Evaluation RetinaNet...')
             t_eval_start = time.time()
             retinanet_eval.load_state_dict(
@@ -139,21 +141,20 @@ def train():
             retinanet_eval.eval()
             if args.cuda:
                 retinanet_eval = retinanet_eval.cuda()
-
             with torch.no_grad():
                 maps = 0.0
                 if cfg['DATA']['NAME'] == 'VOC':
                     print("waiting eval VOC, model RetinaNet...")
-                    # aps = eval_voc()
-                    # maps = np.mean(aps)
+                    aps = eval_voc(dataset_val, retinanet_eval)
+                    maps = np.mean(aps)
                 elif cfg['DATA']['NAME'] == 'COCO':
                     print("waiting eval COCO, model RetinaNet...")
-                    # aps =eval_coco()
-                    # maps = aps[1]
-            logger.info("IoU=0.5, Mean AP = {maps:.3f}")
+                    aps = eval_coco(dataset_val, retinanet_eval)
+                    maps = aps[1]
+            logger.info(f"IoU=0.5, Mean AP = {maps:.3f}")
             if maps > best_map:
                 print("Saving best mAP state, epoch: {} | iter: {}".format(str(epoch_num + 1), iter))
-                torch.save(model.state_dict(), args.save_folder + '/' + cfg['MODEL']['NAME'].lower()
+                torch.save(model.module.state_dict(), args.save_folder + '/' + cfg['MODEL']['NAME'].lower()
                            + '_' + cfg['MODEL']['BACKBONE']['NAME'].lower()
                            + str(cfg['MODEL']['BACKBONE']['DEPTH'])
                            + '_' + cfg['DATA']['NAME'].lower() + '_best.pth')
@@ -173,10 +174,5 @@ def train():
     m = ((t_end - t_start) % 3600) // 60
     s = ((t_end - t_start) % 3600) % 60
     print("The Program Finished Time is {}h{}m{}s".format(int(h), int(m), int(s)))
-    return
 
-
-if __name__ == '__main__':
-    logger.info("Program training started!")
-    train()
     logger.info("Done!")

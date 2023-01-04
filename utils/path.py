@@ -48,7 +48,7 @@ detection_eval_log = 'detection_eval'
 classification_evaluate = None
 
 # detection evaluate model path
-detection_evaluate = None
+detection_evaluate = 'retinanet_resnet50_voc.pth'
 
 # Images detection path
 # /data/PycharmProject/Simple-CV-Pytorch-master/images/detection

@@ -99,8 +99,8 @@ def Visualized(dataset, model, transform):
         ymin = int(annot[1] * img.shape[0])
         xmax = int(annot[2] * img.shape[1])
         ymax = int(annot[3] * img.shape[0])
-        cv2.rectangle(img, (xmin, ymin), (xmax, ymax), COLORS[0], 2)
         label = str(int(annot[4]))
+        cv2.rectangle(img, (xmin, ymin), (xmax, ymax), COLORS[0], 2)
         font = cv2.FONT_HERSHEY_PLAIN
         cv2.putText(img, label, (xmin, int(ymin + 10)), font, 1, COLORS[1], 1)
 

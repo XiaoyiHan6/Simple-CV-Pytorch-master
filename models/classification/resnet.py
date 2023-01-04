@@ -36,6 +36,7 @@ def resnet_(arch, block, block_num, num_classes, pretrained, include_top, **kwar
     # if you're training for the first time, no pretrained is required!
     if pretrained:
         # if you want to use cpu, you should modify map_loaction=torch.device("cpu")
+        # or cuda map_laction=torch.device("cuda:0")
         pretrained_models = torch.load(model_urls[arch], map_location=torch.device("cuda:0"))
         # transfer learning
         # if you want to train your own dataset

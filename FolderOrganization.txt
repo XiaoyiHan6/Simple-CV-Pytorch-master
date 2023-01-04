@@ -107,10 +107,10 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----shufflenet.py
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
 |              |                 |                 |              |----Anchor.py
-|              |                 |                 |----backbone----|----__init__.py(Don't finish writing)
-|              |                 |                 |                |----DarkNet.py
-|              |                 |                 |                |----ResNet.py
-|              |                 |                 |                |----VovNet.py
+|              |                 |                 |----backbones----|----__init__.py(Don't finish writing)
+|              |                 |                 |                 |----DarkNet.py
+|              |                 |                 |                 |----ResNet.py
+|              |                 |                 |                 |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
 |              |                 |                 |            |----Head.py
 |              |                 |                 |
@@ -145,13 +145,17 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                                             |----train_options.py
 |----results----|----SSD----|----COCO----|----coco_bbox_results.json
 |               |           |----VOC----|----annot_cache----|----XXX_pr.pkl
-|               |           |           |----detection----|----det_test_xxx.txt(eg: car AP)
+|               |           |           |----det----|----det_test_xxx.txt(eg: car AP)
 |               |           |           |----annots.pkl
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
 |               |           |----XX(name: 000478)_XX(coco or voc).jpg
-|               |----RetinaNet----|----COCO
-|               |                 |----VOC
+|               |----RetinaNet----|----COCO----|----coco_bbox_results.json
+|               |                 |----VOC----|----annot_cache----|----XXX_pr.pkl
+|                                 |           |----det----|----det_test_xxx.txt(eg: car)
+|                                 |           |----annots.pkl
+|                                 |           |----detections.pkl
+|                                 |----XX(name:000478)_XX(coco or voc).jpg
 |----tensorboard(Loss Visualization)
 |----tools----|----classification----|----eval.py
 |             |                      |----train.py

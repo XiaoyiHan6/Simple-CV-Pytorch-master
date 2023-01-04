@@ -10,6 +10,7 @@ BASE_DIR = os.path.dirname(
 sys.path.append(BASE_DIR)
 
 
+
 # 3.
 class Resize(object):
     def __init__(self):

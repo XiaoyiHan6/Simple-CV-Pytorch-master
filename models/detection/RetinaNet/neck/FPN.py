@@ -1,25 +1,23 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-from torch.cuda.amp import autocast
 
 
 class FPN(nn.Module):
     def __init__(self, C3_inplanes, C4_inplanes, C5_inplanes, planes=256):
         super(FPN, self).__init__()
         # planes = 256 channels
-        self.P3_1 = nn.Conv2d(C3_inplanes, planes, kernel_size=1, stride=1, padding=0)
-        self.P3_2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1)
-        self.P4_1 = nn.Conv2d(C4_inplanes, planes, kernel_size=1, stride=1, padding=0)
-        self.P4_2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1)
-        self.P5_1 = nn.Conv2d(C5_inplanes, planes, kernel_size=1, stride=1, padding=0)
-        self.P5_2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1)
+        self.P3_1 = nn.Conv2d(C3_inplanes, planes, kernel_size=1, padding=0)
+        self.P3_2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1)
+        self.P4_1 = nn.Conv2d(C4_inplanes, planes, kernel_size=1, padding=0)
+        self.P4_2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1)
+        self.P5_1 = nn.Conv2d(C5_inplanes, planes, kernel_size=1, padding=0)
+        self.P5_2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1)
         self.P6 = nn.Conv2d(C5_inplanes, planes, kernel_size=3, stride=2, padding=1)
         self.P7 = nn.Sequential(
             nn.ReLU(inplace=True),
             nn.Conv2d(planes, planes, kernel_size=3, stride=2, padding=1))
 
-    @autocast()
     def forward(self, inputs):
         [C3, C4, C5] = inputs
         P5 = self.P5_1(C5)
@@ -48,7 +46,14 @@ if __name__ == "__main__":
     C4 = torch.randn([2, 256 * 4, 42, 40])
     C5 = torch.randn([2, 512 * 4, 21, 20])
 
-    model = FPN(128 * 4, 256 * 4, 512 * 4, 256)
+    model = FPN(128 * 4, 256 * 4, 512 * 4)
     out = model([C3, C4, C5])
+    print("len(out):", len(out))
     for i in range(len(out)):
-        print(out[i].shape)
+        print(i + 1, out[i].shape)
+        print(out[i])
+    # torch.Size([2, 256, 84, 80])
+    # torch.Size([2, 256, 42, 40])
+    # torch.Size([2, 256, 21, 20])
+    # torch.Size([2, 256, 11, 10])
+    # torch.Size([2, 256, 6, 5])

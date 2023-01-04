@@ -41,7 +41,7 @@ if not os.path.exists(args.save_folder):
 get_logger(args.log_folder, args.log_name)
 logger = logging.getLogger(args.log_name)
 
-# 1. Path
+# Path
 annopath = os.path.join(VOC_ROOT, 'VOC2007', 'Annotations', '%s.xml')
 imgpath = os.path.join(VOC_ROOT, 'VOC2007', 'JPEGImages', '%s.jpg')
 imgsetpath = os.path.join(VOC_ROOT, 'VOC2007', 'ImageSets',
@@ -50,7 +50,6 @@ imgsetpath = os.path.join(VOC_ROOT, 'VOC2007', 'ImageSets',
 YEAR = '2007'
 devkit_path = args.Results
 set_type = 'test'
-
 
 class Timer(object):
     """A simple timer."""
@@ -113,7 +112,7 @@ def get_output_dir(name, phase):
 def get_voc_results_file_template(image_set, cls):
     # /data/PycharmProject/Simple-CV-Pytorch-master/results/SSD/VOC/detection/det_test_aeroplane.txt
     filename = 'det_' + image_set + '_%s.txt' % (cls)
-    filedir = os.path.join(devkit_path, 'SSD/VOC/detection')
+    filedir = os.path.join(devkit_path, 'SSD/VOC/det')
     if not os.path.exists(filedir):
         os.makedirs(filedir)
     path = os.path.join(filedir, filename)

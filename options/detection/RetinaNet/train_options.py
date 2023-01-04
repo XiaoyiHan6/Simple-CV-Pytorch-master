@@ -4,13 +4,12 @@ import yaml
 import argparse
 from torchvision import transforms
 from torch.utils.data import DataLoader
+from models.detection.RetinaNet.RetinaNet import RetinaNet
 from models.detection.RetinaNet.utils.collate import collate
 from data.detection.RetinaNet.voc import VOC_ROOT, VocDetection
 from data.detection.RetinaNet.coco import COCO_ROOT, CocoDetection
 from utils.path import log, CheckPoints, tensorboard_log, detection_train_log
 from models.detection.RetinaNet.utils.augmentations import Resize, RandomFlip, Normalize
-from models.detection.RetinaNet.RetinaNet import resnet18_retinanet, resnet34_retinanet, \
-    resnet50_retinanet, resnet101_retinanet, resnet152_retinanet
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(BASE_DIR)
@@ -55,7 +54,7 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/retinanet_coco.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/retinanet_voc.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()
@@ -116,53 +115,24 @@ class set_config(object):
     else:
         raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
     dataloader_train = DataLoader(dataset_train, num_workers=2, batch_size=cfg['OPTIMIZE']['BATCH_SIZE'],
-                                  collate_fn=collate, shuffle=True,
-                                  drop_last=True)
+                                  collate_fn=collate, shuffle=True, drop_last=True)
     iter_size = len(dataset_train) // cfg['OPTIMIZE']['BATCH_SIZE']
 
     if cfg['MODEL']['BACKBONE']['NAME'] == 'resnet':
-        if cfg['MODEL']['BACKBONE']['DEPTH'] == 18:
-            model = resnet18_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
+        model = RetinaNet(resnet_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
+                          num_classes=dataset_train.num_classes(),
+                          pretrained=args.pretrained,
+                          training=args.training)
 
-            model_eval = resnet18_retinanet(num_classes=dataset_val.num_classes(),
-                                            training=False)
-        elif cfg['MODEL']['BACKBONE']['DEPTH'] == 34:
-            model = resnet34_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-
-            model_eval = resnet34_retinanet(num_classes=dataset_val.num_classes(),
-                                            training=False)
-        elif cfg['MODEL']['BACKBONE']['DEPTH'] == 50:
-            model = resnet50_retinanet(num_classes=dataset_train.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-
-            model_eval = resnet50_retinanet(num_classes=dataset_val.num_classes(),
-                                            training=False)
-        elif cfg['MODEL']['BACKBONE']['DEPTH'] == 101:
-            model = resnet101_retinanet(num_classes=dataset_train.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-
-            model_eval = resnet101_retinanet(num_classes=dataset_val.num_classes(),
-                                             training=False)
-        elif cfg['MODEL']['BACKBONE']['DEPTH'] == 152:
-            model = resnet152_retinanet(num_classes=dataset_train.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-
-            model_eval = resnet152_retinanet(num_classes=dataset_val.num_classes(),
-                                             training=False)
-        else:
-            raise ValueError("Unsupported RetinaNet Model depth!")
+        model_eval = RetinaNet(resnet_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
+                               num_classes=dataset_val.num_classes(),
+                               training=False)
     else:
-        raise ValueError('Unsupported model type!')
+        raise ValueError('Unsupported backbones type!')
 
 
 set_config = set_config()
+
 # args
 args = set_config.args
 

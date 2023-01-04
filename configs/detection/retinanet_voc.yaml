@@ -8,9 +8,9 @@ DATA:
   ROOT: '/data/VOCdevkit'
 OPTIMIZE:
   OPTIMIZER: adam
-  LR: 0.00001
-  SCHEDULER: ReduceLROnPlateau
-  BATCH_SIZE: 8
-  EPOCH: 115
+  LR: 0.0001
+  SCHEDULER: WarmupCosineSchedule
+  BATCH_SIZE: 4
+  EPOCH: 80
 
 

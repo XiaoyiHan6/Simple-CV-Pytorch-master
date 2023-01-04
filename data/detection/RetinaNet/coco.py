@@ -95,7 +95,6 @@ class CocoDetection(Dataset):
         # transform from [x, y, w, h] to [x1, y1, x2, y2]
         annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
         annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
-
         return annotations
 
     def coco_label_to_label(self, coco_label):
@@ -114,4 +113,5 @@ class CocoDetection(Dataset):
 
 if __name__ == '__main__':
     coco = CocoDetection(COCO_ROOT)
+    print(coco.load_image(1).shape)
     print(coco.load_annotations(1))

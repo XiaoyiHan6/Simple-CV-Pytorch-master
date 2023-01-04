@@ -99,5 +99,5 @@ args = set_config.args
 # cfg
 cfg = set_config.cfg
 
-# dataset_test
+# dataset_eval
 dataset_eval = set_config.dataset_eval

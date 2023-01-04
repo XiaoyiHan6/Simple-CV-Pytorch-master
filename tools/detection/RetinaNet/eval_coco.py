@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -7,123 +8,106 @@ sys.path.append(BASE_DIR)
 import time
 import torch
 import logging
-import argparse
-from torchvision import transforms
+from tqdm import tqdm
 from utils.get_logger import get_logger
-from models.detection.RetinaNet.utils.augmentations import Resize, Normalize
-
+from pycocotools.cocoeval import COCOeval
+from options.detection.RetinaNet.eval_options import args, cfg, dataset_eval, model
 
 assert torch.__version__.split('.')[0] == '1'
+print('RetinaNet eval_coco.py CUDA available: {}'.format(torch.cuda.is_available()))
 
-print('CUDA available: {}'.format(torch.cuda.is_available()))
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='PyTorch detection Evaluation')
-    parser.add_argument('--dataset',
-                        type=str,
-                        default='COCO',
-                        help='Dataset type, must be COCO.')
-    parser.add_argument('--dataset_root',
-                        type=str,
-                        default=COCO_ROOT,
-                        help='Path to COCO directory')
-    parser.add_argument('--model',
-                        type=str,
-                        default='retinanet',
-                        help='Evaluation Model')
-    parser.add_argument('--depth',
-                        type=int,
-                        default=50,
-                        help='Model depth, including RetinaNet of 18, 34, 50, 101, 152')
-    parser.add_argument('--training',
-                        type=str,
-                        default=False,
-                        help='Model is training or testing')
-    parser.add_argument('--pretrained',
-                        default=True,
-                        type=str,
-                        help='Models was not pretrained')
-    parser.add_argument('--cuda',
-                        type=str,
-                        default=True,
-                        help='Use CUDA to train model')
-    parser.add_argument('--log_folder',
-                        type=str,
-                        default=config.log)
-    parser.add_argument('--log_name',
-                        type=str,
-                        default=config.detection_eval_log)
-    parser.add_argument('--evaluate',
-                        type=str,
-                        default=config.detection_evaluate,
-                        help='Checkpoint state_dict file to evaluate training from')
-    parser.add_argument('--save_folder',
-                        type=str,
-                        default=config.checkpoint_path,
-                        help='Directory for saving checkpoint models')
-
-    return parser.parse_args()
-
-
-args = parse_args()
-
-# 1. Log
+# Log
 get_logger(args.log_folder, args.log_name)
 logger = logging.getLogger(args.log_name)
 
 
-def eval():
-    # 2. Create the data loaders
-    if args.dataset == 'COCO':
-        if args.dataset_root == VOC_ROOT:
-            raise ValueError('Must specify dataset_root if specifying dataset COCO')
-        elif args.dataset_root is None:
-            raise ValueError("WARNING: Using default COCO dataset, but " +
-                             "--dataset_root was not specified.")
+def get_output_dir(name, phase):
+    filedir = os.path.join(name, phase)
+    if not os.path.exists(filedir):
+        os.makedirs(filedir)
+    return filedir
 
-        dataset_val = CocoDetection(args.dataset_root, set_name='val2017',
-                                    transform=transforms.Compose([Normalize(),
-                                                                  RetinaNetResize()]))
 
-    else:
-        raise ValueError('Dataset type not understood (must be coco), exiting.')
+def eval_coco(dataset, model, threshold=0.05):
+    num_images = len(dataset)
+    model.eval()
+    with torch.no_grad():
+        # start collecting results
+        results = []
+        image_ids = []
+        with tqdm(total=num_images) as pbar:
+            for i in range(num_images):
+                data = dataset[i]
+                img, scale = torch.from_numpy(data['img']), data['scale']
+                if args.cuda and torch.cuda.is_available():
+                    scores, labels, boxes = model(img.permute(2, 0, 1).cuda().float().unsqueeze(dim=0))
+                else:
+                    scores, labels, boxes = model(img.permute(2, 0, 1).float().unsqueeze(dim=0))
+                scores = scores.cpu()
+                labels = labels.cpu()
+                boxes = boxes.cpu()
 
-    # 3. Create the model
-    if args.model == 'retinanet':
-        if args.depth == 18:
-            model = resnet18_retinanet(num_classes=dataset_val.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 34:
-            model = resnet34_retinanet(num_classes=dataset_val.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 50:
-            model = resnet50_retinanet(num_classes=dataset_val.num_classes(),
-                                       pretrained=args.pretrained,
-                                       training=args.training)
-        elif args.depth == 101:
-            model = resnet101_retinanet(num_classes=dataset_val.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        elif args.depth == 152:
-            model = resnet152_retinanet(num_classes=dataset_val.num_classes(),
-                                        pretrained=args.pretrained,
-                                        training=args.training)
-        else:
-            raise ValueError("Unsupported model depth!")
+                # correct boxes for image scale
+                boxes /= scale
+                if boxes.shape[0] > 0:
+                    # change to (x,y,w,h) (MS COCO standard)
+                    boxes[:, 2] -= boxes[:, 0]
+                    boxes[:, 3] -= boxes[:, 1]
 
-        print("Using model retinanet...")
-    else:
-        raise ValueError('Unsupported model type!')
+                    # compute predicted labels and scores
+                    for box_id in range(boxes.shape[0]):
+                        score = float(scores[box_id])
+                        label = int(labels[box_id])
+                        box = boxes[box_id, :]
 
-    if args.cuda:
-        if torch.cuda.is_available():
-            model = model.cuda()
-            model = torch.nn.DataParallel(model).cuda()
-    else:
-        model = torch.nn.DataParallel(model)
+                        # scores are sorted, so we can break
+                        if score < threshold:
+                            break
+                        # append detection for each positively labeled class
+                        img_result = {
+                            'image_id': dataset.image_ids[i],
+                            'category_id': dataset.label_to_coco_label(label),
+                            'score': float(score),
+                            'bbox': box.tolist(),
+                        }
+                        # append detection to results
+                        results.append(img_result)
+
+                # append image to list of processed images
+                image_ids.append(dataset.image_ids[i])
+
+                # print progress
+                pbar.update(1)
+        pbar.close()
+        if not len(results):
+            return
+        # write output
+        devkit_path = get_output_dir(args.Results, 'RetinaNet')
+        devkit_path = get_output_dir(devkit_path, 'COCO')
+        with open('{}/{}_bbox_results.json'.format(devkit_path, cfg['DATA']['NAME'].lower()), 'w') as f:
+            json.dump(results, f)
+
+        # load results in COCO evaluation tool
+        coco_gt = dataset.coco
+        coco_pred = coco_gt.loadRes('{}/{}_bbox_results.json'.format(devkit_path, cfg['DATA']['NAME'].lower()))
+
+        # run COCO evaluation
+        coco_eval = COCOeval(coco_gt, coco_pred, 'bbox')
+        coco_eval.evaluate()
+        coco_eval.accumulate()
+        coco_eval.summarize()
+
+        all_eval_result = coco_eval.stats
+        model.train()
+
+        return all_eval_result
+
+
+if __name__ == '__main__':
+    logger.info("Program evaluating started!")
+
+    if args.cuda and torch.cuda.is_available():
+        model = model.cuda()
 
     if args.evaluate:
         other, ext = os.path.splitext(args.evaluate)
@@ -134,34 +118,43 @@ def eval():
         else:
             print("Sorry only .pth and .pkl files supported.")
 
-    logger.info(f"{args}")
-    t0 = time.time()
-    # 4. interference
-    all_eval_result = evaluate_coco(dataset_val, model)
-    if all_eval_result:
-        logger.info(
-            f"IoU=0.5:0.95, area=all, maxDets=100, mAP:{all_eval_result[0]:.3f}, "
-            f"IoU=0.5, area=all, maxDets=100, mAP:{all_eval_result[1]:.3f}, "
-            f"IoU=0.75, area=all, maxDets=100, mAP:{all_eval_result[2]:.3f}, "
-            f"IoU=0.5:0.95, area=small, maxDets=100, mAP:{all_eval_result[3]:.3f}, "
-            f"IoU=0.5:0.95, area=medium,maxDets=100,mAP:{all_eval_result[4]:.3f}, "
-            f"IoU=0.5:0.95,area=large,maxDets=100,mAP:{all_eval_result[5]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=1,mAR:{all_eval_result[6]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=10,mAR:{all_eval_result[7]:.3f}, "
-            f"IoU=0.5:0.95,area=all,maxDets=100,mAR:{all_eval_result[8]:.3f}, "
-            f"IoU=0.5:0.95,area=small,maxDets=100,mAR:{all_eval_result[9]:.3f}, "
-            f"IoU=0.5:0.95,area=medium,maxDets=100,mAR:{all_eval_result[10]:.3f}, "
-            f"IoU=0.5:0.95,area=large,maxDets=100,mAR:{all_eval_result[11]:.3f}.")
+    elif args.evaluate is None:
+        print("Sorry, you should load weights!")
 
-    t1 = time.time()
-    m = (t1 - t0) // 60
-    s = (t1 - t0) % 60
+    if args.cuda and torch.cuda.is_available():
+        model = torch.nn.DataParallel(model).cuda()
+    else:
+        model = torch.nn.DataParallel(model)
+
+    logger.info(f"{args}")
+
+    t_start = time.time()
+
+    # interference
+    model.training = False
+    model.eval()
+    model.module.freeze_bn()
+    coco_eval = eval_coco(dataset_eval, model)
+    t_end = time.time()
+
+    if coco_eval is not None:
+        logger.info(
+            f"\nIoU=0.5:0.95, area=all, maxDets=100, mAP:{coco_eval[0]:.3f}\n"
+            f"IoU=0.5, area=all, maxDets=100, mAP:{coco_eval[1]:.3f}\n"
+            f"IoU=0.75, area=all, maxDets=100, mAP:{coco_eval[2]:.3f}\n"
+            f"IoU=0.5:0.95, area=small, maxDets=100, mAP:{coco_eval[3]:.3f}\n"
+            f"IoU=0.5:0.95, area=medium,maxDets=100,mAP:{coco_eval[4]:.3f}\n"
+            f"IoU=0.5:0.95,area=large,maxDets=100,mAP:{coco_eval[5]:.3f}\n"
+            f"IoU=0.5:0.95,area=all,maxDets=1,mAR:{coco_eval[6]:.3f}\n"
+            f"IoU=0.5:0.95,area=all,maxDets=10,mAR:{coco_eval[7]:.3f}\n"
+            f"IoU=0.5:0.95,area=all,maxDets=100,mAR:{coco_eval[8]:.3f}\n"
+            f"IoU=0.5:0.95,area=small,maxDets=100,mAR:{coco_eval[9]:.3f}\n"
+            f"IoU=0.5:0.95,area=medium,maxDets=100,mAR:{coco_eval[10]:.3f}\n"
+            f"IoU=0.5:0.95,area=large,maxDets=100,mAR:{coco_eval[11]:.3f}."
+        )
+
+    m = (t_end - t_start) // 60
+    s = (t_end - t_start) % 60
     print("The Finished Time is {}m{}s".format(int(m), int(s)))
 
-    return
-
-
-if __name__ == '__main__':
-    logger.info("Program evaluating started!")
-    eval()
     logger.info("Done!")

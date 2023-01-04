@@ -1,22 +1,29 @@
 import torch
 import numpy as np
 import torch.nn as nn
-from torch.cuda.amp import autocast
 
 
-# anchor = [x_min, y_min, x_max, x_max]
-
-class RetinaNetAnchors(nn.Module):
+# anchors = [x_min, y_min, x_max, x_max]
+# set h,w = 640
+# P3 feature map-> h,w:[80,80]
+# P4 feature map-> h,w:[40,40]
+# P5 feature map-> h,w:[20,20]
+# P6 feature map-> h,w:[10,10]
+# P7 feature map-> h,w:[5,5]
+# 80*80+40*40+20*20+10*10+5*5=8525
+# 76725 = (80*80*9+40*40*9+20*20*9+10*10*9+5*5*9)=57600+14400+3600+900+225
+class Anchors(nn.Module):
     def __init__(self,
                  pyramid_levels=None,
                  strides=None,
                  sizes=None,
                  ratios=None,
                  scales=None):
-        super(RetinaNetAnchors, self).__init__()
+        super(Anchors, self).__init__()
         if pyramid_levels is None:
             self.pyramid_levels = [3, 4, 5, 6, 7]
         if strides is None:
+            # 8, 16, etc...
             self.strides = [2 ** x for x in self.pyramid_levels]
         if sizes is None:
             self.sizes = [2 ** (x + 2) for x in self.pyramid_levels]
@@ -25,21 +32,20 @@ class RetinaNetAnchors(nn.Module):
         if scales is None:
             self.scales = np.array([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
 
-    @autocast()
     def forward(self, image):
         """
-        generate anchor
+        generate anchors
         """
         # (B, C, W, H)
         image_shape = np.array(image.shape[2:])
         # (W and H) of feature map : [org/8, org/16, org/32, org/64, org/128]
         image_shapes = [(image_shape + 2 ** x - 1) // (2 ** x) for x in self.pyramid_levels]
 
-        # compute anchor over all pyramid levels
+        # compute anchors over all pyramid levels
         all_anchors = np.zeros((0, 4)).astype(np.float32)
 
         for idx, p in enumerate(self.pyramid_levels):
-            # the center of anchor is (0, 0), and generate the  information about 9 anchor,forms:(x1, y1, x2, y2)
+            # the center of anchors is (0, 0), and generate the  information about 9 anchors,forms:(x1, y1, x2, y2)
             anchors = generate_anchors(base_size=self.sizes[idx],
                                        ratios=self.ratios,
                                        scales=self.scales)
@@ -62,7 +68,7 @@ class RetinaNetAnchors(nn.Module):
 
 def generate_anchors(base_size=16, ratios=None, scales=None):
     """
-    Generate anchor (reference) windows by enumerating aspect ratios x
+    Generate anchors (reference) windows by enumerating aspect ratios x
     scales w.r.t. a reference window.
     """
     if ratios is None:
@@ -72,17 +78,17 @@ def generate_anchors(base_size=16, ratios=None, scales=None):
         # based on the reference of the base_size, like the operation of uniformization
         scales = np.array([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
 
-    #  compute the total number of anchor
+    #  compute the total number of anchors
     num_anchors = len(ratios) * len(scales)
 
-    # initialize output anchor (9, 4), 4 indicate location
+    # initialize output anchors (9, 4), 4 indicate location
     anchors = np.zeros((num_anchors, 4))
 
     # scale base_size
     # np.tile (a, (2, 3)):(the x-axis of a)  copy twice, and (the y-axis of a) copy three times
     anchors[:, 2:] = base_size * np.tile(scales, (2, len(ratios))).T
 
-    # compute areas of anchor
+    # compute areas of anchors
     areas = anchors[:, 2] * anchors[:, 3]
     # areas = [1024,1625,2580, 1024,1625,2580, 1024,1625,2580]
 
@@ -103,12 +109,12 @@ def generate_anchors(base_size=16, ratios=None, scales=None):
 
 def shift(shape, stride, anchors):
     """
-    Produce shifted anchor based on shape of the map and stride size.
+    Produce shifted anchors based on shape of the map and stride size.
 
     Args:
-        shape: Shape to shift the anchor over.
-        stride: Stride to shift the anchor with over the shape.
-        anchors: The anchor to apply at each location.
+        shape: Shape to shift the anchors over.
+        stride: Stride to shift the anchors with over the shape.
+        anchors: The anchors to apply at each location.
     """
 
     shift_x = (np.arange(0, shape[1]) + 0.5) * stride
@@ -137,10 +143,10 @@ def shift(shape, stride, anchors):
         shift_x.ravel(), shift_y.ravel()
     )).transpose()
 
-    # add A anchor (1, A, 4) to
+    # add A anchors (1, A, 4) to
     # cell K shifts (K, 1, 4) to get
-    # shift anchor (K, A, 4)
-    # reshape to (K*A, 4) shifted anchor
+    # shift anchors (K, A, 4)
+    # reshape to (K*A, 4) shifted anchors
 
     A = anchors.shape[0]
     K = shifts.shape[0]
@@ -155,7 +161,7 @@ if __name__ == "__main__":
     # -> C3 P3 16*16 -> C4 P4 8*8 -> C5 P5 4*4 -> C6 P6 2*2 -> C7 P7 1*1
     # (16*16+8*8+4*4+2*2+1*1)*9=(256+64+16+4+1)*9=341*9=3069
     image = np.random.rand(1, 1, 128, 128)
-    anchors = RetinaNetAnchors()
+    anchors = Anchors()
     anchors = anchors(image)
     print(anchors.shape)
     # torch.Size([1, 3069, 4])

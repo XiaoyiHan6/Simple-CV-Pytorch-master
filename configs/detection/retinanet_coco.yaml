@@ -8,7 +8,7 @@ DATA:
   ROOT: '/data/coco/coco2017'
 OPTIMIZE:
   OPTIMIZER: adam
-  LR: 0.00001
+  LR: 0.0001
   SCHEDULER: ReduceLROnPlateau
-  BATCH_SIZE: 8
+  BATCH_SIZE: 4
   EPOCH: 30

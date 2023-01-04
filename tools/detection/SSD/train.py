@@ -162,8 +162,8 @@ def train():
                     maps = np.mean(aps)
                 elif cfg['DATA']['NAME'] == 'COCO':
                     aps = eval_coco(dataset_val, net_eval, BaseTransform(cfg['DATA']['SIZE'], MEANS), args.cuda)
-                    maps = aps[1]
-            logger.info(f"IoU=0.5, Mean AP = {maps:.3f}")
+                    maps = aps[0]
+            logger.info(f"IoU=0.5:0.95, Mean AP = {maps:.3f}")
             if maps > best_map:
                 print("Saving best mAP state, epoch: {} | iter: {}".format(str(epoch_num + 1), iter))
                 torch.save(ssd_net.state_dict(), args.save_folder + '/' +

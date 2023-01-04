@@ -15,7 +15,7 @@ class FocalLoss(nn.Module):
         # (..., 4) 4 indicate location
         anchor = anchors[0, :, :]
 
-        # anchor is xyxy, so change it to xywh
+        # anchors is xyxy, so change it to xywh
         anchor_widths = anchor[:, 2] - anchor[:, 0]
         anchor_heights = anchor[:, 3] - anchor[:, 1]
         anchor_ctr_x = anchor[:, 0] + 0.5 * anchor_widths
@@ -29,7 +29,8 @@ class FocalLoss(nn.Module):
 
             # (batch_size, ?, 5)
             # (x, y, w, h, cls)
-            bbox_annot = annots[j]
+            bbox_annot = annots[j, :, :]
+
             # delete the bbox marked -1
             bbox_annot = bbox_annot[bbox_annot[:, 4] != -1]
 
@@ -132,7 +133,7 @@ class FocalLoss(nn.Module):
                 gt_heights = torch.clamp(gt_heights, min=1)
 
                 # smooth L1 loss
-                # gt (anchor) -> targets
+                # gt (anchors) -> targets
                 targets_dx = (gt_ctr_x - anchor_ctr_x_pi) / anchor_widths_pi
                 targets_dy = (gt_ctr_y - anchor_ctr_y_pi) / anchor_heights_pi
                 targets_dw = torch.log(gt_widths / anchor_widths_pi)
@@ -177,4 +178,7 @@ if __name__ == '__main__':
     model = FocalLoss().cuda()
     out = model(c, r, a, anno)
     for i in range(len(out)):
-        print(out[i])
+        if i == 0:
+            print("cls_loss:", out[i])
+        else:
+            print("reg_loss:", out[i])

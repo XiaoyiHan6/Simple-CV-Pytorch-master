@@ -51,13 +51,13 @@ def parse_args():
                         help='Dataset root directory path')
     parser.add_argument('--basenet',
                         type=str,
-                        default='shufflenet',
+                        default='resnet',
                         choices=['resnet', 'vgg', 'lenet', 'alexnet', 'googlenet', 'mobilenet', 'resnext',
                                  'shufflenet'],
                         help='Pretrained base model')
     parser.add_argument('--depth',
                         type=int,
-                        default=5,
+                        default=50,
                         help='BaseNet depth, including: LeNet of 5, AlexNet of 0, VGG of 11, 13, 16, 19, ResNet of 18, 34, 50, 101, 152, ResNeXt of 50, 101, GoogLeNet of 0, MobileNet of 2, 3, ShuffleNet of 5, 10, 15, 20')
     parser.add_argument('--batch_size',
                         type=int,

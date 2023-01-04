@@ -1,11 +1,10 @@
 import torch
-import torch.nn as nn
 import numpy as np
+import torch.nn as nn
 
 
 # inference
 class BBoxTransform(nn.Module):
-
     def __init__(self, mean=None, std=None):
         super(BBoxTransform, self).__init__()
         if mean is None:

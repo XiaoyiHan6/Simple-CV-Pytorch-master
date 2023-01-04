@@ -6,7 +6,7 @@ import os.path as osp
 from utils.path import VOC_path
 from torch.utils.data import Dataset
 
-VOC_CLASSES = (
+VOC_CLASSES = (  # always index 0
     'aeroplane',
     'bicycle',
     'bird',
@@ -92,6 +92,7 @@ class VocDetection(Dataset):
             label_idx = self.class_to_ind[name]
             bndbox.append(label_idx)
             annots += [bndbox]
+        annots = np.array(annots)
         return annots
 
     def image_aspect_ratio(self, image_index):

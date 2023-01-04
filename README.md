@@ -2,23 +2,28 @@
 
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later.
 
-For classification, I reproduced LeNet5, VGG, AlexNet, ResNet(ResNeXt), GoogLeNet, MobileNet, shuffleNet. Then I will reproduce EiffcientNet, etc.
++ **For classification**, I reproduced **LeNet5**, **VGG**, **AlexNet**, **ResNet**(**ResNeXt**), **GoogLeNet**, **MobileNet**, **shuffleNet**. Then I will reproduce **EiffcientNet**, etc.
 
-For object detection, I reproduced RetinaNet and SSD. (I broke the code up into modules, such as backbone, neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like RetinaNet) will be added later.
++ **For object detection**, I reproduced **RetinaNet** and **SSD** (I broke the code up into modules, such as backbone, neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like **CenterNet**, **FCOS**, **YOLO series**, **Faster RCNN**) will be added later.
 
-Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
++ **For semantic segmentation**, I'm going to reproduce **FCN**, **Mask RCNN**, **DeepLab**, **UNet** later.
 
-[CSDN](https://blog.csdn.net/xiaoyyidiaodiao/category_11888930.html?spm=1001.2014.3001.5482)
++ Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
-[Quora(Chinese)Zhihu](https://www.zhihu.com/column/c_1523732135009198080)
+  + [CSDN](https://blog.csdn.net/xiaoyyidiaodiao/category_11888930.html?spm=1001.2014.3001.5482)
 
-You should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization) file
-package.
+  + [Quora(Chinese)Zhihu](https://www.zhihu.com/column/c_1523732135009198080)
 
-## Now, need to modify:
+In this project, you should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization).
+
+## Now, need to be added:
 
 ```
-1.RetinaNet
+1.object detection
+(CenterNet, FCOS, YOLO series, Faster RCNN)
+
+2.semantic segmentation
+(FCN, Mask RCNN, DeepLab, UNet)
 ```
 
 ## Compiling environment
@@ -47,6 +52,8 @@ Cython
 matplotlib
 
 opencv-python  (maybe you want to use skimage or PIL etc...)
+
+skimage
 
 tensorboard
 
@@ -119,10 +126,10 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----shufflenet.py
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
 |              |                 |                 |              |----Anchor.py
-|              |                 |                 |----backbone----|----__init__.py(Don't finish writing)
-|              |                 |                 |                |----DarkNet.py
-|              |                 |                 |                |----ResNet.py
-|              |                 |                 |                |----VovNet.py
+|              |                 |                 |----backbones----|----__init__.py(Don't finish writing)
+|              |                 |                 |                 |----DarkNet.py
+|              |                 |                 |                 |----ResNet.py
+|              |                 |                 |                 |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
 |              |                 |                 |            |----Head.py
 |              |                 |                 |
@@ -157,13 +164,17 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |                                             |----train_options.py
 |----results----|----SSD----|----COCO----|----coco_bbox_results.json
 |               |           |----VOC----|----annot_cache----|----XXX_pr.pkl
-|               |           |           |----detection----|----det_test_xxx.txt(eg: car AP)
+|               |           |           |----det----|----det_test_xxx.txt(eg: car AP)
 |               |           |           |----annots.pkl
 |               |           |           |----detections.pkl
 |               |           |           |----visualize.txt
 |               |           |----XX(name: 000478)_XX(coco or voc).jpg
-|               |----RetinaNet----|----COCO
-|               |                 |----VOC
+|               |----RetinaNet----|----COCO----|----coco_bbox_results.json
+|               |                 |----VOC----|----annot_cache----|----XXX_pr.pkl
+|                                 |           |----det----|----det_test_xxx.txt(eg: car)
+|                                 |           |----annots.pkl
+|                                 |           |----detections.pkl
+|                                 |----XX(name:000478)_XX(coco or voc).jpg            
 |----tensorboard(Loss Visualization)
 |----tools----|----classification----|----eval.py
 |             |                      |----train.py
@@ -195,13 +206,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
   1).EfficientNet
 
-  (They should be placed in backbone of object detection, but they are used to extract features, just like
-  classification networks)
-
-  1).DarkNet
-
-  2).VovNet
-
   (finished)
 
 **1).LeNet5(models/classification/lenet5.py)**[1]
@@ -222,8 +226,6 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
  gamma: 0.1
  poch: 30
  ```
-
-Total:
 
 | epochs |   times   |   avg top1 acc (%)  |  avg top5 acc (%)  |
 |:------:|:---------:|:-------------------:|:------------------:|
@@ -250,8 +252,6 @@ Total:
  epoch: 30
  ```
 
-Total:
-
 | epochs |  times   |   avg top1 acc (%)  |  avg top5 acc (%)  |
 |:------:|:--------:|:-------------------:|:------------------:|
 |   30   | 0h22m44s |        86.27        |        99.00       |
@@ -276,8 +276,6 @@ Total:
  gamma: 0.1
  epoch: 30
  ```
-
-Total:
 
 | epochs |  times   |   avg top1 acc (%)  | avg top5 acc (%) |
 |:------:|:--------:|:-------------------:|:----------------:|
@@ -385,7 +383,7 @@ Total:
 
 ***b).MobileNet_v3***[8]
 
-+ (1).Large
+###### (1).Large
 
 ![MobileNet_v3](images/icon/mobilenet_v3_large.png)
 
@@ -407,7 +405,7 @@ Total:
 |:--------:|:-----------:|:------------:|:------------:|
 |     5    |  3h58min13s |    71.15     |    90.32     |
 
-+ (2).Small
+###### (2).Small
 
 ![MobileNet_v3](images/icon/mobilenet_v3_small.png)
 
@@ -465,15 +463,17 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 ### 2.object detection
 
-- Reproduce network architectures
+*All models do not add tricks, so the accuracy will be lower than in previous papers. Although all models use COCO and VOC datasets, they are processed differently, so each model has its own data(dataloader), train, test and eval.*
 
-  1).Faster RCNN
-
-  2).YOLO
+- Reproduce network architectures 
+  - CenterNet
+  - FCOS
+  - YOLO series
+  - Faster RCNN
 
   (finished)
 
-**1.SSD(models/detection/SSD.py)**[10]
+**1.SSD(models/detection/SSD/ssd.py)**[10]
 
 ![SSD](images/icon/ssd.png)
 
@@ -489,12 +489,12 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  epoch: 115
 ```
 
-|  epochs  | batch norm |    times   | Mean AP  (%) |                  Download Baidu yun                   |     Code     |
-|:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
-|    115   |    False   |  5h10m46s  |      75.4    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
-|    115   |    True    |  4h58m37s  |      76.2    |[Link](https://pan.baidu.com/s/1-bv56Jj4o91odPNtLX8YkQ)|     evxx     |
+|  epochs  | batch norm | Mean AP  (%) |                  Download Baidu yun                   |      Key     |
+|:--------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
+|    115   |    False   |      75.4    |[Link](https://pan.baidu.com/s/1WfE58NdTtTo4XtH4_bWdew)|     xwaw     |
+|    115   |    True    |      76.2    |[Link](https://pan.baidu.com/s/1-bv56Jj4o91odPNtLX8YkQ)|     evxx     |
 
-+ visualize
+#### visualize
 
 ![ssd_voc_visualize](results/SSD/007099_voc.jpg)
 
@@ -510,12 +510,12 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  epoch: 55
 ```
 
-|  epochs  | batch norm |    times   | IoU=0.5 AP(%)|                  Download Baidu yun                   |     Code     |
-|:--------:|:----------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
-|    55    |    False   |  14h49m46s  |    38.0     |[Link](https://pan.baidu.com/s/1r9mzN6EXsYfQChz9QE932w)|     j6wn     |
-|    55    |    True    |  15h17m23s  |    37.7     |[Link](https://pan.baidu.com/s/18pKs05u5osoXdoMpj5rFWQ)|      7i64    |
+|  epochs  | batch norm | IoU=0.5 AP(%)|                  Download Baidu yun                   |      Key     |
+|:--------:|:----------:|:------------:|:-----------------------------------------------------:|:------------:|
+|    55    |    False   |    38.0     |[Link](https://pan.baidu.com/s/1r9mzN6EXsYfQChz9QE932w)|      j6wn     |
+|    55    |    True    |    37.7     |[Link](https://pan.baidu.com/s/18pKs05u5osoXdoMpj5rFWQ)|      7i64     |
 
-+ visualize
+#### visualize
 
 ![ssd_coco_visualize](results/SSD/324818_coco.jpg)
 ******************************
@@ -530,20 +530,18 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  neck: FPN
  loss: Focal Loss
  dataset: voc
- batch_size: 8
+ batch_size: 4
  optim: Adam
- lr: 0.00001
- scheduler: ReduceLROnPlateau
- patience: 3
- epoch: 30
- pretrained: True
+ lr: 0.0001
+ scheduler: WarmupCosineSchedule
+ epoch: 80
 ```
 
-|  epochs  |    times   | top1 acc (%) | top5 acc (%) |
-|:--------:|:----------:|:------------:|:------------:|
-|    30    |  44h29m40s |    xxxxx     |    xxxxx     |
+|  epochs  |    AP(%)   | Download Baidu yun |  Key |
+|:--------:|:----------:|:------------------:|:----:|
+|    80    |     xxx    |       xxxxx        | xxxx |
 
-+ visualize
+#### visualize
 
 ![retinanet_voc_visualize](results/retinanet/)
 
@@ -553,20 +551,20 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
  neck: FPN
  loss: Focal Loss
  dataset: coco
- batch_size: 8
+ batch_size: 4
  optim: Adam
- lr: 0.00001
+ lr: 0.0001
  scheduler: ReduceLROnPlateau
  patience: 3
  epoch: 30
  pretrained: True
 ```
 
-|  epochs  |    times   | top1 acc (%) | top5 acc (%) |
-|:--------:|:----------:|:------------:|:------------:|
-|    30    |  44h29m40s |    xxxxx     |    xxxxx     |
+|  epochs  |    AP(%)   | Download Baidu yun |  Key |
+|:--------:|:----------:|:------------------:|:----:|
+|    30    |    29.3    |        xxxxx       | xxxx |
 
-+ visualize
+#### visualize
 
 ![retinanet_coco_visualize](results/retinanet/)
 
@@ -580,13 +578,10 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD 
 
 ### 3.semantic segmentation
 
-- Reproduce network architectures
-
-  1.FCN
-
-  2.DeepLab
-
-  3.U-Net
+- Reproduce network architectures 
+  - FCN
+  - DeepLab
+  - U-Net
 
 ## references
 
