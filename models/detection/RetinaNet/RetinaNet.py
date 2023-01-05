@@ -11,9 +11,9 @@ import torch.nn as nn
 from torchvision.ops import nms
 from models.detection.RetinaNet.neck import FPN
 from models.detection.RetinaNet.loss import FocalLoss
-from models.detection.RetinaNet.anchors import Anchors
+from models.detection.RetinaNet.anchor import Anchors
 from models.detection.RetinaNet.head import clsHead, regHead
-from models.detection.RetinaNet.backbone.ResNet import ResNet
+from models.detection.RetinaNet.backbones.ResNet import ResNet
 from models.detection.RetinaNet.utils.ClipBoxes import ClipBoxes
 from models.detection.RetinaNet.utils.BBoxTransform import BBoxTransform
 
@@ -101,7 +101,7 @@ class RetinaNet(nn.Module):
             # scores
             finalScores = torch.Tensor([])
 
-            # anchors id:0~79
+            # anchor id:0~79
             finalAnchorBoxesIndexes = torch.Tensor([]).long()
 
             # coordinates size:[...,4]
@@ -124,7 +124,7 @@ class RetinaNet(nn.Module):
                 anchorBoxes = anchorBoxes[scores_over_thresh]
                 anchors_nms_idx = nms(anchorBoxes, scores, 0.5)
 
-                # use idx to find the scores of anchors
+                # use idx to find the scores of anchor
                 finalScores = torch.cat((finalScores, scores[anchors_nms_idx]))
                 # [0,0,0,...,1,1,1,...,79,79]
                 finalAnchorBoxesIndexesValue = torch.tensor([i] * anchors_nms_idx.shape[0])

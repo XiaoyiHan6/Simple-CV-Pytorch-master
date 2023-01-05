@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn as nn
 
 
-# anchors = [x_min, y_min, x_max, x_max]
+# anchor = [x_min, y_min, x_max, x_max]
 # set h,w = 640
 # P3 feature map-> h,w:[80,80]
 # P4 feature map-> h,w:[40,40]
@@ -34,18 +34,18 @@ class Anchors(nn.Module):
 
     def forward(self, image):
         """
-        generate anchors
+        generate anchor
         """
         # (B, C, W, H)
         image_shape = np.array(image.shape[2:])
         # (W and H) of feature map : [org/8, org/16, org/32, org/64, org/128]
         image_shapes = [(image_shape + 2 ** x - 1) // (2 ** x) for x in self.pyramid_levels]
 
-        # compute anchors over all pyramid levels
+        # compute anchor over all pyramid levels
         all_anchors = np.zeros((0, 4)).astype(np.float32)
 
         for idx, p in enumerate(self.pyramid_levels):
-            # the center of anchors is (0, 0), and generate the  information about 9 anchors,forms:(x1, y1, x2, y2)
+            # the center of anchor is (0, 0), and generate the  information about 9 anchor,forms:(x1, y1, x2, y2)
             anchors = generate_anchors(base_size=self.sizes[idx],
                                        ratios=self.ratios,
                                        scales=self.scales)
@@ -68,7 +68,7 @@ class Anchors(nn.Module):
 
 def generate_anchors(base_size=16, ratios=None, scales=None):
     """
-    Generate anchors (reference) windows by enumerating aspect ratios x
+    Generate anchor (reference) windows by enumerating aspect ratios x
     scales w.r.t. a reference window.
     """
     if ratios is None:
@@ -78,17 +78,17 @@ def generate_anchors(base_size=16, ratios=None, scales=None):
         # based on the reference of the base_size, like the operation of uniformization
         scales = np.array([2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)])
 
-    #  compute the total number of anchors
+    #  compute the total number of anchor
     num_anchors = len(ratios) * len(scales)
 
-    # initialize output anchors (9, 4), 4 indicate location
+    # initialize output anchor (9, 4), 4 indicate location
     anchors = np.zeros((num_anchors, 4))
 
     # scale base_size
     # np.tile (a, (2, 3)):(the x-axis of a)  copy twice, and (the y-axis of a) copy three times
     anchors[:, 2:] = base_size * np.tile(scales, (2, len(ratios))).T
 
-    # compute areas of anchors
+    # compute areas of anchor
     areas = anchors[:, 2] * anchors[:, 3]
     # areas = [1024,1625,2580, 1024,1625,2580, 1024,1625,2580]
 
@@ -109,12 +109,12 @@ def generate_anchors(base_size=16, ratios=None, scales=None):
 
 def shift(shape, stride, anchors):
     """
-    Produce shifted anchors based on shape of the map and stride size.
+    Produce shifted anchor based on shape of the map and stride size.
 
     Args:
-        shape: Shape to shift the anchors over.
-        stride: Stride to shift the anchors with over the shape.
-        anchors: The anchors to apply at each location.
+        shape: Shape to shift the anchor over.
+        stride: Stride to shift the anchor with over the shape.
+        anchors: The anchor to apply at each location.
     """
 
     shift_x = (np.arange(0, shape[1]) + 0.5) * stride
@@ -143,10 +143,10 @@ def shift(shape, stride, anchors):
         shift_x.ravel(), shift_y.ravel()
     )).transpose()
 
-    # add A anchors (1, A, 4) to
+    # add A anchor (1, A, 4) to
     # cell K shifts (K, 1, 4) to get
-    # shift anchors (K, A, 4)
-    # reshape to (K*A, 4) shifted anchors
+    # shift anchor (K, A, 4)
+    # reshape to (K*A, 4) shifted anchor
 
     A = anchors.shape[0]
     K = shifts.shape[0]

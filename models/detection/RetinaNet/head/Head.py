@@ -2,7 +2,7 @@
 # then, for clsHead, add 3x3 conv whose channels are (num_anchors x num_classes)
 # then, for regHead, add 3x3 conv whose channels are (num_anchors x 4)
 
-# num_anchors = total anchors of all levels FPN feature maps
+# num_anchors = total anchor of all levels FPN feature maps
 import math
 import torch
 import torch.nn as nn

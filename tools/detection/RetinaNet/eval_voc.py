@@ -14,7 +14,7 @@ import numpy as np
 from tqdm import tqdm
 from utils.get_logger import get_logger
 from data.detection.RetinaNet.voc import VOC_CLASSES as labelmap
-from options.detection.RetinaNet.eval_options import args, cfg, dataset_eval, VOC_ROOT, model
+from options.detection.RetinaNet.eval_options import args, dataset_eval, VOC_ROOT, model
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET

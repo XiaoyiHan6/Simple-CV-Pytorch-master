@@ -15,7 +15,7 @@ class FocalLoss(nn.Module):
         # (..., 4) 4 indicate location
         anchor = anchors[0, :, :]
 
-        # anchors is xyxy, so change it to xywh
+        # anchor is xyxy, so change it to xywh
         anchor_widths = anchor[:, 2] - anchor[:, 0]
         anchor_heights = anchor[:, 3] - anchor[:, 1]
         anchor_ctr_x = anchor[:, 0] + 0.5 * anchor_widths
@@ -133,7 +133,7 @@ class FocalLoss(nn.Module):
                 gt_heights = torch.clamp(gt_heights, min=1)
 
                 # smooth L1 loss
-                # gt (anchors) -> targets
+                # gt (anchor) -> targets
                 targets_dx = (gt_ctr_x - anchor_ctr_x_pi) / anchor_widths_pi
                 targets_dy = (gt_ctr_y - anchor_ctr_y_pi) / anchor_heights_pi
                 targets_dw = torch.log(gt_widths / anchor_widths_pi)

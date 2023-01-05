@@ -39,7 +39,7 @@ def parse_args():
                         default=detection_evaluate,
                         help='Checkpoint state_dict file to evaluate training from')
     parser.add_argument('--visual_threshold',
-                        default=0.6,
+                        default=0.5,
                         type=float,
                         help='Final confidence threshold')
     parser.add_argument('--save_folder',
@@ -48,7 +48,7 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/retinanet_voc.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/retinanet_coco.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()
