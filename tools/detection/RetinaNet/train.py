@@ -150,8 +150,8 @@ if __name__ == '__main__':
                 elif cfg['DATA']['NAME'] == 'COCO':
                     print("waiting eval COCO, model RetinaNet...")
                     aps = eval_coco(dataset_val, retinanet_eval)
-                    maps = aps[1]
-            logger.info(f"IoU=0.5, Mean AP = {maps:.3f}")
+                    maps = aps[0]
+            logger.info(f"AP = {maps:.3f}")
             if maps > best_map:
                 print("Saving best mAP state, epoch: {} | iter: {}".format(str(epoch_num + 1), iter))
                 torch.save(model.module.state_dict(), args.save_folder + '/' + cfg['MODEL']['NAME'].lower()
