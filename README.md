@@ -3,8 +3,7 @@
 This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
 later.
 
-+ **For classification**, I reproduced **LeNet5**, **VGG**, **AlexNet**, **ResNet**(**ResNeXt**), **GoogLeNet**, **
-  MobileNet**, **shuffleNet**. Then I will reproduce **EiffcientNet**, etc.
++ **For classification**, I reproduced **LeNet5**, **VGG**, **AlexNet**, **ResNet**(**ResNeXt**), **GoogLeNet**,**MobileNet**, **shuffleNet**. Then I will reproduce **EiffcientNet**, etc.
 
 + **For object detection**, I reproduced **RetinaNet** and **SSD** (I broke the code up into modules, such as backbone,
   neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like **
