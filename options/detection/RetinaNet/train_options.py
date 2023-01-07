@@ -119,12 +119,12 @@ class set_config(object):
     iter_size = len(dataset_train) // cfg['OPTIMIZE']['BATCH_SIZE']
 
     if cfg['MODEL']['BACKBONE']['NAME'] == 'resnet':
-        model = RetinaNet(resnet_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
+        model = RetinaNet(backbones_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
                           num_classes=dataset_train.num_classes(),
                           pretrained=args.pretrained,
                           training=args.training)
 
-        model_eval = RetinaNet(resnet_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
+        model_eval = RetinaNet(backbones_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
                                num_classes=dataset_val.num_classes(),
                                training=False)
     else:

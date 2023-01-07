@@ -81,6 +81,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----000003.jpg
 |              |                 |----000003.xml
 |----images----|----icon----|----alexnet.png
+|                           |----darknet19.png
+|                           |----darknet53.png
+|                           |----darknettiny.png
 |                           |----googlenet.png
 |                           |----lenet5.png
 |                           |----mobilenet_v2.png
@@ -107,10 +110,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----shufflenet.py
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
 |              |                 |                 |              |----Anchor.py
-|              |                 |                 |----backbones----|----__init__.py(Don't finish writing)
+|              |                 |                 |----backbones----|----__init__.py
 |              |                 |                 |                 |----DarkNet.py
 |              |                 |                 |                 |----ResNet.py
-|              |                 |                 |                 |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
 |              |                 |                 |            |----Head.py
 |              |                 |                 |

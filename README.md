@@ -1,20 +1,25 @@
 # Simple-CV-Pytorch-master
 
-This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added later.
+This code includes detection and classification tasks in Computer Vision, and semantic segmentation task will be added
+later.
 
-+ **For classification**, I reproduced **LeNet5**, **VGG**, **AlexNet**, **ResNet**(**ResNeXt**), **GoogLeNet**, **MobileNet**, **shuffleNet**. Then I will reproduce **EiffcientNet**, etc.
++ **For classification**, I reproduced **LeNet5**, **VGG**, **AlexNet**, **ResNet**(**ResNeXt**), **GoogLeNet**, **
+  MobileNet**, **shuffleNet**. Then I will reproduce **EiffcientNet**, etc.
 
-+ **For object detection**, I reproduced **RetinaNet** and **SSD** (I broke the code up into modules, such as backbone, neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like **CenterNet**, **FCOS**, **YOLO series**, **Faster RCNN**) will be added later.
++ **For object detection**, I reproduced **RetinaNet** and **SSD** (I broke the code up into modules, such as backbone,
+  neck, head,loss,etc.This makes it easier to modify and add code.) Of course, other object detection algorithms(like **
+  CenterNet**, **FCOS**, **YOLO series**, **Faster RCNN**) will be added later.
 
 + **For semantic segmentation**, I'm going to reproduce **FCN**, **Mask RCNN**, **DeepLab**, **UNet** later.
 
 + Detailed explanation has been published on CSDN and Quora(Chinese) Zhihu.
 
-  + [CSDN](https://blog.csdn.net/xiaoyyidiaodiao/category_11888930.html?spm=1001.2014.3001.5482)
+    + [CSDN](https://blog.csdn.net/xiaoyyidiaodiao/category_11888930.html?spm=1001.2014.3001.5482)
 
-  + [Quora(Chinese)Zhihu](https://www.zhihu.com/column/c_1523732135009198080)
+    + [Quora(Chinese)Zhihu](https://www.zhihu.com/column/c_1523732135009198080)
 
-In this project, you should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss visualization).
+In this project, you should create **checkpoint**(model save), **log**, **results** and **tenshorboard**(loss
+visualization).
 
 ## Now, need to be added:
 
@@ -99,6 +104,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                 |----000003.jpg
 |              |                 |----000003.xml
 |----images----|----icon----|----alexnet.png
+|                           |----darknet19.png
+|                           |----darknet53.png
+|                           |----darknettiny.png                   
 |                           |----googlenet.png
 |                           |----lenet5.png
 |                           |----mobilenet_v2.png
@@ -125,10 +133,9 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 |              |                      |----shufflenet.py
 |              |----detection----|----RetinaNet----|----anchor----|----__init__.py
 |              |                 |                 |              |----Anchor.py
-|              |                 |                 |----backbones----|----__init__.py(Don't finish writing)
+|              |                 |                 |----backbones----|----__init__.py
 |              |                 |                 |                 |----DarkNet.py
 |              |                 |                 |                 |----ResNet.py
-|              |                 |                 |                 |----VovNet.py
 |              |                 |                 |----head----|----__init__.py
 |              |                 |                 |            |----Head.py
 |              |                 |                 |
@@ -198,7 +205,8 @@ Simple-CV-master path: /data/PycharmProject/Simple-CV-Pytorch-master
 
 ## Run the program
 
-*Since there is not much time to adjust the accuracy, the accuracy of all models will be lower than the accuracy of the model in the paper.If you want to use the models in this project, you need to readjust the parameters and accuracy.*
+*Since there is not much time to adjust the accuracy, the accuracy of all models will be lower than the accuracy of the
+model in the paper.If you want to use the models in this project, you need to readjust the parameters and accuracy.*
 
 ### 1.classification
 
@@ -463,13 +471,14 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 
 ### 2.object detection
 
-*Although all models use COCO and VOC datasets, they are processed differently, so each model has its own data(dataloader), train, test and eval.*
+*Although all models use COCO and VOC datasets, they are processed differently, so each model has its own data(
+dataloader), train, test and eval.*
 
-- Reproduce network architectures 
-  - CenterNet
-  - FCOS
-  - YOLO series
-  - Faster RCNN
+- Reproduce network architectures
+    - CenterNet
+    - FCOS
+    - YOLO series
+    - Faster RCNN
 
   (finished)
 
@@ -526,6 +535,31 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/classification/XXX.py
 **2.RetinaNet(models/detection/RetinaNet.py)**[11]
 
 ![RetinaNet](images/icon/retinanet.png)
+******************************
+
+##### Backbones
+
+###### ResNet
+
+Do not show
+******************************
+
+###### DarkTiny
+
+![DarkNetTiny](images/icon/darknettiny.png)
+
+******************************
+
+###### DarkNet19
+
+![DarkNet19](images/icon/darknet19.png)
+
+******************************
+
+###### DarkNet53
+
+![DarkNet53](images/icon/darknet53.png)
+******************************
 
 ```
  Network: RetinaNet
@@ -587,10 +621,10 @@ python /data/PycharmProject/Simple-CV-Pytorch-master/tools/detection/XXX(eg:SSD 
 
 ### 3.semantic segmentation
 
-- Reproduce network architectures 
-  - FCN
-  - DeepLab
-  - U-Net
+- Reproduce network architectures
+    - FCN
+    - DeepLab
+    - U-Net
 
 ## references
 

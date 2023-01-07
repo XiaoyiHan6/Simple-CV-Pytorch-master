@@ -44,7 +44,7 @@ def parse_args():
                         help='Directory for saving checkpoint models')
     parser.add_argument('--config',
                         type=str,
-                        default='{}/configs/detection/retinanet_voc.yaml'.format(BASE_DIR),
+                        default='{}/configs/detection/retinanet_coco.yaml'.format(BASE_DIR),
                         help='configuration file *.yaml')
 
     return parser.parse_args()
@@ -96,7 +96,7 @@ class set_config(object):
         raise ValueError('Dataset type not understood (must be VOC or COCO), exiting.')
 
     if cfg['MODEL']['BACKBONE']['NAME'] == 'resnet':
-        model = RetinaNet(resnet_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
+        model = RetinaNet(backbones_type=cfg['MODEL']['BACKBONE']['NAME'] + str(cfg['MODEL']['BACKBONE']['DEPTH']),
                           num_classes=dataset_eval.num_classes(),
                           training=args.training)
     else:

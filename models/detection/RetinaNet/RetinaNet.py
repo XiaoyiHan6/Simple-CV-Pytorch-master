@@ -16,24 +16,32 @@ from models.detection.RetinaNet.head import clsHead, regHead
 from models.detection.RetinaNet.backbones.ResNet import ResNet
 from models.detection.RetinaNet.utils.ClipBoxes import ClipBoxes
 from models.detection.RetinaNet.utils.BBoxTransform import BBoxTransform
+from models.detection.RetinaNet.backbones.DarkNet import DarkNetTiny, DarkNet19, DarkNet53
 
 
 # assert input annotations are [x_min, y_min, x_max, y_max]
 class RetinaNet(nn.Module):
     def __init__(self,
-                 resnet_type="resnet50",
+                 backbones_type="resnet50",
                  num_classes=80,
                  planes=256,
                  pretrained=False,
                  training=False):
         super(RetinaNet, self).__init__()
-        self.resnet_type = resnet_type
+        self.backbones_type = backbones_type
         # coco 80, voc 20
         self.num_classes = num_classes
         self.planes = planes
         self.training = training
-        self.backbone = ResNet(resnet_type=resnet_type,
-                               pretrained=pretrained)
+        if backbones_type[:6] == 'resnet':
+            self.backbone = ResNet(resnet_type=self.backbones_type,
+                                   pretrained=pretrained)
+        elif backbones_type == 'darknettiny':
+            self.backbone = DarkNetTiny()
+        elif backbones_type == 'darknet19':
+            self.backbone = DarkNet19()
+        elif backbones_type == 'darknet53':
+            self.backbone = DarkNet53()
         expand_ratio = {
             "resnet18": 1,
             "resnet34": 1,
@@ -43,9 +51,9 @@ class RetinaNet(nn.Module):
         }
 
         C3_inplanes, C4_inplanes, C5_inplanes = \
-            int(128 * expand_ratio[resnet_type]), \
-            int(256 * expand_ratio[resnet_type]), \
-            int(512 * expand_ratio[resnet_type])
+            int(128 * expand_ratio[self.backbones_type]), \
+            int(256 * expand_ratio[self.backbones_type]), \
+            int(512 * expand_ratio[self.backbones_type])
         self.fpn = FPN(C3_inplanes=C3_inplanes,
                        C4_inplanes=C4_inplanes,
                        C5_inplanes=C5_inplanes,
@@ -142,7 +150,7 @@ class RetinaNet(nn.Module):
 if __name__ == "__main__":
     C = torch.randn([8, 3, 512, 512])
     annot = torch.randn([8, 15, 5])
-    model = RetinaNet(resnet_type="resnet50", num_classes=80, pretrained=True, training=True)
+    model = RetinaNet(backbones_type="resnet50", num_classes=80, pretrained=True, training=True)
     model = model.cuda()
     C = C.cuda()
     annot = annot.cuda()
