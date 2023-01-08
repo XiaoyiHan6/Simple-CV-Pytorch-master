@@ -37,7 +37,7 @@ class ResNet(nn.Module):
 
 
 if __name__ == "__main__":
-    backbone = ResNet(pretrained=True)
+    backbone = ResNet(resnet_type='resnet18', pretrained=True)
     x = torch.randn([16, 3, 512, 512])
     C3, C4, C5 = backbone(x)
     print(C3.shape)  # torch.Size([16, 512, 64, 64])

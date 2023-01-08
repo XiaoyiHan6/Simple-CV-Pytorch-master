@@ -47,7 +47,10 @@ class RetinaNet(nn.Module):
             "resnet34": 1,
             "resnet50": 4,
             "resnet101": 4,
-            "resnet152": 4
+            "resnet152": 4,
+            "darknettiny": 0.5,
+            "darknet19": 1,
+            "darknet53": 2
         }
 
         C3_inplanes, C4_inplanes, C5_inplanes = \
@@ -150,7 +153,7 @@ class RetinaNet(nn.Module):
 if __name__ == "__main__":
     C = torch.randn([8, 3, 512, 512])
     annot = torch.randn([8, 15, 5])
-    model = RetinaNet(backbones_type="resnet50", num_classes=80, pretrained=True, training=True)
+    model = RetinaNet(backbones_type="darknet19", num_classes=80, pretrained=True, training=True)
     model = model.cuda()
     C = C.cuda()
     annot = annot.cuda()

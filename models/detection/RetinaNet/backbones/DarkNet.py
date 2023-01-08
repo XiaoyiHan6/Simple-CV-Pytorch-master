@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -52,9 +53,11 @@ class DarkNetTiny(nn.Module):
                                has_act=True, act_type=act_type)
         self.conv6 = ConvBlock(inplanes=256, planes=512, kernel_size=3, stride=1, padding=1, groups=1, has_bn=True,
                                has_act=True, act_type=act_type)
-        self.zeropad = nn.ZeroPad2d((0, 1, 0, 1))
+
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.out_channels = [128, 256, 512]
+        self.zeropad = nn.ZeroPad2d((0, 1, 0, 1))
+        self.last_maxpool = nn.MaxPool2d(kernel_size=2, stride=1)
+        self.out_channels = [64, 128, 256]
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -63,25 +66,21 @@ class DarkNetTiny(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-    def foward(self, x):
+    def forward(self, x):
         x = self.conv1(x)
         x = self.maxpool(x)
 
         x = self.conv2(x)
         x = self.maxpool(x)
 
-        x = self.conv3(x)
-        x = self.maxpool(x)
+        C3 = self.conv3(x)
+        C3 = self.maxpool(C3)
 
-        C3 = self.conv4(x)
-        C3 = self.maxpool(C3)  # 128
+        C4 = self.conv4(C3)
+        C4 = self.maxpool(C4)  # 128
 
-        C4 = self.conv5(C3)
-        C4 = self.maxpool(C4)  # 256
-
-        C5 = self.conv6(C4)
-        C5 = self.zeropad(C5)
-        C5 = self.maxpool(C5)  # 512
+        C5 = self.conv5(C4)
+        C5 = self.maxpool(C5)  # 256
 
         del x
         return [C3, C4, C5]
@@ -120,7 +119,7 @@ class DarkNet19(nn.Module):
         self.layer1 = ConvBlock(inplanes=3, planes=32, kernel_size=3, stride=1, padding=1, groups=1, has_bn=True,
                                 has_act=True, act_type=act_type)
         self.layer2 = D19Block(inplanes=32, planes=64, layer_num=1, use_maxpool=True, act_type=act_type)
-        self.layer3 = D19Block(inplanes=65, planes=128, layer_num=3, use_maxpool=True, act_type=act_type)
+        self.layer3 = D19Block(inplanes=64, planes=128, layer_num=3, use_maxpool=True, act_type=act_type)
         self.layer4 = D19Block(inplanes=128, planes=256, layer_num=3, use_maxpool=True, act_type=act_type)
         self.layer5 = D19Block(inplanes=256, planes=512, layer_num=5, use_maxpool=True, act_type=act_type)
         self.layer6 = D19Block(inplanes=512, planes=1024, layer_num=5, use_maxpool=False, act_type=act_type)
@@ -135,13 +134,13 @@ class DarkNet19(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
-        x = self.model.layer1(x)
-        x = self.model.maxpool(x)
-        x = self.model.layer2(x)
+        x = self.layer1(x)
+        x = self.maxpool(x)
+        x = self.layer2(x)
 
-        C3 = self.model.layer3(x)
-        C4 = self.model.layer4(C3)
-        C5 = self.model.layer5(C4)
+        C3 = self.layer3(x)
+        C4 = self.layer4(C3)
+        C5 = self.layer5(C4)
 
         del x
         return [C3, C4, C5]
@@ -202,7 +201,7 @@ class DarkNet53(nn.Module):
             BasicBlock(inplanes=512, planes=256),
             BasicBlock(inplanes=512, planes=256),
             ConvBlock(inplanes=512, planes=1024, kernel_size=3, stride=2, padding=1)
-        )
+        )  # 1024
 
         self.block5 = nn.Sequential(
             BasicBlock(inplanes=1024, planes=512),
@@ -211,7 +210,7 @@ class DarkNet53(nn.Module):
             BasicBlock(inplanes=1024, planes=512)
         )
 
-        self.out_channels = [128, 256, 512]
+        self.out_channels = [256, 512, 1024]
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -223,8 +222,33 @@ class DarkNet53(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
-        C3 = self.block1(x)
-        C4 = self.block2(C3)
-        C5 = self.block3(C4)
+        x = self.block1(x)
+        C3 = self.block2(x)
+        C4 = self.block3(C3)
+        C5 = self.block4(C4)
         del x
         return [C3, C4, C5]
+
+
+if __name__ == '__main__':
+    x = torch.randn([8, 3, 512, 512])
+    darknet = DarkNetTiny()
+    [C3, C4, C5] = darknet(x)
+    print("C3.shape:{}".format(C3.shape))
+    print("C4.shape:{}".format(C4.shape))
+    print("C5.shape:{}".format(C5.shape))
+
+    # DarkNet53
+    # C3.shape: torch.Size([8, 256, 64, 64])
+    # C4.shape: torch.Size([8, 512, 32, 32])
+    # C5.shape: torch.Size([8, 1024, 16, 16])
+
+    # DarkNet19
+    # C3.shape: torch.Size([8, 128, 64, 64])
+    # C4.shape: torch.Size([8, 256, 32, 32])
+    # C5.shape: torch.Size([8, 512, 16, 16])
+
+    # DarkNetTiny
+    # C3.shape: torch.Size([8, 64, 64, 64])
+    # C4.shape: torch.Size([8, 128, 32, 32])
+    # C5.shape: torch.Size([8, 256, 16, 16])
