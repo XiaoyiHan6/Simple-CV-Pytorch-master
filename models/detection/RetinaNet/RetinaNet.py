@@ -36,12 +36,8 @@ class RetinaNet(nn.Module):
         if backbones_type[:6] == 'resnet':
             self.backbone = ResNet(resnet_type=self.backbones_type,
                                    pretrained=pretrained)
-        elif backbones_type == 'darknettiny':
-            self.backbone = DarkNet(darknet_type='darknettiny')
-        elif backbones_type == 'darknet19':
-            self.backbone = DarkNet(darknet_type='darknet19')
-        elif backbones_type == 'darknet53':
-            self.backbone = DarkNet(darknet_type='darknet53')
+        elif backbones_type[:7] == 'darknet':
+            self.backbone = DarkNet(darknet_type=self.backbones_type)
         expand_ratio = {
             "resnet18": 1,
             "resnet34": 1,
