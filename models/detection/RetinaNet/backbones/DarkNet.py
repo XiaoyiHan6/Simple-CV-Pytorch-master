@@ -1,6 +1,28 @@
 import torch
 import torch.nn as nn
 
+__all__ = [
+    'darknettiny',
+    'darknet19',
+    'darknet53',
+]
+
+
+class DarkNet(nn.Module):
+    def __init__(self, darknet_type='darknet19'):
+        super(DarkNet, self).__init__()
+        self.darknet_type = darknet_type
+        if darknet_type == 'darknettiny':
+            self.model = darknettiny()
+        elif darknet_type == 'darknet19':
+            self.model = darknet19()
+        elif darknet_type == 'darknet53':
+            self.model = darknet53()
+
+    def forward(self, x):
+        out = self.model(x)
+        return out
+
 
 class ActBlock(nn.Module):
     def __init__(self, act_type='leakyrelu', inplace=True):
@@ -230,9 +252,24 @@ class DarkNet53(nn.Module):
         return [C3, C4, C5]
 
 
+def darknettiny(**kwargs):
+    model = DarkNetTiny(**kwargs)
+    return model
+
+
+def darknet19(**kwargs):
+    model = DarkNet19(**kwargs)
+    return model
+
+
+def darknet53(**kwargs):
+    model = DarkNet53(**kwargs)
+    return model
+
+
 if __name__ == '__main__':
     x = torch.randn([8, 3, 512, 512])
-    darknet = DarkNetTiny()
+    darknet = DarkNet(darknet_type='darknet53')
     [C3, C4, C5] = darknet(x)
     print("C3.shape:{}".format(C3.shape))
     print("C4.shape:{}".format(C4.shape))

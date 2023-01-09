@@ -15,8 +15,8 @@ from models.detection.RetinaNet.anchor import Anchors
 from models.detection.RetinaNet.head import clsHead, regHead
 from models.detection.RetinaNet.backbones.ResNet import ResNet
 from models.detection.RetinaNet.utils.ClipBoxes import ClipBoxes
+from models.detection.RetinaNet.backbones.DarkNet import DarkNet
 from models.detection.RetinaNet.utils.BBoxTransform import BBoxTransform
-from models.detection.RetinaNet.backbones.DarkNet import DarkNetTiny, DarkNet19, DarkNet53
 
 
 # assert input annotations are [x_min, y_min, x_max, y_max]
@@ -37,11 +37,11 @@ class RetinaNet(nn.Module):
             self.backbone = ResNet(resnet_type=self.backbones_type,
                                    pretrained=pretrained)
         elif backbones_type == 'darknettiny':
-            self.backbone = DarkNetTiny()
+            self.backbone = DarkNet(darknet_type='darknettiny')
         elif backbones_type == 'darknet19':
-            self.backbone = DarkNet19()
+            self.backbone = DarkNet(darknet_type='darknet19')
         elif backbones_type == 'darknet53':
-            self.backbone = DarkNet53()
+            self.backbone = DarkNet(darknet_type='darknet53')
         expand_ratio = {
             "resnet18": 1,
             "resnet34": 1,
