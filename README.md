@@ -56,7 +56,7 @@ matplotlib
 
 opencv-python  (maybe you want to use skimage or PIL etc...)
 
-skimage
+scikit-image
 
 tensorboard
 
