@@ -7,6 +7,6 @@ numpy
 Cython
 matplotlib
 opencv-python
-skimage
+scikit-image
 tensorboard
 tqdm
